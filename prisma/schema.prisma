@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BuyerProfile {
+  id                     String       @id @default(cuid())
+  clerkUserId            String       @unique
+  fullName               String
+  defaultShippingAddress String?
+  carts                  Cart[]
+  orders                 BuyerOrder[]
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  buyerId   String
+  buyer     BuyerProfile @relation(fields: [buyerId], references: [id])
+  status    CartStatus @default(ACTIVE)
+  items     CartItem[]
+}
+
+enum CartStatus {
+  ACTIVE
+  ABANDONED
+  CONVERTED
+}
+
+model CartItem {
+  id                String  @id @default(cuid())
+  cartId            String
+  cart              Cart    @relation(fields: [cartId], references: [id])
+  externalProductId String  // ID del producto en la Seller App
+  quantity          Int
+  cachedPrice       Decimal // snapshot del precio al agregar al carrito
+}
+
+model BuyerOrder {
+  id                    String           @id @default(cuid())
+  buyerId               String
+  buyer                 BuyerProfile     @relation(fields: [buyerId], references: [id])
+  totalAmount           Decimal
+  status                BuyerOrderStatus @default(PENDING_PAYMENT)
+  externalTransactionId String?          // referencia a Payments App
+  trackingId            String?          // referencia a Shipping App, null hasta el despacho
+  shipmentStatus        String?          // último estado recibido de Shipping App
+  items                 BuyerOrderItem[]
+}
+
+enum BuyerOrderStatus {
+  PENDING_PAYMENT
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model BuyerOrderItem {
+  id                String     @id @default(cuid())
+  buyerOrderId      String
+  order             BuyerOrder @relation(fields: [buyerOrderId], references: [id])
+  externalProductId String     // ID del producto en la Seller App
+  productName       String     // snapshot del nombre al momento de la compra
+  quantity          Int
+  unitPrice         Decimal    // snapshot del precio al momento de la compra
+}
