@@ -5,11 +5,11 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model BuyerProfile {
-  id                     String       @id @default(cuid())
-  clerkUserId            String       @unique
+  id                     String       @id      // id es clerk_user_id
   fullName               String
   defaultShippingAddress String?
   carts                  Cart[]
@@ -18,8 +18,8 @@ model BuyerProfile {
 
 model Cart {
   id        String     @id @default(cuid())
-  buyerId   String
-  buyer     BuyerProfile @relation(fields: [buyerId], references: [id])
+  buyerId   String         //buyer_clerk_id
+  buyer     BuyerProfile @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   status    CartStatus @default(ACTIVE)
   items     CartItem[]
 }
@@ -35,19 +35,23 @@ model CartItem {
   cartId            String
   cart              Cart    @relation(fields: [cartId], references: [id])
   externalProductId String  // ID del producto en la Seller App
+  productName       String  // nombre al momento de agregar al carrito
   quantity          Int
-  cachedPrice       Decimal // snapshot del precio al agregar al carrito
+  cachedPrice       Decimal // precio al momento de agregarlo al carrito
+  sellerId          String  // necesario para validar checkout mono-vendedor
 }
 
 model BuyerOrder {
   id                    String           @id @default(cuid())
   buyerId               String
   buyer                 BuyerProfile     @relation(fields: [buyerId], references: [id])
+  sellerId              String           // necesario para enviar a Payments App en el checkout
   totalAmount           Decimal
   status                BuyerOrderStatus @default(PENDING_PAYMENT)
-  externalTransactionId String?          // referencia a Payments App
+  externalTransactionId String?          // referencia a Payments App, null hasta que se inicia el pago
   trackingId            String?          // referencia a Shipping App, null hasta el despacho
-  shipmentStatus        String?          // último estado recibido de Shipping App
+  courier               String?          // Snapshot logístico recibido por webhook
+  shipmentStatus        String?          // ultimo estado recibido de Shipping App
   items                 BuyerOrderItem[]
 }
 
@@ -57,6 +61,7 @@ enum BuyerOrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  PAYMENT_FAILED
 }
 
 model BuyerOrderItem {
