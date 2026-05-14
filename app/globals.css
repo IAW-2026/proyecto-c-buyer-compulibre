@@ -1,26 +1,27 @@
 @import "tailwindcss";
 
+/* ── CompuLibre Design System ─────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Paleta oficial */
+  --cl-primary:   #485696; /* Azul Tecnológico  — header, links, nav   */
+  --cl-cta:       #FC7A1E; /* Naranja Vibrante  — carrito, compra, CTA */
+  --cl-accent:    #F9C784; /* Amarillo Suave    — badges, alertas       */
+  --cl-bg:        #E7E7E7; /* Gris Claro        — fondo base            */
+
+  /* Neutrales */
+  --cl-surface:   #FFFFFF; /* Blanco            — tarjetas, modales     */
+  --cl-text:      #1F2937; /* Gris Oscuro       — títulos, descripciones */
+  --cl-text-muted:#6B7280; /* Gris Medio        — textos auxiliares      */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--cl-bg);
+  --color-foreground: var(--cl-text);
+  --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cl-bg);
+  color: var(--cl-text);
+  /* La fuente la aplica layout.tsx via --font-inter; no redefinir aquí */
 }
