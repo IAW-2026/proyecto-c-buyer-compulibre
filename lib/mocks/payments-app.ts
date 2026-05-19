@@ -20,7 +20,7 @@ export async function initMockPayment(
   return {
     transactionId,
     // En Etapa 3 esta URL vendrá de MercadoPago / Stripe / etc.
-    checkoutUrl: `/checkout/mock-payment?txn=${transactionId}&orderId=${request.orderId}`,
+    checkoutUrl: `/checkout/mock-payment?txn=${transactionId}&orderId=${request.orderReference}`,
     status: "PENDING",
   };
 }

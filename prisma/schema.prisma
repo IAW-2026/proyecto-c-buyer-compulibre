@@ -12,6 +12,7 @@ model BuyerProfile {
   id                     String       @id      // id es clerk_user_id
   fullName               String
   defaultShippingAddress String?
+  isActive               Boolean      @default(true)
   carts                  Cart[]
   orders                 BuyerOrder[]
 }
@@ -20,6 +21,8 @@ model Cart {
   id        String     @id @default(cuid())
   buyerId   String         //buyer_clerk_id
   buyer     BuyerProfile @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   status    CartStatus @default(ACTIVE)
   items     CartItem[]
 }
@@ -43,7 +46,7 @@ model CartItem {
 
 model BuyerOrder {
   id                    String           @id @default(cuid())
-  buyerId               String
+  buyerId               String           // buyer_clerk_id
   buyer                 BuyerProfile     @relation(fields: [buyerId], references: [id])
   sellerId              String           // necesario para enviar a Payments App en el checkout
   totalAmount           Decimal
@@ -51,7 +54,9 @@ model BuyerOrder {
   externalTransactionId String?          // referencia a Payments App, null hasta que se inicia el pago
   trackingId            String?          // referencia a Shipping App, null hasta el despacho
   courier               String?          // Snapshot logístico recibido por webhook
-  shipmentStatus        String?          // ultimo estado recibido de Shipping App
+  shipmentStatus        String?          // (LABEL_CREATED, IN_TRANSIT, DELIVERED),  ultimo estado recibido de Shipping App
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
   items                 BuyerOrderItem[]
 }
 

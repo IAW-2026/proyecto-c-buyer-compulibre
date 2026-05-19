@@ -72,10 +72,16 @@ export interface SellerProduct {
 // ─── Mocks: Payments App ─────────────────────────────────────────────────────
 
 export interface PaymentInitRequest {
-  orderId: string;
+  orderReference: string;
   amount: number;
+  currency: string;
   sellerId: string;
   buyerId: string;
+  items: Array<{
+    productId: string;
+    quantity: number;
+    name: string;
+  }>;
 }
 
 export interface PaymentInitResponse {
