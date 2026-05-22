@@ -9,8 +9,6 @@ import { getBuyerProfile } from "@/lib/db/profile";
 
 import ProfileRedirector from "@/components/ProfileRedirector";
 
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Productos — CompuLibre",
   description:
