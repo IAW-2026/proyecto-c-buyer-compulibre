@@ -1,18 +1,20 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { SignInButton, Show, UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 
-/**
- * Navbar principal de CompuLibre.
- * Server Component: Show es el wrapper condicional del SDK actual de Clerk.
- * SignedIn/SignedOut eran la API de Core 2 — reemplazados por <Show when="signed-in/out">.
- */
 export default function Navbar() {
+  const { isLoaded, isSignedIn } = useUser();
+
   return (
     <header className="sticky top-0 z-50 w-full bg-[#485696] shadow-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/products" className="flex items-center gap-2 shrink-0 scale-125 origin-left ml-2">
+        <Link
+          href="/products"
+          className="flex items-center gap-2 shrink-0 scale-125 origin-left ml-2"
+        >
           <Image
             src="/assets/logo.png"
             alt="CompuLibre"
@@ -26,7 +28,6 @@ export default function Navbar() {
 
         {/* Acciones del usuario */}
         <div className="flex items-center gap-3">
-          {/* Carrito — placeholder hasta implementar carrito */}
           <Link
             href="/cart"
             aria-label="Ver carrito"
@@ -36,24 +37,24 @@ export default function Navbar() {
             <span className="hidden sm:inline">Carrito</span>
           </Link>
 
-          {/* Auth Clerk */}
-          <Show when="signed-out">
-            <SignInButton mode="modal">
-              <button className="rounded-lg bg-[#FC7A1E] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-90">
-                Iniciar sesión
-              </button>
-            </SignInButton>
-          </Show>
-
-          <Show when="signed-in">
+          {/* Deterministic reactive rendering based on session loading status */}
+          {!isLoaded ? (
+            // Placeholder sutil de carga con las mismas dimensiones para evitar saltos visuales
+            <div className="h-8 w-8 animate-pulse rounded-full bg-white/25" />
+          ) : isSignedIn ? (
             <UserButton
               appearance={{
-                elements: {
-                  avatarBox: "h-8 w-8",
-                },
+                elements: { avatarBox: "h-8 w-8" },
               }}
             />
-          </Show>
+          ) : (
+            <Link
+              href="/sign-in"
+              className="rounded-lg bg-[#FC7A1E] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-90"
+            >
+              Iniciar sesión
+            </Link>
+          )}
         </div>
       </div>
     </header>

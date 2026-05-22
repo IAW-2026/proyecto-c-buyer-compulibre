@@ -4,6 +4,12 @@ import { getMockProducts } from "@/lib/mocks/seller-app";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
+import { auth } from "@clerk/nextjs/server";
+import { getBuyerProfile } from "@/lib/db/profile";
+
+import ProfileRedirector from "@/components/ProfileRedirector";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Productos — CompuLibre",
@@ -24,6 +30,15 @@ export default async function ProductsPage({
 }: {
   searchParams: SearchParams;
 }) {
+  // Verificación de BuyerProfile para usuarios autenticados
+  const { userId } = await auth();
+  if (userId) {
+    const profile = await getBuyerProfile();
+    if (!profile) {
+      return <ProfileRedirector />;
+    }
+  }
+
   // Next.js 15+: searchParams es una Promise, hay que awaitearlo
   const params = await searchParams;
 
