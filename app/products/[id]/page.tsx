@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getMockProductById } from "@/lib/mocks/seller-app";
+import { getProductById } from "@/lib/mocks/seller-app";
 import { auth } from "@clerk/nextjs/server";
 import { getBuyerProfile } from "@/lib/db/profile";
 import ProfileRedirector from "@/components/ProfileRedirector";
@@ -18,7 +18,7 @@ interface PageProps {
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const product = await getMockProductById(id);
+  const product = await getProductById(id);
   
   if (!product) {
     return {
@@ -45,7 +45,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   // 2. Obtener parámetros de la ruta
   const { id } = await params;
-  const product = await getMockProductById(id);
+  const product = await getProductById(id);
 
   // 3. Si no existe el producto, disparamos notFound() para redirigir a app/not-found.tsx
   if (!product) {

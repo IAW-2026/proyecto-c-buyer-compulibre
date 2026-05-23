@@ -4,7 +4,7 @@ import { SellerProduct } from "@/types";
 
 const MOCK_PRODUCTS: SellerProduct[] = [
   {
-    id: "prod_001",
+    productId: "prod_001",
     name: 'Monitor LG UltraWide 34"',
     description:
       "Monitor curvo UltraWide de 34 pulgadas con resolución WQHD (3440x1440) y panel IPS.",
@@ -14,9 +14,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
     category: "Monitores",
+    brand: "LG",
+    condition: "NEW",
   },
   {
-    id: "prod_002",
+    productId: "prod_002",
     name: "RTX 4070 Super 12GB",
     description:
       "Tarjeta de video NVIDIA GeForce RTX 4070 Super con 12GB GDDR6X.",
@@ -26,9 +28,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
     category: "Placas de Video",
+    brand: "NVIDIA",
+    condition: "NEW",
   },
   {
-    id: "prod_003",
+    productId: "prod_003",
     name: "Ryzen 7 7800X3D",
     description:
       "Procesador AMD Ryzen 7 7800X3D con 3D V-Cache, 8 núcleos / 16 hilos, hasta 5.0GHz boost.",
@@ -38,9 +42,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_002",
     sellerName: "PC Components BA",
     category: "Procesadores",
+    brand: "AMD",
+    condition: "NEW",
   },
   {
-    id: "prod_004",
+    productId: "prod_004",
     name: "Samsung 990 Pro 2TB NVMe",
     description:
       "SSD NVMe PCIe 4.0 con lecturas de hasta 7,450 MB/s. Formato M.2 2280.",
@@ -50,9 +56,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_002",
     sellerName: "PC Components BA",
     category: "Almacenamiento",
+    brand: "Samsung",
+    condition: "NEW",
   },
   {
-    id: "prod_005",
+    productId: "prod_005",
     name: "Corsair Vengeance DDR5 32GB (2x16)",
     description: "Kit de memoria RAM DDR5 6000MHz CL30 con XMP 3.0 y EXPO.",
     price: 159999,
@@ -61,9 +69,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
     category: "Memoria RAM",
+    brand: "Corsair",
+    condition: "NEW",
   },
   {
-    id: "prod_006",
+    productId: "prod_006",
     name: "ASUS ROG Strix B650E-F",
     description:
       "Motherboard AMD AM5 con soporte DDR5, PCIe 5.0 y conectividad WiFi 6E.",
@@ -73,6 +83,8 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     sellerId: "seller_003",
     sellerName: "GamingGear Shop",
     category: "Motherboards",
+    brand: "ASUS",
+    condition: "NEW",
   },
 ];
 
@@ -82,7 +94,7 @@ const MOCK_PRODUCTS: SellerProduct[] = [
  * Simula GET /api/products con soporte de búsqueda y paginación.
  * En Etapa 3 se reemplaza por fetch a la Seller App real.
  */
-export async function getMockProducts(params?: {
+export async function getProducts(params?: {
   search?: string;
   category?: string;
   page?: number;
@@ -119,20 +131,20 @@ export async function getMockProducts(params?: {
 /**
  * Simula GET /api/products/:id
  */
-export async function getMockProductById(
+export async function getProductById(
   id: string
 ): Promise<SellerProduct | null> {
   await new Promise((r) => setTimeout(r, 100));
-  return MOCK_PRODUCTS.find((p) => p.id === id) ?? null;
+  return MOCK_PRODUCTS.find((p) => p.productId === id) ?? null;
 }
 
 /**
  * Simula GET /api/products (solo los IDs dados).
  * Útil para hidratar el carrito con datos actualizados.
  */
-export async function getMockProductsByIds(
+export async function getProductsByIds(
   ids: string[]
 ): Promise<SellerProduct[]> {
   await new Promise((r) => setTimeout(r, 100));
-  return MOCK_PRODUCTS.filter((p) => ids.includes(p.id));
+  return MOCK_PRODUCTS.filter((p) => ids.includes(p.productId));
 }

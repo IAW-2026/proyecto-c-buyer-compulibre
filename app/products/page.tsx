@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getMockProducts } from "@/lib/mocks/seller-app";
+import { getProducts } from "@/lib/mocks/seller-app";
 import ProductGrid from "@/components/ProductGrid";
 import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
@@ -45,7 +45,7 @@ export default async function ProductsPage({
   const search = params.search ?? "";
   const category = params.category ?? "";
 
-  const { data: products, total } = await getMockProducts({
+  const { data: products, total } = await getProducts({
     search,
     category,
     page,

@@ -4,13 +4,15 @@ export interface BuyerProfile {
   id: string; // clerk_user_id
   fullName: string;
   defaultShippingAddress: string | null;
+  isActive: boolean;
 }
-
 export interface Cart {
   id: string;
   buyerId: string;
   status: CartStatus;
   items?: CartItem[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type CartStatus = "ACTIVE" | "ABANDONED" | "CONVERTED";
@@ -36,6 +38,8 @@ export interface BuyerOrder {
   courier: string | null;
   shipmentStatus: string | null;
   items?: BuyerOrderItem[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type BuyerOrderStatus =
@@ -58,15 +62,17 @@ export interface BuyerOrderItem {
 // ─── Mocks: Seller App ────────────────────────────────────────────────────────
 
 export interface SellerProduct {
-  id: string;
+  productId: string;
   name: string;
-  description: string;
+  brand: string;
+  category: string;
+  condition: 'NEW' | 'USED' | 'REFURBISHED';
   price: number;
   stock: number;
-  imageUrl: string;
   sellerId: string;
   sellerName: string;
-  category: string;
+  imageUrl: string;
+  description: string;
 }
 
 // ─── Mocks: Payments App ─────────────────────────────────────────────────────
@@ -81,6 +87,7 @@ export interface PaymentInitRequest {
     productId: string;
     quantity: number;
     name: string;
+    unitPrice: number;
   }>;
 }
 
@@ -133,4 +140,18 @@ export interface PaginatedResponse<T> {
   page: number;
   pageSize: number;
   totalPages: number;
+}
+
+// ─── Webhooks ────────────────────────────────────────────────────────────────
+
+export interface PaymentWebhookPayload {
+  transactionId: string;
+  status: "APPROVED" | "REJECTED"; // etc
+  paymentMethod: string;
+}
+
+export interface ShippingWebhookPayload {
+  trackingId: string;
+  courier: string;
+  status: string;
 }

@@ -16,7 +16,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
   return (
     <Link
-      href={`/products/${product.id}`}
+      href={`/products/${product.productId}`}
       className="group flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
     >
       <div className="relative aspect-[4/3] w-full bg-gray-100">
