@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SellerProduct } from "@/types";
+import { addToCartAction } from "@/lib/actions/cart";
 
 interface ProductBuyBoxProps {
   product: SellerProduct;
@@ -13,6 +14,8 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalActionType, setModalActionType] = useState<"cart" | "buy">("cart");
+  const [isPending, startTransition] = useTransition();
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const isOutOfStock = product.stock === 0;
 
@@ -33,14 +36,29 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
   };
 
   const handleAddToCart = () => {
-    setModalActionType("cart");
-    setIsModalOpen(true);
-    // Nota: Aquí se conectaría la persistencia del carrito en la base de datos local (Prisma) en la Etapa 2/3.
+    setErrorMsg(null);
+    startTransition(async () => {
+      const res = await addToCartAction(product.productId, quantity);
+      if (res.success) {
+        setModalActionType("cart");
+        setIsModalOpen(true);
+      } else {
+        setErrorMsg(res.message || "No se pudo agregar el producto al carrito.");
+      }
+    });
   };
 
   const handleBuyNow = () => {
-    setModalActionType("buy");
-    setIsModalOpen(true);
+    setErrorMsg(null);
+    startTransition(async () => {
+      const res = await addToCartAction(product.productId, quantity);
+      if (res.success) {
+        setModalActionType("buy");
+        setIsModalOpen(true);
+      } else {
+        setErrorMsg(res.message || "No se pudo iniciar la compra.");
+      }
+    });
   };
 
   return (
@@ -64,6 +82,21 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
           </span>
         )}
       </div>
+
+      {/* Mensaje de error premium */}
+      {errorMsg && (
+        <div className="mb-4 rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-600 border border-red-100 flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
+          <span className="text-sm shrink-0">⚠️</span>
+          <span className="flex-1 leading-normal">{errorMsg}</span>
+          <button
+            onClick={() => setErrorMsg(null)}
+            className="text-red-400 hover:text-red-600 transition shrink-0"
+            aria-label="Cerrar advertencia"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Precio */}
       <div className="mb-6">
@@ -96,7 +129,8 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
               id="quantity"
               value={quantity}
               onChange={handleQuantityChange}
-              className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-[#1F2937] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
+              disabled={isPending}
+              className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-[#1F2937] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20 disabled:bg-gray-50 disabled:text-gray-400"
             >
               {Array.from({ length: Math.min(product.stock, 10) }, (_, i) => i + 1).map(
                 (num) => (
@@ -117,27 +151,43 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
       <div className="space-y-3">
         <button
           onClick={handleAddToCart}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isPending}
           className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold text-white shadow-md transition-all ${
-            isOutOfStock
+            isOutOfStock || isPending
               ? "bg-gray-300 cursor-not-allowed shadow-none"
               : "bg-[#FC7A1E] hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
           }`}
         >
-          <span>🛒</span>
-          Agregar al carrito
+          {isPending && modalActionType === "cart" ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Agregando...
+            </>
+          ) : (
+            <>
+              <span>🛒</span>
+              Agregar al carrito
+            </>
+          )}
         </button>
 
         <button
           onClick={handleBuyNow}
-          disabled={isOutOfStock}
+          disabled={isOutOfStock || isPending}
           className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold border transition-all ${
-            isOutOfStock
-              ? "border-gray-200 text-gray-400 cursor-not-allowed"
+            isOutOfStock || isPending
+              ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
               : "border-[#485696] text-[#485696] bg-white hover:bg-[#485696]/5 hover:scale-[1.01] active:scale-[0.99]"
           }`}
         >
-          Comprar ahora
+          {isPending && modalActionType === "buy" ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#485696] border-t-transparent" />
+              Iniciando...
+            </>
+          ) : (
+            "Comprar ahora"
+          )}
         </button>
       </div>
 
@@ -237,11 +287,6 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
                 </>
               )}
             </div>
-
-            {/* Aviso de etapa */}
-            <p className="text-[10px] text-center text-[#9CA3AF] mt-4 uppercase font-semibold tracking-wider">
-              Etapa 2 — Simulación Aislada con Mocks
-            </p>
           </div>
         </div>
       )}
