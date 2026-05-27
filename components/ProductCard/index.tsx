@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SellerProduct } from "@/types";
+import { formatCategory, formatCondition } from "@/lib/formatters";
 
 interface ProductCardProps {
   product: SellerProduct;
@@ -19,7 +20,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
       href={`/products/${product.productId}`}
       className="group flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
     >
-      <div className="relative aspect-[4/3] w-full bg-gray-100">
+      <div className="relative aspect-4/3 w-full bg-gray-100">
         <Image
           src={product.imageUrl}
           alt={product.name}
@@ -42,13 +43,30 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 p-4">
-        <p className="text-xs font-medium text-[#485696] uppercase tracking-wide">
-          {product.category}
-        </p>
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-[#485696] uppercase tracking-wide">
+            {formatCategory(product.category)}
+          </p>
+          <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border ${
+            product.condition === "NEW"
+              ? "bg-green-50 text-green-700 border-green-200"
+              : product.condition === "USED"
+              ? "bg-amber-50 text-amber-700 border-amber-200"
+              : "bg-indigo-50 text-[#485696] border-indigo-200"
+          }`}>
+            {formatCondition(product.condition)}
+          </span>
+        </div>
+        
         <h2 className="text-sm font-semibold text-[#1F2937] line-clamp-2 leading-snug group-hover:text-[#485696] transition-colors">
           {product.name}
         </h2>
+        
+        <p className="text-xs text-[#6B7280]">
+          Marca: <span className="font-semibold text-[#4B5563]">{product.brand}</span>
+        </p>
+
         <p className="mt-auto pt-3 text-lg font-bold text-[#1F2937]">
           {formattedPrice}
         </p>

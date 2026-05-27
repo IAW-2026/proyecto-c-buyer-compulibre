@@ -7,6 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getBuyerProfile } from "@/lib/db/profile";
 import ProfileRedirector from "@/components/ProfileRedirector";
 import ProductBuyBox from "./ProductBuyBox";
+import { formatCategory, formatCondition } from "@/lib/formatters";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -64,7 +65,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           href={`/products?category=${encodeURIComponent(product.category)}`} 
           className="transition hover:text-[#485696]"
         >
-          {product.category}
+          {formatCategory(product.category)}
         </Link>
         <span>/</span>
         <span className="text-[#1F2937] truncate max-w-[200px] sm:max-w-none">{product.name}</span>
@@ -101,27 +102,46 @@ export default async function ProductDetailPage({ params }: PageProps) {
         {/* Columna Derecha: Información y Compra */}
         <div className="space-y-6 lg:col-span-5">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Categoría */}
-            <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
-              {product.category}
-            </span>
+            {/* Categoría y Condición */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
+                {formatCategory(product.category)}
+              </span>
+              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-bold border ${
+                product.condition === "NEW"
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : product.condition === "USED"
+                  ? "bg-amber-50 text-amber-700 border-amber-200"
+                  : "bg-indigo-50 text-[#485696] border-indigo-200"
+              }`}>
+                {formatCondition(product.condition)}
+              </span>
+            </div>
 
             {/* Nombre del Producto */}
             <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-[#1F2937] sm:text-3xl leading-tight">
               {product.name}
             </h1>
 
+            {/* Marca */}
+            <p className="mt-2 text-sm text-[#6B7280]">
+              Marca: <span className="font-semibold text-[#1F2937]">{product.brand}</span>
+            </p>
+
             {/* Vendedor */}
-            <div className="mt-4 flex items-center gap-2 rounded-xl bg-green-50/50 border border-green-100/50 px-3 py-2 text-xs">
-              <span className="text-sm shrink-0">🤝</span>
-              <div>
-                <p className="font-bold text-[#1F2937]">Vendedor Verificado</p>
-                <p className="text-[#6B7280]">{product.sellerName}</p>
+            <div className="mt-4 flex items-center gap-3 rounded-xl bg-[#485696]/5 border border-[#485696]/10 px-3 py-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#485696]/10 shrink-0">
+                <i className="ti ti-building-store text-[#485696]" style={{fontSize: 18}} aria-hidden="true" />
               </div>
+              <div>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-widest">Vendedor verificado</p>
+                <p className="text-sm font-semibold text-[#1F2937]">{product.sellerName}</p>
+              </div>
+              <i className="ti ti-circle-check ml-auto text-green-600" style={{fontSize: 20}} aria-hidden="true" />
             </div>
 
             {/* Descripción */}
-            <div className="mt-6 border-t border-gray-100 pt-5">
+            <div className="mt-6 border-t border-gray-100 pt-5 pb-2">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
                 Descripción del producto
               </h2>

@@ -4,13 +4,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useRef, useState, useTransition } from "react";
 
 const CATEGORIES = [
-  "Todas",
-  "Monitores",
-  "Placas de Video",
-  "Procesadores",
-  "Almacenamiento",
-  "Memoria RAM",
-  "Motherboards",
+  { value: "", label: "Todas" },
+  { value: "MONITOR", label: "Monitores" },
+  { value: "GPU", label: "Placas de Video" },
+  { value: "CPU", label: "Procesadores" },
+  { value: "STORAGE", label: "Almacenamiento" },
+  { value: "RAM", label: "Memoria RAM" },
+  { value: "MOTHERBOARD", label: "Motherboards" },
 ];
 
 /**
@@ -106,15 +106,15 @@ export default function SearchBar() {
         value={category}
         onChange={(e) =>
           updateParams({
-            category: e.target.value === "Todas" ? "" : e.target.value,
+            category: e.target.value,
           })
         }
         className="rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-[#1F2937] shadow-sm outline-none ring-0 transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20 sm:w-48"
         aria-label="Filtrar por categoría"
       >
         {CATEGORIES.map((cat) => (
-          <option key={cat} value={cat === "Todas" ? "" : cat}>
-            {cat}
+          <option key={cat.value} value={cat.value}>
+            {cat.label}
           </option>
         ))}
       </select>

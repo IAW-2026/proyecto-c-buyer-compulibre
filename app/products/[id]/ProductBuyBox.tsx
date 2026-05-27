@@ -135,7 +135,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
               {Array.from({ length: Math.min(product.stock, 10) }, (_, i) => i + 1).map(
                 (num) => (
                   <option key={num} value={num}>
-                    {num} unidad{num !== 1 ? "s" : ""}
+                    {num} unidad{num !== 1 ? "es" : ""}
                   </option>
                 )
               )}
@@ -190,29 +190,6 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
           )}
         </button>
       </div>
-
-      {/* Garantía y Seguridad */}
-      <div className="mt-6 border-t border-gray-100 pt-5 space-y-3.5">
-        <div className="flex items-start gap-3 text-xs">
-          <span className="text-lg shrink-0">🛡️</span>
-          <div>
-            <p className="font-bold text-[#1F2937]">Compra Protegida CompuLibre</p>
-            <p className="text-[#6B7280] leading-relaxed mt-0.5">
-              Recibí el producto que esperabas o te devolvemos tu dinero de inmediato.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 text-xs">
-          <span className="text-lg shrink-0">🚀</span>
-          <div>
-            <p className="font-bold text-[#1F2937]">Envío Asegurado</p>
-            <p className="text-[#6B7280] leading-relaxed mt-0.5">
-              Despachado a través del servicio de logística integrado oficial de CompuLibre.
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Modal de confirmación / Feedback premium */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity duration-300">

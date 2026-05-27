@@ -8,12 +8,12 @@ export default function Navbar() {
   const { isLoaded, isSignedIn } = useUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#485696] shadow-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full bg-[#485696]/95 backdrop-blur-md border-b border-white/10 shadow-md transition-all duration-300">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
           href="/products"
-          className="flex items-center gap-2 shrink-0 scale-125 origin-left ml-2"
+          className="shrink-0 flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98]"
         >
           <Image
             src="/assets/logo.png"
@@ -22,12 +22,20 @@ export default function Navbar() {
             height={56}
             priority
             unoptimized
-            style={{ width: "auto", height: "56px" }}
+            className="h-10 sm:h-11 w-auto object-contain"
           />
         </Link>
 
         {/* Acciones del usuario */}
         <div className="flex items-center gap-3">
+          <Link
+            href="/orders"
+            aria-label="Ver mis órdenes"
+            className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+          >
+            <span aria-hidden="true">📦</span>
+            <span className="hidden sm:inline">Mis órdenes</span>
+          </Link>
           <Link
             href="/cart"
             aria-label="Ver carrito"
