@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { BuyerOrderStatus } from "@prisma/client";
 
+interface PaymentWebhookBody {
+  status?: string;
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ order_id: string }> }
@@ -20,8 +24,8 @@ export async function POST(
     }
     */
 
-    const body = await request.json();
-    const { transactionId, status, paymentMethod } = body;
+    const body = (await request.json()) as PaymentWebhookBody;
+    const { status } = body;
     const incomingStatus = status as string;
 
     const order = await prisma.buyerOrder.findUnique({

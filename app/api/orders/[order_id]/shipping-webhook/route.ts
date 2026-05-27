@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
+
+interface ShippingWebhookBody {
+  trackingId?: string;
+  courier?: string;
+  status?: string;
+}
 
 export async function POST(
   request: NextRequest,
@@ -19,7 +26,7 @@ export async function POST(
     }
     */
 
-    const body = await request.json();
+    const body = (await request.json()) as ShippingWebhookBody;
     const { trackingId, courier, status: incomingStatus } = body;
 
     const order = await prisma.buyerOrder.findUnique({
@@ -51,7 +58,7 @@ export async function POST(
     }
 
     // Actualizar datos de envío
-    const updateData: any = {
+    const updateData: Prisma.BuyerOrderUpdateInput = {
       courier,
       shipmentStatus: incomingStatus
     };
