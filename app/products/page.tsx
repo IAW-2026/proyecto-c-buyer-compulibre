@@ -45,7 +45,7 @@ export default async function ProductsPage({
   const search = params.search ?? "";
   const category = params.category ?? "";
 
-  const { data: products, total } = await getProducts({
+  const { items: products, total } = await getProducts({
     search,
     category,
     page,

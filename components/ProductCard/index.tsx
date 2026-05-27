@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { SellerProduct } from "@/types";
+import { SellerProductSummary } from "@/types";
 import { formatCategory, formatCondition } from "@/lib/formatters";
 
 interface ProductCardProps {
-  product: SellerProduct;
+  product: SellerProductSummary;
   priority?: boolean;
 }
 

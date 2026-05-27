@@ -1,4 +1,4 @@
-import { SellerProduct } from "@/types";
+import { SellerProduct, SellerProductSummary } from "@/types";
 
 // ─── Datos de ejemplo ─────────────────────────────────────────────────────────
 
@@ -99,7 +99,7 @@ export async function getProducts(params?: {
   category?: string;
   page?: number;
   pageSize?: number;
-}): Promise<{ data: SellerProduct[]; total: number }> {
+}): Promise<{ items: SellerProductSummary[]; page: number; limit: number; total: number }> {
   // Simula latencia de red
   await new Promise((r) => setTimeout(r, 150));
 
@@ -121,11 +121,16 @@ export async function getProducts(params?: {
 
   const total = filtered.length;
   const page = params?.page ?? 1;
-  const pageSize = params?.pageSize ?? 12;
-  const start = (page - 1) * pageSize;
-  const data = filtered.slice(start, start + pageSize);
+  const limit = params?.pageSize ?? 12;
+  const start = (page - 1) * limit;
 
-  return { data, total };
+  // Omitir description: el listado solo necesita el resumen (thin)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const items: SellerProductSummary[] = filtered
+    .slice(start, start + limit)
+    .map(({ description: _desc, ...rest }) => rest);
+
+  return { items, page, limit, total };
 }
 
 /**
@@ -144,7 +149,11 @@ export async function getProductById(
  */
 export async function getProductsByIds(
   ids: string[]
-): Promise<SellerProduct[]> {
+): Promise<SellerProductSummary[]> {
   await new Promise((r) => setTimeout(r, 100));
-  return MOCK_PRODUCTS.filter((p) => ids.includes(p.productId));
+  // Omitir description: el carrito no la necesita (thin)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  return MOCK_PRODUCTS
+    .filter((p) => ids.includes(p.productId))
+    .map(({ description: _desc, ...rest }) => rest);
 }

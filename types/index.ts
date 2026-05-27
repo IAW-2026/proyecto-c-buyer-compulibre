@@ -59,9 +59,8 @@ export interface BuyerOrderItem {
   unitPrice: string; // Decimal serializado como string
 }
 
-// ─── Mocks: Seller App ────────────────────────────────────────────────────────
-
-export interface SellerProduct {
+// Tipo para listados y carrito (sin description — thin)
+export interface SellerProductSummary {
   productId: string;
   name: string;
   brand: string;
@@ -72,6 +71,10 @@ export interface SellerProduct {
   sellerId: string;
   sellerName: string;
   imageUrl: string;
+}
+
+// Tipo para el detalle de producto (fat — incluye description)
+export interface SellerProduct extends SellerProductSummary {
   description: string;
 }
 
@@ -94,7 +97,6 @@ export interface PaymentInitRequest {
 export interface PaymentInitResponse {
   transactionId: string;
   checkoutUrl: string;
-  status: "PENDING";
 }
 
 // ─── Mocks: Shipping App ─────────────────────────────────────────────────────
@@ -113,8 +115,7 @@ export interface ShipmentCreateRequest {
 export interface ShipmentCreateResponse {
   trackingId: string;
   courier: string;
-  estimatedDelivery: string; // ISO date string
-  status: "CREATED";
+  status: "LABEL_CREATED";
 }
 
 // ─── Formato de error estándar ────────────────────────────────────────────────

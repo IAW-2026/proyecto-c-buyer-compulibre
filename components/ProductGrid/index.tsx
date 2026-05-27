@@ -1,8 +1,8 @@
 import ProductCard from "@/components/ProductCard";
-import { SellerProduct } from "@/types";
+import { SellerProductSummary } from "@/types";
 
 interface ProductGridProps {
-  products: SellerProduct[];
+  products: SellerProductSummary[];
 }
 
 /** Server Component: renderiza la grilla de tarjetas o el estado vacío. */

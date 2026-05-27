@@ -4,7 +4,7 @@ import {
 } from "@/types";
 
 /**
- * Simula POST /api/payments/init en la Payments App.
+ * Simula POST /api/payments/checkout en la Payments App.
  * En Etapa 3 se reemplaza por un fetch real con SERVICE_TOKEN.
  *
  * Retorna una URL de checkout falsa y un transactionId generado localmente.
@@ -20,6 +20,5 @@ export async function initMockPayment(
   return {
     transactionId,
     checkoutUrl: `/checkout/mock-payment?txn=${transactionId}&order_id=${request.orderReference}&amount=${request.amount}`,
-    status: "PENDING",
   };
 }
