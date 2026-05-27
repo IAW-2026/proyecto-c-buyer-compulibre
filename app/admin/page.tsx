@@ -11,9 +11,15 @@ export default async function AdminBuyersPage({
 }) {
     // 1. Validación de Seguridad (Regla de la skill)
     const { sessionClaims } = await auth();
-    const roles = (sessionClaims?.publicMetadata as { roles?: string[] })?.roles || [];
+    console.log("=== ADMIN ROUTE DEBUG ===");
+    console.log("sessionClaims:", JSON.stringify(sessionClaims, null, 2));
+    const role = 
+        (sessionClaims?.publicMetadata as { role?: string })?.role || 
+        (sessionClaims?.metadata as { role?: string })?.role;
+    console.log("Resolved role:", role);
+    console.log("=========================");
 
-    if (!roles.includes("admin")) {
+    if (role !== "admin") {
         redirect("/"); // Expulsar si no es admin
     }
 

@@ -10,9 +10,9 @@ export async function toggleBuyerStatus(formData: FormData) {
   const currentStatus = currentStatusStr === "true";
 
   const { sessionClaims } = await auth();
-  const roles = (sessionClaims?.publicMetadata as { roles?: string[] })?.roles || [];
+  const role = (sessionClaims?.publicMetadata as { role?: string })?.role;
   
-  if (!roles.includes("admin")) {
+  if (role !== "admin") {
     throw new Error("No autorizado");
   }
 
