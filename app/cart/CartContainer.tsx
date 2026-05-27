@@ -3,7 +3,6 @@
 import { useOptimistic, useTransition, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { HydratedCartItem } from "./types";
 import { updateQuantityAction, removeItemAction } from "@/lib/actions/cart";
 
@@ -13,7 +12,6 @@ interface CartContainerProps {
 }
 
 export default function CartContainer({ items, hasProfile }: CartContainerProps) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -101,18 +99,6 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
   const shippingCost = subtotal > 300000 || subtotal === 0 ? 0 : 4999;
   const totalAmount = subtotal + shippingCost;
 
-  // Determinar acción del Checkout
-  const handleCheckout = () => {
-    if (hasMultipleSellers) return;
-
-    if (!hasProfile) {
-      router.push("/onboarding");
-      return;
-    }
-
-    router.push("/checkout");
-  };
-
   // 1. Estado vacío (No hay productos)
   if (optimisticItems.length === 0) {
     return (
@@ -169,7 +155,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
 
       {/* Banner Mono-Vendedor (Si hay múltiples vendedores) */}
       {hasMultipleSellers && (
-        <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 to-red-500/10 border-2 border-amber-500/30 p-6 flex flex-col md:flex-row md:items-center gap-5 animate-in slide-in-from-top-2 duration-300">
+        <div className="rounded-2xl bg-linear-to-r from-amber-500/10 to-red-500/10 border-2 border-amber-500/30 p-6 flex flex-col md:flex-row md:items-center gap-5 animate-in slide-in-from-top-2 duration-300">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-2xl text-amber-600">
             ⚠️
           </div>
@@ -212,8 +198,11 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                     const maxQuantity = Math.min(item.stock, 10);
                     return (
                       <div key={item.id} className="py-4.5 flex gap-4 first:pt-0 last:pb-0">
-                        {/* Imagen */}
-                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                        {/* Imagen — enlaza al producto */}
+                        <Link
+                          href={`/products/${item.externalProductId}`}
+                          className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 hover:opacity-90 transition-opacity"
+                        >
                           <Image
                             src={item.imageUrl}
                             alt={item.productName}
@@ -221,15 +210,17 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                             className="object-cover"
                             unoptimized
                           />
-                        </div>
+                        </Link>
 
                         {/* Detalle */}
                         <div className="flex-1 flex flex-col justify-between min-w-0">
                           <div className="flex justify-between items-start gap-2">
                             <div>
-                              <h4 className="text-sm font-bold text-[#1F2937] line-clamp-2 leading-snug">
-                                {item.productName}
-                              </h4>
+                              <Link href={`/products/${item.externalProductId}`}>
+                                <h4 className="text-sm font-bold text-[#1F2937] line-clamp-2 leading-snug hover:text-[#485696] transition-colors">
+                                  {item.productName}
+                                </h4>
+                              </Link>
                               <p className="text-[10px] text-green-600 font-semibold mt-1">
                                 Precio congelado: {formatCurrency(Number(item.cachedPrice))} c/u
                               </p>
@@ -335,6 +326,30 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               </span>
             </div>
 
+            {/* Métodos de pago aceptados */}
+            <div className="rounded-xl border border-gray-100 bg-gray-50 p-3.5">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
+                Pagos seguros con
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {["Visa", "Mastercard", "Amex", "Naranja X", "Mercado Pago"].map((method) => (
+                  <span
+                    key={method}
+                    className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-bold text-[#4B5563] shadow-xs"
+                  >
+                    {method}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 flex items-center gap-1 text-[10px] text-[#6B7280]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="11" height="11" x="3" y="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Transacción cifrada con SSL
+              </p>
+            </div>
+
             {/* Avisos especiales */}
             {!hasProfile && (
               <div className="rounded-xl bg-amber-50 p-3.5 border border-amber-100 text-xs text-[#FC7A1E] font-medium leading-relaxed">
@@ -354,26 +369,34 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               </div>
             )}
 
-            {/* Botón de Checkout */}
-            <button
-              onClick={handleCheckout}
-              disabled={hasMultipleSellers || isPending}
-              className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-extrabold text-white shadow-md transition-all ${
-                hasMultipleSellers
-                  ? "bg-gray-300 cursor-not-allowed shadow-none"
-                  : !hasProfile
-                  ? "bg-[#485696] hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
-                  : "bg-[#FC7A1E] hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
-              }`}
-            >
-              {!hasProfile ? (
-                "Registrar Dirección"
-              ) : hasMultipleSellers ? (
-                "Resolver Vendedores"
-              ) : (
-                "Proceder al Pago"
-              )}
-            </button>
+            {/* Botón de Checkout — destaca sobre el resto */}
+            {hasMultipleSellers ? (
+              <button
+                disabled
+                className="flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-extrabold text-white bg-gray-300 cursor-not-allowed shadow-none"
+              >
+                🚫 Resolver vendedores primero
+              </button>
+            ) : !hasProfile ? (
+              <Link
+                href="/onboarding"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#485696] py-4 text-sm font-extrabold text-white shadow-md transition-all hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
+              >
+                Registrar dirección →
+              </Link>
+            ) : (
+              <Link
+                id="checkout-link"
+                href="/checkout"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FC7A1E] py-4 text-sm font-extrabold text-white shadow-lg shadow-[#FC7A1E]/25 transition-all hover:brightness-95 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <line x1="2" x2="22" y1="10" y2="10" />
+                </svg>
+                Proceder al pago
+              </Link>
+            )}
           </div>
         </div>
       </div>
