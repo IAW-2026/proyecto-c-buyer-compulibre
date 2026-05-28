@@ -35,6 +35,15 @@ export async function POST(
       );
     }
 
+    // trackingId es obligatorio cuando se crea la etiqueta
+    if (incomingStatus === "LABEL_CREATED" && !trackingId) {
+      return NextResponse.json(
+        { success: false, error: "MISSING_TRACKING_ID", message: "trackingId es requerido cuando el estado es LABEL_CREATED" },
+        { status: 400 }
+      );
+    }
+
+
     const order = await prisma.buyerOrder.findUnique({
       where: { id: order_id }
     });

@@ -4,7 +4,9 @@ import { BuyerOrderStatus } from "@prisma/client";
 import { validateServiceToken } from "@/lib/auth";
 
 interface PaymentWebhookBody {
+  transactionId?: string;
   status?: string;
+  paymentMethod?: string;
 }
 
 export async function POST(
@@ -23,8 +25,15 @@ export async function POST(
     }
 
     const body = (await request.json()) as PaymentWebhookBody;
-    const { status } = body;
+    const { transactionId, status, paymentMethod } = body;
     const incomingStatus = status as string;
+
+    if (!transactionId) {
+      return NextResponse.json(
+        { success: false, error: "MISSING_TRANSACTION_ID", message: "transactionId es requerido" },
+        { status: 400 }
+      );
+    }
 
     const order = await prisma.buyerOrder.findUnique({
       where: { id: order_id }
@@ -36,6 +45,18 @@ export async function POST(
         { status: 404 }
       );
     }
+
+    // Verificar que el transactionId del webhook corresponde a la transacción que iniciamos
+    if (order.externalTransactionId && order.externalTransactionId !== transactionId) {
+      return NextResponse.json(
+        { success: false, error: "TRANSACTION_MISMATCH", message: "El transactionId no coincide con la orden" },
+        { status: 409 }
+      );
+    }
+
+    // Registrar el paymentMethod para trazabilidad (sin campo en DB por ahora)
+    console.info(`[payment-webhook] order=${order_id} txn=${transactionId} method=${paymentMethod ?? "unknown"} status=${incomingStatus}`);
+
 
     // Mapeo de estados del webhook a nuestra base de datos
     const statusMap: Record<string, BuyerOrderStatus> = {

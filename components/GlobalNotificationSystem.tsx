@@ -45,7 +45,7 @@ export default function GlobalNotificationSystem() {
       if (stored) {
         notifiedStates.current = JSON.parse(stored);
       }
-    } catch (e) {}
+    } catch {}
 
     const checkNotifications = async () => {
       try {
@@ -94,7 +94,7 @@ export default function GlobalNotificationSystem() {
       role="alert"
       aria-live="polite"
       className={`
-        fixed bottom-6 right-6 z-[9999] flex w-80 items-start gap-3 rounded-2xl p-4 shadow-2xl
+        fixed bottom-6 right-6 z-9999 flex w-80 items-start gap-3 rounded-2xl p-4 shadow-2xl
         animate-in slide-in-from-bottom-4 fade-in duration-300
         ${activeToast.className}
       `}

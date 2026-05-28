@@ -11,21 +11,18 @@ export default async function AdminBuyersPage({
 }: {
     searchParams: { page?: string; search?: string };
 }) {
-    // 1. Validación de Seguridad (Regla de la skill)
+    // Validación de Seguridad
     const { sessionClaims } = await auth();
-    console.log("=== ADMIN ROUTE DEBUG ===");
-    console.log("sessionClaims:", JSON.stringify(sessionClaims, null, 2));
+
     const role = 
         (sessionClaims?.publicMetadata as { role?: string })?.role || 
         (sessionClaims?.metadata as { role?: string })?.role;
-    console.log("Resolved role:", role);
-    console.log("=========================");
 
     if (role !== "admin") {
         redirect("/"); // Expulsar si no es admin
     }
 
-    // 2. Parámetros de paginación y búsqueda
+    // Parámetros de paginación y búsqueda
     const page = Number(searchParams.page) || 1;
     const search = searchParams.search || "";
     const take = 10;
@@ -35,7 +32,7 @@ export default async function AdminBuyersPage({
         fullName: { contains: search, mode: "insensitive" as const },
     } : {};
 
-    // 3. Consulta a Prisma aplicando la NUEVA REGLA (orden alfabético)
+    // Consulta a Prisma (orden alfabético)
     const buyers = await db.buyerProfile.findMany({
         where,
         skip,

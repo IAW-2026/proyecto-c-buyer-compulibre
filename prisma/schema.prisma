@@ -37,7 +37,7 @@ enum CartStatus {
 model CartItem {
   id                String  @id @default(cuid())
   cartId            String
-  cart              Cart    @relation(fields: [cartId], references: [id])
+  cart              Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
   externalProductId String  // ID del producto en la Seller App
   productName       String  // nombre al momento de agregar al carrito
   quantity          Int
@@ -73,7 +73,7 @@ enum BuyerOrderStatus {
 model BuyerOrderItem {
   id                String     @id @default(cuid())
   buyerOrderId      String
-  order             BuyerOrder @relation(fields: [buyerOrderId], references: [id])
+  order             BuyerOrder @relation(fields: [buyerOrderId], references: [id], onDelete: Cascade)
   externalProductId String     // ID del producto en la Seller App
   productName       String     // snapshot del nombre al momento de la compra
   quantity          Int
