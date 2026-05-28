@@ -2,7 +2,9 @@ import { prisma as db } from "@/lib/db/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-import { toggleBuyerStatus } from "./actions";
+import { toggleBuyerStatus, clearUserOrders, resetUser } from "./actions";
+import AdminShippingSimulator from "./AdminShippingSimulator";
+import type { ShipmentStatus } from "@/types";
 
 export default async function AdminBuyersPage({
     searchParams,
@@ -45,6 +47,13 @@ export default async function AdminBuyersPage({
 
     const total = await db.buyerProfile.count({ where });
 
+    // Órdenes activas para el simulador de envíos (PAID o SHIPPED)
+    const activeShippingOrders = await db.buyerOrder.findMany({
+        where: { status: { in: ["PAID", "SHIPPED"] } },
+        orderBy: { createdAt: "asc" },
+        include: { items: { take: 1 } },
+    });
+
     return (
         <div className="min-h-screen bg-[#E7E7E7] p-8">
             <div className="max-w-6xl mx-auto">
@@ -54,7 +63,7 @@ export default async function AdminBuyersPage({
                     <p className="text-[#6B7280] mt-2">Gestiona los compradores y revisa el rendimiento de CompuLibre.</p>
                 </div>
 
-                {/* Tabs / Navegación (Respondiendo a tu duda) */}
+                {/* Tabs / Navegación */}
                 <div className="flex gap-4 mb-6 border-b border-gray-300 pb-4">
                     <div className="px-4 py-2 font-semibold text-[#485696] border-b-2 border-[#485696]">
                         Compradores
@@ -65,6 +74,41 @@ export default async function AdminBuyersPage({
                     <div className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#485696] cursor-not-allowed opacity-50">
                         Dashboard (Próximamente)
                     </div>
+                </div>
+
+                {/* ── Simulador de Envíos ── */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                        <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-[#FC7A1E]" />
+                        <h2 className="text-lg font-extrabold text-[#1F2937]">Simulador de Envíos</h2>
+                        <span className="rounded-full bg-[#FC7A1E]/10 border border-[#FC7A1E]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FC7A1E] uppercase">
+                            Etapa 2 — Dev
+                        </span>
+                    </div>
+                    <p className="text-sm text-[#6B7280] mb-4">
+                        Órdenes esperando despacho o en curso. Avanzá el estado logístico de cada una.
+                    </p>
+
+                    {activeShippingOrders.length === 0 ? (
+                        <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-8 text-center">
+                            <p className="text-sm text-[#6B7280]">No hay órdenes pendientes de envío en este momento.</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            {activeShippingOrders.map((order) => (
+                                <AdminShippingSimulator
+                                    key={order.id}
+                                    orderId={order.id}
+                                    orderShortId={order.id.slice(-8).toUpperCase()}
+                                    buyerName={order.buyerId}
+                                    orderStatus={order.status}
+                                    shipmentStatus={order.shipmentStatus as ShipmentStatus | null}
+                                    courier={order.courier}
+                                    trackingId={order.trackingId}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Contenido: Tabla de Usuarios */}
@@ -116,21 +160,37 @@ export default async function AdminBuyersPage({
                                                 </span>
                                             </td>
                                             <td className="py-3 px-4 text-right">
-                                                {/* Botón de Suspender (Server Action) */}
-                                                <form action={toggleBuyerStatus}>
-                                                    <input type="hidden" name="buyerId" value={buyer.id} />
-                                                    <input type="hidden" name="currentStatus" value={String(buyer.isActive)} />
-                                                    
-                                                    {buyer.isActive ? (
-                                                        <button type="submit" className="bg-[#FC7A1E] text-white px-4 py-2 rounded-lg hover:brightness-90 transition-all text-sm font-semibold shadow-sm">
-                                                            Suspender
+                                                <div className="flex justify-end gap-2">
+                                                    {/* Botón de Suspender (Server Action) */}
+                                                    <form action={toggleBuyerStatus}>
+                                                        <input type="hidden" name="buyerId" value={buyer.id} />
+                                                        <input type="hidden" name="currentStatus" value={String(buyer.isActive)} />
+                                                        
+                                                        {buyer.isActive ? (
+                                                            <button type="submit" className="bg-[#FC7A1E] text-white px-3 py-1.5 rounded-lg hover:brightness-90 transition-all text-xs font-semibold shadow-sm">
+                                                                Suspender
+                                                            </button>
+                                                        ) : (
+                                                            <button type="submit" className="bg-[#485696] text-white px-3 py-1.5 rounded-lg hover:brightness-110 transition-all text-xs font-semibold shadow-sm">
+                                                                Activar
+                                                            </button>
+                                                        )}
+                                                    </form>
+
+                                                    <form action={clearUserOrders}>
+                                                        <input type="hidden" name="buyerId" value={buyer.id} />
+                                                        <button type="submit" className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all text-xs font-semibold shadow-sm" title="Borrar historial de compras">
+                                                            Borrar Órdenes
                                                         </button>
-                                                    ) : (
-                                                        <button type="submit" className="bg-[#485696] text-white px-4 py-2 rounded-lg hover:brightness-110 transition-all text-sm font-semibold shadow-sm">
-                                                            Activar
+                                                    </form>
+
+                                                    <form action={resetUser}>
+                                                        <input type="hidden" name="buyerId" value={buyer.id} />
+                                                        <button type="submit" className="bg-red-800 text-white px-3 py-1.5 rounded-lg hover:bg-red-900 transition-all text-xs font-semibold shadow-sm" title="Borrar compras, carrito y dirección de envío">
+                                                            Hard Reset
                                                         </button>
-                                                    )}
-                                                </form>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
