@@ -125,10 +125,13 @@ export async function getProducts(params?: {
   const start = (page - 1) * limit;
 
   // Omitir description: el listado solo necesita el resumen (thin)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const items: SellerProductSummary[] = filtered
     .slice(start, start + limit)
-    .map(({ description: _desc, ...rest }) => rest);
+    .map((p) => {
+      const { description, ...rest } = p;
+      void description;
+      return rest;
+    });
 
   return { items, page, limit, total };
 }
@@ -152,8 +155,11 @@ export async function getProductsByIds(
 ): Promise<SellerProductSummary[]> {
   await new Promise((r) => setTimeout(r, 100));
   // Omitir description: el carrito no la necesita (thin)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return MOCK_PRODUCTS
     .filter((p) => ids.includes(p.productId))
-    .map(({ description: _desc, ...rest }) => rest);
+    .map((p) => {
+      const { description, ...rest } = p;
+      void description;
+      return rest;
+    });
 }

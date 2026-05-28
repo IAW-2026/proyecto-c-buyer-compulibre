@@ -135,7 +135,7 @@ export default async function CheckoutPage() {
             ) : (
               <div className="rounded-xl bg-amber-50 border border-amber-100 p-4 text-sm text-[#FC7A1E] font-medium">
                 📢 No tenés una dirección registrada.{" "}
-                <Link href="/onboarding" className="font-bold underline">
+                <Link href="/onboarding?returnUrl=/checkout" className="font-bold underline">
                   Registrá tu dirección →
                 </Link>
               </div>

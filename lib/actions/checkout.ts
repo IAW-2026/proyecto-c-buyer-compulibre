@@ -60,6 +60,14 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
     };
   }
 
+  if (!profile.defaultPostalCode) {
+    return {
+      success: false,
+      error: "NO_POSTAL_CODE",
+      message: "Necesitás registrar tu código postal antes de comprar. Actualizá tu perfil.",
+    };
+  }
+
   // 2. Obtener carrito activo con ítems
   const cart = await prisma.cart.findFirst({
     where: { buyerId: userId, status: "ACTIVE" },
@@ -145,6 +153,8 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
       currency: "ARS",
       sellerId,
       buyerId: userId,
+      buyerAddress: profile.defaultShippingAddress,
+      buyerCodigoPostal: profile.defaultPostalCode,
       items: cart.items.map((item) => ({
         productId: item.externalProductId,
         quantity: item.quantity,

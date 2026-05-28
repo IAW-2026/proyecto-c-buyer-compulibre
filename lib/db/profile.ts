@@ -38,6 +38,8 @@ export async function createProfileFromOnboarding(
 
   const fullName = formData.get("fullName")?.toString().trim() ?? "";
   const address = formData.get("address")?.toString().trim() ?? "";
+  const postalCode = formData.get("postalCode")?.toString().trim() ?? "";
+  const returnUrl = formData.get("returnUrl")?.toString().trim() || "/products";
 
   // 1. Validaciones estrictas de servidor
   if (fullName.length < 3) {
@@ -48,15 +50,27 @@ export async function createProfileFromOnboarding(
     return { success: false, error: "La dirección es requerida y debe tener al menos 10 caracteres para ser válida." };
   }
 
+  if (postalCode.length < 4) {
+    return { success: false, error: "El código postal es requerido y debe ser válido." };
+  }
+
   let success = false;
 
   try {
-    // 2. Creación en la base de datos
-    await prisma.buyerProfile.create({
-      data: {
+    // 2. Creación o actualización en la base de datos (upsert)
+    await prisma.buyerProfile.upsert({
+      where: { id: userId },
+      update: {
+        fullName,
+        defaultShippingAddress: address,
+        defaultPostalCode: postalCode,
+        isActive: true,
+      },
+      create: {
         id: userId,
         fullName,
         defaultShippingAddress: address,
+        defaultPostalCode: postalCode,
         isActive: true,
       },
     });
@@ -72,7 +86,7 @@ export async function createProfileFromOnboarding(
   // 3. Revalidar y redireccionar fuera del bloque try/catch para evitar capturar excepciones de redirección de Next.js
   if (success) {
     revalidatePath("/", "layout");
-    redirect("/products");
+    redirect(returnUrl);
   }
 
   return null;

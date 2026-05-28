@@ -12,6 +12,7 @@ model BuyerProfile {
   id                     String       @id      // id es clerk_user_id
   fullName               String
   defaultShippingAddress String?
+  defaultPostalCode      String?
   isActive               Boolean      @default(true)
   carts                  Cart[]
   orders                 BuyerOrder[]

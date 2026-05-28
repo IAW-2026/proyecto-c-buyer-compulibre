@@ -29,13 +29,14 @@ function SubmitButton() {
 
 interface OnboardingFormProps {
   defaultName: string;
+  returnUrl: string;
 }
 
 /**
  * Formulario del cliente para Onboarding.
  * Integra useActionState para recibir errores del servidor sin recargas de página.
  */
-export default function OnboardingForm({ defaultName }: OnboardingFormProps) {
+export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFormProps) {
   // useActionState de React 19 recibe (action, initialState)
   const [state, formAction] = useActionState<OnboardingState | null, FormData>(
     createProfileFromOnboarding,
@@ -44,6 +45,8 @@ export default function OnboardingForm({ defaultName }: OnboardingFormProps) {
 
   return (
     <form action={formAction} className="mt-6 space-y-5">
+      <input type="hidden" name="returnUrl" value={returnUrl} />
+      
       {/* Banner de alerta de error estético */}
       {state?.error && (
         <div className="rounded-xl bg-[#F9C784]/20 border border-[#F9C784] p-3.5 text-sm text-[#FC7A1E] font-semibold flex items-start gap-2">
@@ -92,6 +95,25 @@ export default function OnboardingForm({ defaultName }: OnboardingFormProps) {
         <p className="mt-2 text-xs text-[#6B7280] leading-relaxed">
           Debe tener al menos 10 caracteres. Esta será tu dirección estática de envío para todas tus compras en CompuLibre.
         </p>
+      </div>
+
+      {/* Código Postal */}
+      <div>
+        <label 
+          htmlFor="postalCode" 
+          className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5"
+        >
+          Código Postal
+        </label>
+        <input
+          type="text"
+          id="postalCode"
+          name="postalCode"
+          required
+          minLength={4}
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
+          placeholder="Ej: 1414"
+        />
       </div>
 
       {/* Botón de Confirmación */}

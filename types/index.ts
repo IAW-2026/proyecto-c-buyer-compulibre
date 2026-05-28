@@ -4,6 +4,7 @@ export interface BuyerProfile {
   id: string; // clerk_user_id
   fullName: string;
   defaultShippingAddress: string | null;
+  defaultPostalCode: string | null;
   isActive: boolean;
 }
 export interface Cart {
@@ -27,6 +28,8 @@ export interface CartItem {
   sellerId: string;
 }
 
+export type ShipmentStatus = "LABEL_CREATED" | "IN_TRANSIT" | "DELIVERED";
+
 export interface BuyerOrder {
   id: string;
   buyerId: string;
@@ -36,7 +39,7 @@ export interface BuyerOrder {
   externalTransactionId: string | null;
   trackingId: string | null;
   courier: string | null;
-  shipmentStatus: string | null;
+  shipmentStatus: ShipmentStatus | null;
   items?: BuyerOrderItem[];
   createdAt: Date;
   updatedAt: Date;
@@ -86,6 +89,8 @@ export interface PaymentInitRequest {
   currency: string;
   sellerId: string;
   buyerId: string;
+  buyerAddress: string;
+  buyerCodigoPostal: string;
   items: Array<{
     productId: string;
     quantity: number;
@@ -115,7 +120,7 @@ export interface ShipmentCreateRequest {
 export interface ShipmentCreateResponse {
   trackingId: string;
   courier: string;
-  status: "LABEL_CREATED";
+  status: ShipmentStatus;
 }
 
 // ─── Formato de error estándar ────────────────────────────────────────────────
@@ -154,5 +159,5 @@ export interface PaymentWebhookPayload {
 export interface ShippingWebhookPayload {
   trackingId: string;
   courier: string;
-  status: string;
+  status: ShipmentStatus;
 }
