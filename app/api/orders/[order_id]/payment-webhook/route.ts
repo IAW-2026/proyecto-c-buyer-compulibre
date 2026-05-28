@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { BuyerOrderStatus } from "@prisma/client";
+import { validateServiceToken } from "@/lib/auth";
 
 interface PaymentWebhookBody {
   status?: string;
@@ -13,16 +14,13 @@ export async function POST(
   try {
     const { order_id } = await params;
     
-    // Etapa 3: Validación de x-service-token
-    /*
-    const token = request.headers.get("x-service-token");
-    if (token !== process.env.INTERNAL_SERVICE_TOKEN) {
+    // Validación de x-service-token para autenticación inter-servicios
+    if (!validateServiceToken(request)) {
       return NextResponse.json(
-        { success: false, error: "UNAUTHORIZED", message: "Token inválido o ausente" },
+        { success: false, error: "UNAUTHORIZED", message: "Token de servicio inválido o ausente" },
         { status: 401 }
       );
     }
-    */
 
     const body = (await request.json()) as PaymentWebhookBody;
     const { status } = body;

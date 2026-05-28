@@ -4,10 +4,26 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
+import type { ShipmentStatus } from "@/types";
 
 export const metadata: Metadata = {
   title: "Mis Órdenes — CompuLibre",
   description: "Consultá el historial y estado de todas tus compras en CompuLibre.",
+};
+
+const SHIPMENT_STATUS_MAP: Record<ShipmentStatus, StatusBadgeConfig> = {
+  LABEL_CREATED: {
+    label: "Etiqueta creada",
+    className: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  IN_TRANSIT: {
+    label: "En camino",
+    className: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  },
+  DELIVERED: {
+    label: "Entregado",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
 };
 
 const formatCurrency = (value: number | string) =>
@@ -115,9 +131,13 @@ export default async function OrdersPage() {
                     >
                       {badge.label}
                     </span>
-                    {order.shipmentStatus && (
-                      <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700">
-                        📦 {order.shipmentStatus}
+                    {order.shipmentStatus && SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus] && (
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+                          SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus].className
+                        }`}
+                      >
+                        📦 {SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus].label}
                       </span>
                     )}
                   </div>

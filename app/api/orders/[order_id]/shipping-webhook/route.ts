@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
+import { validateServiceToken } from "@/lib/auth";
+import { ShipmentStatus } from "@/types";
 
 interface ShippingWebhookBody {
   trackingId?: string;
   courier?: string;
-  status?: string;
+  status?: ShipmentStatus;
 }
 
 export async function POST(
@@ -15,19 +17,23 @@ export async function POST(
   try {
     const { order_id } = await params;
     
-    // Etapa 3: Validación de x-service-token
-    /*
-    const token = request.headers.get("x-service-token");
-    if (token !== process.env.INTERNAL_SERVICE_TOKEN) {
+    // Validación de x-service-token para autenticación inter-servicios
+    if (!validateServiceToken(request)) {
       return NextResponse.json(
-        { success: false, error: "UNAUTHORIZED", message: "Token inválido o ausente" },
+        { success: false, error: "UNAUTHORIZED", message: "Token de servicio inválido o ausente" },
         { status: 401 }
       );
     }
-    */
 
     const body = (await request.json()) as ShippingWebhookBody;
     const { trackingId, courier, status: incomingStatus } = body;
+
+    if (!incomingStatus || !["LABEL_CREATED", "IN_TRANSIT", "DELIVERED"].includes(incomingStatus)) {
+      return NextResponse.json(
+        { success: false, error: "INVALID_STATUS", message: "El estado de envío provisto es inválido o no reconocido" },
+        { status: 400 }
+      );
+    }
 
     const order = await prisma.buyerOrder.findUnique({
       where: { id: order_id }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { simulateShippingAction } from "@/lib/actions/checkout";
+import type { ShipmentStatus } from "@/types";
 
 interface ShippingSimulationPanelProps {
   orderId: string;
   orderStatus: string;
-  shipmentStatus: string | null;
+  shipmentStatus: ShipmentStatus | null;
 }
 
 export default function ShippingSimulationPanel({
@@ -15,9 +17,10 @@ export default function ShippingSimulationPanel({
   shipmentStatus,
 }: ShippingSimulationPanelProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   // Decidir qué acción / botón mostrar según el estado actual
-  let currentAction: "LABEL_CREATED" | "IN_TRANSIT" | "DELIVERED" | null = null;
+  let currentAction: ShipmentStatus | null = null;
   let buttonLabel = "";
   let description = "";
 
@@ -44,7 +47,10 @@ export default function ShippingSimulationPanel({
       const res = await simulateShippingAction(orderId, currentAction!);
       if (!res.success) {
         alert(res.message || "Ocurrió un error al simular el envío.");
+        return;
       }
+      // Navegar con el event param para disparar el toast de notificación
+      router.push(`/orders/${orderId}?event=${currentAction}`);
     });
   };
 
