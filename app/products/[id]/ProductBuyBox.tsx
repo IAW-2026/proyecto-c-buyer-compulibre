@@ -240,12 +240,12 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
                   >
                     Ver mi Carrito
                   </Link>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
+                  <Link
+                    href="/products"
                     className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99]"
                   >
                     Seguir comprando
-                  </button>
+                  </Link>
                 </>
               ) : (
                 <>

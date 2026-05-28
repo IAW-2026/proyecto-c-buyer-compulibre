@@ -355,7 +355,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               <div className="rounded-xl bg-amber-50 p-3.5 border border-amber-100 text-xs text-[#FC7A1E] font-medium leading-relaxed">
                 📢 <strong>Dirección requerida:</strong> Necesitás registrar tu dirección de envío antes de proceder al pago.
                 <Link
-                  href="/onboarding"
+                  href="/onboarding?returnUrl=/cart"
                   className="block font-bold underline mt-1 text-[#e0620c] hover:brightness-90"
                 >
                   Registrar mi dirección ahora →
@@ -379,7 +379,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               </button>
             ) : !hasProfile ? (
               <Link
-                href="/onboarding"
+                href="/onboarding?returnUrl=/cart"
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#485696] py-4 text-sm font-extrabold text-white shadow-md transition-all hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
               >
                 Registrar dirección →

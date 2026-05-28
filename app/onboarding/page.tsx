@@ -12,16 +12,20 @@ export const metadata = {
  * Server Component: Pantalla de Onboarding de CompuLibre.
  * Evita accesos de usuarios no autenticados y de usuarios que ya poseen perfil en la DB local.
  */
-export default async function OnboardingPage() {
+export default async function OnboardingPage({
+  searchParams,
+}: {
+  searchParams: { returnUrl?: string };
+}) {
   const user = await currentUser();
   
   if (!user) {
     redirect("/sign-in");
   }
 
-  // Si el usuario ya posee un perfil en Postgres, no debe rellenar el onboarding
+  // Si el usuario ya posee un perfil en Postgres Y tiene dirección configurada, no debe rellenar el onboarding
   const profile = await getBuyerProfile();
-  if (profile) {
+  if (profile && profile.defaultShippingAddress) {
     redirect("/products");
   }
 
@@ -46,7 +50,7 @@ export default async function OnboardingPage() {
         </div>
 
         {/* Formulario Interactivo */}
-        <OnboardingForm defaultName={defaultName} />
+        <OnboardingForm defaultName={defaultName} returnUrl={searchParams.returnUrl || "/products"} />
         
       </div>
     </main>
