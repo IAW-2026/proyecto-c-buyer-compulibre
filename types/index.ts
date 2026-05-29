@@ -62,6 +62,12 @@ export interface BuyerOrderItem {
   unitPrice: string; // Decimal serializado como string
 }
 
+// Imagen individual de un producto (multi-imagen, contrato API docs-ext/03-apis.md)
+export interface ProductImage {
+  id: string;
+  imageUrl: string;
+}
+
 // Tipo para listados y carrito (sin description — thin)
 export interface SellerProductSummary {
   productId: string;
@@ -73,12 +79,13 @@ export interface SellerProductSummary {
   stock: number;
   sellerId: string;
   sellerName: string;
-  imageUrl: string;
+  imageUrl: string;   // imagen principal (compatibilidad con listados y carrito)
 }
 
-// Tipo para el detalle de producto (fat — incluye description)
+// Tipo para el detalle de producto (fat — incluye description y galería)
 export interface SellerProduct extends SellerProductSummary {
   description: string;
+  images?: ProductImage[]; // array de imágenes adicionales
 }
 
 // ─── Mocks: Payments App ─────────────────────────────────────────────────────
@@ -90,7 +97,7 @@ export interface PaymentInitRequest {
   sellerId: string;
   buyerId: string;
   buyerAddress: string;
-  buyerCodigoPostal: string;
+  buyerPostalCode: string;
   items: Array<{
     productId: string;
     quantity: number;
