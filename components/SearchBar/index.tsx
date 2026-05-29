@@ -1,7 +1,8 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useRef, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebouncedCallback } from "use-debounce";
+import { useTransition } from "react";
 
 const CATEGORIES = [
   { value: "", label: "Todas" },
@@ -13,104 +14,70 @@ const CATEGORIES = [
   { value: "MOTHERBOARD", label: "Motherboards" },
 ];
 
-/**
- * Client Component: lee y actualiza ?search y ?category en la URL.
- * IMPORTANTE: el componente padre debe envolverlo en <Suspense> porque
- * useSearchParams() provoca CSR bailout sin él.
- */
-const DEBOUNCE_MS = 300;
-
 export default function SearchBar() {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const category = searchParams.get("category") ?? "";
+  // 1. Manejo de la actualización de URL (reutilizable para search y category)
+  const updateParams = (term: string, key: "search" | "category") => {
+    const params = new URLSearchParams(searchParams);
+    
+    // Al cambiar filtros, volver siempre a la página 1
+    params.delete("page");
 
-  // Estado local para el input: se actualiza en cada tecla
-  // pero la URL solo se actualiza tras DEBOUNCE_MS ms de inactividad
-  const [inputValue, setInputValue] = useState(
-    searchParams.get("search") ?? ""
-  );
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    if (term) {
+      params.set(key, term);
+    } else {
+      params.delete(key);
+    }
 
-  /** Actualiza la URL preservando los parámetros existentes */
-  const updateParams = useCallback(
-    (updates: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      for (const [key, value] of Object.entries(updates)) {
-        if (value) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
-      }
-
-      // Al cambiar filtros, volver siempre a la página 1
-      params.delete("page");
-
-      startTransition(() => {
-        router.push(`/products?${params.toString()}`);
-      });
-    },
-    [router, searchParams]
-  );
-
-  /** Maneja el cambio en el input con debounce */
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value); // actualiza la UI inmediatamente
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      updateParams({ search: value });
-    }, DEBOUNCE_MS);
+    // Usamos startTransition para mostrar el estado "Buscando..."
+    startTransition(() => {
+      replace(`${pathname}?${params.toString()}`);
+    });
   };
+
+  // 2. Aplicamos el Debounce oficial del tutorial de Next.js (400ms)
+  const handleSearch = useDebouncedCallback((term: string) => {
+    updateParams(term, "search");
+  }, 300);
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
       {/* Input de búsqueda */}
       <div className="relative flex-1">
         <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
           </svg>
         </span>
         <input
           id="product-search"
           type="search"
           placeholder="Buscar productos..."
-          value={inputValue}
-          onChange={handleSearchChange}
-          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-4 text-sm text-[#1F2937] placeholder-[#6B7280] shadow-sm outline-none ring-0 transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
-          aria-label="Buscar productos"
+          onChange={(e) => handleSearch(e.target.value)}
+          defaultValue={searchParams.get("search")?.toString()} 
+          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-10 text-sm text-[#1F2937] placeholder-[#6B7280] shadow-sm outline-none ring-0 transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
         />
+        {/* Indicador de carga moderno dentro del input */}
+        {isPending && (
+          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center" aria-hidden="true">
+            <svg className="h-4 w-4 animate-spin text-[#485696]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </span>
+        )}
       </div>
 
       {/* Selector de categoría */}
       <select
         id="category-filter"
-        value={category}
-        onChange={(e) =>
-          updateParams({
-            category: e.target.value,
-          })
-        }
+        defaultValue={searchParams.get("category")?.toString() || ""}
+        onChange={(e) => updateParams(e.target.value, "category")}
         className="rounded-xl border border-gray-200 bg-white py-2.5 pl-3 pr-8 text-sm text-[#1F2937] shadow-sm outline-none ring-0 transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20 sm:w-48"
-        aria-label="Filtrar por categoría"
       >
         {CATEGORIES.map((cat) => (
           <option key={cat.value} value={cat.value}>
@@ -118,13 +85,6 @@ export default function SearchBar() {
           </option>
         ))}
       </select>
-
-      {/* Indicador de carga */}
-      {isPending && (
-        <span className="text-xs text-[#6B7280] sm:w-16" aria-live="polite">
-          Buscando…
-        </span>
-      )}
     </div>
   );
 }
