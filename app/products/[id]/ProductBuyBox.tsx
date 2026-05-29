@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCartIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import { ShoppingCartIcon, CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
 import { addToCartAction } from "@/lib/actions/cart";
 
@@ -87,7 +87,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
       {/* Mensaje de error premium */}
       {errorMsg && (
         <div className="mb-4 rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-600 border border-red-100 flex items-start gap-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
-          <span className="text-sm shrink-0">⚠️</span>
+          <ExclamationTriangleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
           <span className="flex-1 leading-normal">{errorMsg}</span>
           <button
             onClick={() => setErrorMsg(null)}
