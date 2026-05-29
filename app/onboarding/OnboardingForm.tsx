@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { createProfileFromOnboarding, OnboardingState } from "@/lib/db/profile";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 
 
 /**
@@ -16,10 +17,10 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className={`w-full rounded-xl bg-[#FC7A1E] px-4 py-3 text-sm font-semibold text-white shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#FC7A1E]/50 ${
+      className={`block w-full rounded-xl border border-[#FC7A1E] bg-[#FC7A1E] px-12 py-3 text-sm font-bold text-white transition-colors focus:outline-none focus:ring-2 focus:ring-[#FC7A1E]/50 ${
         pending 
           ? "opacity-50 cursor-not-allowed" 
-          : "hover:brightness-95 active:scale-[0.99]"
+          : "hover:bg-transparent hover:text-[#FC7A1E]"
       }`}
     >
       {pending ? "Guardando..." : "Comenzar a comprar"}
@@ -44,13 +45,13 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
   );
 
   return (
-    <form action={formAction} className="mt-6 space-y-5">
+    <form action={formAction} className="mt-6 space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-6">
       <input type="hidden" name="returnUrl" value={returnUrl} />
       
       {/* Banner de alerta de error estético */}
       {state?.error && (
         <div className="rounded-xl bg-[#F9C784]/20 border border-[#F9C784] p-3.5 text-sm text-[#FC7A1E] font-semibold flex items-start gap-2">
-          <span className="shrink-0 text-base">⚠️</span>
+          <ExclamationTriangleIcon className="h-5 w-5 shrink-0" aria-hidden="true" />
           <span>{state.error}</span>
         </div>
       )}
@@ -59,7 +60,7 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
       <div>
         <label 
           htmlFor="fullName" 
-          className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5"
+          className="block text-sm font-medium text-[#1F2937]"
         >
           Nombre Completo
         </label>
@@ -67,11 +68,11 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
           type="text"
           id="fullName"
           name="fullName"
-          defaultValue={defaultName}
+          defaultValue={state?.fullName || defaultName}
           required
           minLength={3}
           autoFocus
-          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
+          className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-1 focus:ring-[#485696]"
           placeholder="Ej: Juan Pérez"
         />
       </div>
@@ -80,7 +81,7 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
       <div>
         <label 
           htmlFor="address" 
-          className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5"
+          className="block text-sm font-medium text-[#1F2937]"
         >
           Dirección de Envío
         </label>
@@ -88,12 +89,14 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
           type="text"
           id="address"
           name="address"
+          defaultValue={state?.address || ""}
           required
-          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
+          minLength={10}
+          className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-1 focus:ring-[#485696]"
           placeholder="Ej: Av. Corrientes 1234, Piso 4 B, CABA, Argentina"
         />
-        <p className="mt-2 text-xs text-[#6B7280] leading-relaxed">
-          Debe tener al menos 10 caracteres. Esta será tu dirección estática de envío para todas tus compras en CompuLibre.
+        <p className="mt-1.5 text-xs text-[#6B7280] leading-relaxed">
+          Debe tener al menos 10 caracteres. Esta será tu dirección estática de envío para todas tus compras.
         </p>
       </div>
 
@@ -101,7 +104,7 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
       <div>
         <label 
           htmlFor="postalCode" 
-          className="block text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-1.5"
+          className="block text-sm font-medium text-[#1F2937]"
         >
           Código Postal
         </label>
@@ -109,15 +112,16 @@ export default function OnboardingForm({ defaultName, returnUrl }: OnboardingFor
           type="text"
           id="postalCode"
           name="postalCode"
+          defaultValue={state?.postalCode || ""}
           required
           minLength={4}
-          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-2 focus:ring-[#485696]/20"
+          className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-[#1F2937] placeholder-[#6B7280] outline-none transition focus:border-[#485696] focus:ring-1 focus:ring-[#485696]"
           placeholder="Ej: 1414"
         />
       </div>
 
       {/* Botón de Confirmación */}
-      <div className="pt-2">
+      <div className="pt-4">
         <SubmitButton />
       </div>
     </form>

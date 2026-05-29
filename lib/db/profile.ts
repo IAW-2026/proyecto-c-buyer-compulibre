@@ -21,6 +21,9 @@ export async function getBuyerProfile() {
 export interface OnboardingState {
   success: boolean;
   error?: string;
+  fullName?: string;
+  address?: string;
+  postalCode?: string;
 }
 
 /**
@@ -43,15 +46,15 @@ export async function createProfileFromOnboarding(
 
   // 1. Validaciones estrictas de servidor
   if (fullName.length < 3) {
-    return { success: false, error: "El nombre es requerido y debe tener al menos 3 caracteres." };
+    return { success: false, error: "El nombre es requerido y debe tener al menos 3 caracteres.", fullName, address, postalCode };
   }
 
   if (address.length < 10) {
-    return { success: false, error: "La dirección es requerida y debe tener al menos 10 caracteres para ser válida." };
+    return { success: false, error: "La dirección es requerida y debe tener al menos 10 caracteres para ser válida.", fullName, address, postalCode };
   }
 
   if (postalCode.length < 4) {
-    return { success: false, error: "El código postal es requerido y debe ser válido." };
+    return { success: false, error: "El código postal es requerido y debe ser válido.", fullName, address, postalCode };
   }
 
   let success = false;
@@ -79,7 +82,8 @@ export async function createProfileFromOnboarding(
     console.error("Error al registrar el BuyerProfile en base de datos:", err);
     return { 
       success: false, 
-      error: "Error interno al guardar tu perfil. Es posible que el perfil ya esté registrado." 
+      error: "Error interno al guardar tu perfil. Es posible que el perfil ya esté registrado.",
+      fullName, address, postalCode
     };
   }
 
