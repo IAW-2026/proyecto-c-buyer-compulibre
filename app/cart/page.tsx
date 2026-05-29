@@ -46,7 +46,7 @@ export default async function CartPage() {
 
     hydratedItems = cart.items.map((item) => {
       const productData = productsData.find(
-        (p) => p.productId === item.externalProductId
+        (p) => p.id === item.externalProductId
       );
       return {
         id: item.id,
@@ -57,7 +57,7 @@ export default async function CartPage() {
         sellerId: item.sellerId,
         // Hidratación desde la API mock de la Seller App:
         sellerName: productData?.sellerName ?? "Vendedor Desconocido",
-        imageUrl: productData?.imageUrl ?? "https://placehold.co/400x300?text=Sin+Imagen",
+        imageUrl: productData?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
         stock: productData?.stock ?? 0,
       };
     });

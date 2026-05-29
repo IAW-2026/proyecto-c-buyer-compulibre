@@ -40,11 +40,11 @@ export default async function CheckoutPage() {
   const productsData = await getProductsByIds(productIds);
 
   const hydratedItems = cart.items.map((item) => {
-    const product = productsData.find((p) => p.productId === item.externalProductId);
+    const product = productsData.find((p) => p.id === item.externalProductId);
     return {
       ...item,
       cachedPrice: item.cachedPrice.toString(),
-      imageUrl: product?.imageUrl ?? "https://placehold.co/80x80?text=?",
+      imageUrl: product?.image ?? "https://placehold.co/80x80?text=?",
       sellerName: product?.sellerName ?? "Vendedor",
     };
   });

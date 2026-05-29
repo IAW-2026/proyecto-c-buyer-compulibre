@@ -17,12 +17,12 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
 
   return (
     <Link
-      href={`/products/${product.productId}`}
+      href={`/products/${product.id}`}
       className="group flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
     >
       <div className="relative aspect-4/3 w-full bg-gray-100">
         <Image
-          src={product.imageUrl}
+          src={product.image}
           alt={product.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"

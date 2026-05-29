@@ -70,7 +70,7 @@ export interface ProductImage {
 
 // Tipo para listados y carrito (sin description — thin)
 export interface SellerProductSummary {
-  productId: string;
+  id: string;
   name: string;
   brand: string;
   category: string;
@@ -79,13 +79,15 @@ export interface SellerProductSummary {
   stock: number;
   sellerId: string;
   sellerName: string;
-  imageUrl: string;   // imagen principal (compatibilidad con listados y carrito)
+  image: string;   // imagen principal (compatibilidad con listados y carrito)
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Tipo para el detalle de producto (fat — incluye description y galería)
-export interface SellerProduct extends SellerProductSummary {
+export interface SellerProduct extends Omit<SellerProductSummary, 'image'> {
   description: string;
-  images?: ProductImage[]; // array de imágenes adicionales
+  images: ProductImage[]; // array de imágenes adicionales (requerido según especificación)
 }
 
 // ─── Mocks: Payments App ─────────────────────────────────────────────────────

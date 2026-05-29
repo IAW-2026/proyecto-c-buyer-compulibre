@@ -39,7 +39,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
   const handleAddToCart = () => {
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await addToCartAction(product.productId, quantity);
+      const res = await addToCartAction(product.id, quantity);
       if (res.success) {
         setModalActionType("cart");
         setIsModalOpen(true);
@@ -52,7 +52,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
   const handleBuyNow = () => {
     setErrorMsg(null);
     startTransition(async () => {
-      const res = await addToCartAction(product.productId, quantity);
+      const res = await addToCartAction(product.id, quantity);
       if (res.success) {
         setModalActionType("buy");
         setIsModalOpen(true);
@@ -216,7 +216,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
             <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-3.5 mb-6 border border-gray-100">
               <div className="relative h-14 w-14 overflow-hidden rounded-lg border border-gray-200 bg-white shrink-0">
                 <Image
-                  src={product.imageUrl}
+                  src={product.images[0]?.imageUrl ?? "https://placehold.co/80x80?text=?"}
                   alt={product.name}
                   fill
                   className="object-cover"

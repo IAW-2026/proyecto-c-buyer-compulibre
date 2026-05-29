@@ -6,7 +6,6 @@ import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
 import { auth } from "@clerk/nextjs/server";
 import { getBuyerProfile } from "@/lib/db/profile";
-
 import ProfileRedirector from "@/components/ProfileRedirector";
 
 export const metadata: Metadata = {
@@ -18,8 +17,12 @@ export const metadata: Metadata = {
 const PAGE_SIZE = 12;
 
 type SearchParams = Promise<{
-  search?: string;
+  query?: string;
   category?: string;
+  condition?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sort?: string;
   page?: string;
 }>;
 
@@ -40,24 +43,36 @@ export default async function ProductsPage({
   // Next.js 15+: searchParams es una Promise, hay que awaitearlo
   const params = await searchParams;
 
-  // Sanitizar page: debe ser un entero >= 1
+  // Sanitizar parámetros
   const page = Math.max(1, Number(params.page) || 1);
-  const search = params.search ?? "";
+  const query = params.query ?? "";
   const category = params.category ?? "";
+  const condition = params.condition as "NEW" | "USED" | "REFURBISHED" | undefined;
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
+  const sort = params.sort as "ascendingPrice" | "descendingPrice" | undefined;
 
-  const { items: products, total } = await getProducts({
-    search,
+  const { products, pagination } = await getProducts({
+    query,
     category,
+    condition,
+    minPrice,
+    maxPrice,
+    sort,
     page,
-    pageSize: PAGE_SIZE,
+    limit: PAGE_SIZE,
   });
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const { totalProducts: total, totalPages } = pagination;
 
   // Objeto plano para pasarlo a Pagination y que reconstruya URLs
   const currentParams: Record<string, string> = {};
-  if (search) currentParams.search = search;
+  if (query) currentParams.query = query;
   if (category) currentParams.category = category;
+  if (condition) currentParams.condition = condition;
+  if (minPrice !== undefined) currentParams.minPrice = String(minPrice);
+  if (maxPrice !== undefined) currentParams.maxPrice = String(maxPrice);
+  if (sort) currentParams.sort = sort;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

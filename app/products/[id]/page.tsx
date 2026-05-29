@@ -49,12 +49,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // 3. Construir el array de imágenes para la galería
-  //    Si el mock no tiene `images`, fallback a imageUrl principal
-  const galleryImages: ProductImage[] =
-    product.images && product.images.length > 0
-      ? product.images
-      : [{ id: "img_main", imageUrl: product.imageUrl }];
+  // 3. Obtener el array de imágenes para la galería
+  const galleryImages: ProductImage[] = product.images;
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

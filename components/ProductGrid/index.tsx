@@ -28,7 +28,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
       aria-label="Listado de productos"
     >
       {products.map((product, index) => (
-        <li key={product.productId}>
+        <li key={product.id}>
           <ProductCard product={product} priority={index === 0} />
         </li>
       ))}
