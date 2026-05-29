@@ -55,7 +55,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
-      <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#6B7280]">
+      <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[#6B7280] sm:mb-6 sm:gap-2">
         <Link href="/products" className="transition hover:text-[#485696]">
           Inicio
         </Link>
@@ -73,17 +73,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </nav>
 
       {/* Volver */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Link
           href="/products"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-[#485696] transition duration-200 hover:translate-x-[-2px] hover:brightness-95"
         >
-          <span>←</span> Volver a la lista de productos
+          <span>←</span> <span className="hidden xs:inline">Volver a la lista de productos</span><span className="xs:hidden">Volver</span>
         </Link>
       </div>
 
       {/* Grid principal: Galería | Info + Buy Box */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
         {/* ── Columna Izquierda: Galería de imágenes ── */}
         <div className="lg:col-span-7">
           <ProductImageGallery
@@ -93,72 +93,77 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* ── Columna Derecha: Información + Buy Box ── */}
-        <div className="space-y-6 lg:col-span-5">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Badges: Categoría + Condición */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
-                {formatCategory(product.category)}
-              </span>
-              <span
-                className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
-                  product.condition === "NEW"
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : product.condition === "USED"
-                    ? "border-amber-200 bg-amber-50 text-amber-700"
-                    : "border-indigo-200 bg-indigo-50 text-[#485696]"
-                }`}
-              >
-                {formatCondition(product.condition)}
-              </span>
-            </div>
-
-            {/* Nombre */}
-            <h1 className="mt-3 text-2xl font-extrabold leading-tight tracking-tight text-[#1F2937] sm:text-3xl">
-              {product.name}
-            </h1>
-
-            {/* Marca */}
-            <p className="mt-2 text-sm text-[#6B7280]">
-              Marca:{" "}
-              <span className="font-semibold text-[#1F2937]">
-                {product.brand}
-              </span>
-            </p>
-
-            {/* Vendedor */}
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#485696]/10 bg-[#485696]/5 px-3 py-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#485696]/10">
-                <span className="text-sm font-bold text-[#485696]">
-                  {product.sellerName.charAt(0)}
+        <div className="space-y-4 lg:col-span-5 lg:space-y-6">
+          {/* En desktop se hace sticky para acompañar el scroll de la galería */}
+          <div className="lg:sticky lg:top-24">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+              {/* Badges: Categoría + Condición */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
+                  {formatCategory(product.category)}
+                </span>
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
+                    product.condition === "NEW"
+                      ? "border-green-200 bg-green-50 text-green-700"
+                      : product.condition === "USED"
+                      ? "border-amber-200 bg-amber-50 text-amber-700"
+                      : "border-indigo-200 bg-indigo-50 text-[#485696]"
+                  }`}
+                >
+                  {formatCondition(product.condition)}
                 </span>
               </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
-                  Vendedor verificado
-                </p>
-                <p className="text-sm font-semibold text-[#1F2937]">
-                  {product.sellerName}
+
+              {/* Nombre */}
+              <h1 className="mt-3 text-xl font-extrabold leading-tight tracking-tight text-[#1F2937] sm:text-2xl lg:text-3xl">
+                {product.name}
+              </h1>
+
+              {/* Marca */}
+              <p className="mt-2 text-sm text-[#6B7280]">
+                Marca:{" "}
+                <span className="font-semibold text-[#1F2937]">
+                  {product.brand}
+                </span>
+              </p>
+
+              {/* Vendedor */}
+              <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#485696]/10 bg-[#485696]/5 px-3 py-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#485696]/10">
+                  <span className="text-sm font-bold text-[#485696]">
+                    {product.sellerName.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
+                    Vendedor verificado
+                  </p>
+                  <p className="text-sm font-semibold text-[#1F2937]">
+                    {product.sellerName}
+                  </p>
+                </div>
+                <span className="ml-auto text-green-600" aria-hidden="true">
+                  ✓
+                </span>
+              </div>
+
+              {/* Descripción — visible en mobile, colapsada semánticamente */}
+              <div className="mt-5 border-t border-gray-100 pb-2 pt-4">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
+                  Descripción del producto
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">
+                  {product.description}
                 </p>
               </div>
-              <span className="ml-auto text-green-600" aria-hidden="true">
-                ✓
-              </span>
             </div>
 
-            {/* Descripción */}
-            <div className="mt-6 border-t border-gray-100 pb-2 pt-5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-                Descripción del producto
-              </h2>
-              <p className="mt-2.5 text-sm leading-relaxed text-[#4B5563]">
-                {product.description}
-              </p>
+            {/* Buy Box — Client Component con carrito, cantidad y modal */}
+            <div className="mt-4">
+              <ProductBuyBox product={product} />
             </div>
           </div>
-
-          {/* Buy Box — Client Component con carrito, cantidad y modal */}
-          <ProductBuyBox product={product} />
         </div>
       </div>
 
