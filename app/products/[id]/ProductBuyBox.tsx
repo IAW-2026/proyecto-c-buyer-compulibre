@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ShoppingCartIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
 import { addToCartAction } from "@/lib/actions/cart";
 
@@ -165,7 +166,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
             </>
           ) : (
             <>
-              <span>🛒</span>
+              <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
               Agregar al carrito
             </>
           )}
@@ -196,8 +197,8 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
             {/* Header del Modal */}
             <div className="text-center mb-5">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-2xl text-green-500 mb-3">
-                ✅
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 mb-3">
+                <CheckCircleIcon className="h-10 w-10 text-green-500" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-bold text-[#1F2937]">
                 {modalActionType === "cart"

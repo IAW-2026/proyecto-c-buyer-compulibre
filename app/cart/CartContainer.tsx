@@ -3,6 +3,15 @@
 import { useOptimistic, useTransition, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  ShoppingCartIcon,
+  BuildingStorefrontIcon,
+  ExclamationTriangleIcon,
+  TrashIcon,
+  NoSymbolIcon,
+  LightBulbIcon,
+  SpeakerWaveIcon,
+} from "@heroicons/react/24/outline";
 import { HydratedCartItem } from "./types";
 import { updateQuantityAction, removeItemAction } from "@/lib/actions/cart";
 
@@ -103,7 +112,9 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
   if (optimisticItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-300">
-        <div className="mb-6 text-6xl">🛒</div>
+        <div className="mb-6 flex items-center justify-center">
+          <ShoppingCartIcon className="h-16 w-16 text-[#485696]/40" aria-hidden="true" />
+        </div>
         <h2 className="text-2xl font-extrabold text-[#1F2937] tracking-tight">
           Tu carrito de compras está vacío
         </h2>
@@ -144,7 +155,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
       {errorMessage && (
         <div className="rounded-xl bg-red-50 p-4 text-sm font-medium text-red-600 border border-red-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span>⚠️</span>
+            <ExclamationTriangleIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>{errorMessage}</span>
           </div>
           <button onClick={() => setErrorMessage(null)} className="text-red-400 hover:text-red-600">
@@ -156,8 +167,8 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
       {/* Banner Mono-Vendedor (Si hay múltiples vendedores) */}
       {hasMultipleSellers && (
         <div className="rounded-2xl bg-linear-to-r from-amber-500/10 to-red-500/10 border-2 border-amber-500/30 p-6 flex flex-col md:flex-row md:items-center gap-5 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-2xl text-amber-600">
-            ⚠️
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+            <ExclamationTriangleIcon className="h-6 w-6" aria-hidden="true" />
           </div>
           <div className="space-y-1">
             <h3 className="font-bold text-[#1F2937]">Compra Restringida: Múltiples Vendedores</h3>
@@ -181,7 +192,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               >
                 {/* Cabecera del Vendedor */}
                 <div className="flex items-center gap-2 border-b border-gray-100 pb-4.5 mb-4">
-                  <span className="text-lg">🏪</span>
+                  <BuildingStorefrontIcon className="h-5 w-5 text-[#485696]" aria-hidden="true" />
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-extrabold text-sm text-[#1F2937] uppercase tracking-wide">
                       {group.sellerName}
@@ -275,7 +286,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                               disabled={isPending}
                               className="text-xs font-bold text-red-500 hover:text-red-700 transition flex items-center gap-1 disabled:opacity-50"
                             >
-                              <span>🗑️</span>
+                              <TrashIcon className="h-3.5 w-3.5" aria-hidden="true" />
                               <span className="hidden sm:inline">Eliminar</span>
                             </button>
                           </div>
@@ -312,8 +323,9 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               </div>
 
               {shippingCost > 0 && (
-                <p className="text-[10px] text-green-600 leading-normal font-semibold">
-                  💡 ¡Sumá {formatCurrency(300000 - subtotal)} más para obtener Envío Gratis!
+                <p className="flex items-center gap-1 text-[10px] text-green-600 leading-normal font-semibold">
+                  <LightBulbIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  ¡Sumá {formatCurrency(300000 - subtotal)} más para obtener Envío Gratis!
                 </p>
               )}
             </div>
@@ -353,7 +365,11 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
             {/* Avisos especiales */}
             {!hasProfile && (
               <div className="rounded-xl bg-amber-50 p-3.5 border border-amber-100 text-xs text-[#FC7A1E] font-medium leading-relaxed">
-                📢 <strong>Dirección requerida:</strong> Necesitás registrar tu dirección de envío antes de proceder al pago.
+                <span className="inline-flex items-center gap-1">
+                  <SpeakerWaveIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <strong>Dirección requerida:</strong>
+                </span>
+                {" "}Necesitás registrar tu dirección de envío antes de proceder al pago.
                 <Link
                   href="/onboarding?returnUrl=/cart"
                   className="block font-bold underline mt-1 text-[#e0620c] hover:brightness-90"
@@ -364,8 +380,9 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
             )}
 
             {hasMultipleSellers && (
-              <div className="rounded-xl bg-red-50 p-3.5 border border-red-100 text-xs text-red-600 font-medium leading-normal">
-                🚫 Tenés artículos de diferentes tiendas en el carrito. Elegí una única tienda para finalizar tu compra.
+              <div className="flex items-start gap-1.5 rounded-xl bg-red-50 p-3.5 border border-red-100 text-xs text-red-600 font-medium leading-normal">
+                <NoSymbolIcon className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
+                Tenés artículos de diferentes tiendas en el carrito. Elegí una única tienda para finalizar tu compra.
               </div>
             )}
 
@@ -375,7 +392,8 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                 disabled
                 className="flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-extrabold text-white bg-gray-300 cursor-not-allowed shadow-none"
               >
-                🚫 Resolver vendedores primero
+                <NoSymbolIcon className="h-4 w-4" aria-hidden="true" />
+                Resolver vendedores primero
               </button>
             ) : !hasProfile ? (
               <Link

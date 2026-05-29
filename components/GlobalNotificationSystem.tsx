@@ -2,9 +2,14 @@
 
 import { useEffect, useState, useRef } from "react";
 import type { ShipmentStatus } from "@/types";
+import {
+  ArchiveBoxArrowDownIcon,
+  TruckIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 
 interface ToastConfig {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   message: string;
   className: string;
@@ -12,19 +17,19 @@ interface ToastConfig {
 
 const EVENT_TOAST_MAP: Record<ShipmentStatus, ToastConfig> = {
   LABEL_CREATED: {
-    icon: "📦",
+    icon: <ArchiveBoxArrowDownIcon className="h-5 w-5" />,
     title: "¡Tu pedido fue despachado!",
     message: "El vendedor generó la etiqueta de envío. Tu paquete está en camino.",
     className: "bg-blue-600 text-white",
   },
   IN_TRANSIT: {
-    icon: "🚚",
+    icon: <TruckIcon className="h-5 w-5" />,
     title: "Tu paquete está en tránsito",
     message: "El transportista retiró el paquete. Pronto estará en tu domicilio.",
     className: "bg-indigo-600 text-white",
   },
   DELIVERED: {
-    icon: "✅",
+    icon: <CheckCircleIcon className="h-5 w-5" />,
     title: "¡Paquete entregado!",
     message: "Tu pedido fue entregado exitosamente en tu domicilio.",
     className: "bg-emerald-600 text-white",
@@ -99,7 +104,7 @@ export default function GlobalNotificationSystem() {
         ${activeToast.className}
       `}
     >
-      <span className="mt-0.5 text-xl shrink-0">{activeToast.icon}</span>
+      <span className="mt-0.5 shrink-0" aria-hidden="true">{activeToast.icon}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-extrabold leading-tight">{activeToast.title}</p>
         <p className="mt-0.5 text-xs opacity-90 leading-snug">{activeToast.message}</p>

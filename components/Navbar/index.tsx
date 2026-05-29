@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
+import { ArchiveBoxIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
 
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useUser();
@@ -33,7 +34,7 @@ export default function Navbar() {
             aria-label="Ver mis órdenes"
             className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
           >
-            <span aria-hidden="true">📦</span>
+            <ArchiveBoxIcon className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Mis órdenes</span>
           </Link>
           <Link
@@ -41,7 +42,7 @@ export default function Navbar() {
             aria-label="Ver carrito"
             className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
           >
-            <span aria-hidden="true">🛒</span>
+            <ShoppingCartIcon className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Carrito</span>
           </Link>
 

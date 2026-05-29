@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { simulateShippingAction } from "@/lib/actions/checkout";
 import type { ShipmentStatus } from "@/types";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
 interface ShippingSimulationPanelProps {
   orderId: string;
@@ -59,7 +60,7 @@ export default function ShippingSimulationPanel({
       return (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
           <div className="flex gap-3">
-            <span className="text-xl">📦</span>
+            <CheckCircleIcon className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" aria-hidden="true" />
             <div>
               <h3 className="font-extrabold text-emerald-800 text-sm uppercase tracking-wider">
                 Simulador de Envíos (Dev Admin)

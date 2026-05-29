@@ -6,44 +6,55 @@ import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
 import type { ShipmentStatus } from "@/types";
 import ShippingSimulationPanel from "./ShippingSimulationPanel";
+import {
+  ClockIcon,
+  CheckCircleIcon,
+  TruckIcon,
+  ArchiveBoxIcon,
+  NoSymbolIcon,
+  XCircleIcon,
+  ClipboardDocumentIcon,
+  EnvelopeOpenIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
 // ─── Mapas de UI ──────────────────────────────────────────────────────────────
 
 interface StatusConfig {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   className: string;
 }
 
 const STATUS_MAP: Record<BuyerOrderStatus, StatusConfig> = {
   PENDING_PAYMENT: {
     label: "Pago pendiente",
-    icon: "⏳",
+    icon: <ClockIcon className="h-3.5 w-3.5" />,
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
   PAID: {
     label: "Pagado — en preparación",
-    icon: "✅",
+    icon: <CheckCircleIcon className="h-3.5 w-3.5" />,
     className: "bg-green-50 text-green-700 border-green-200",
   },
   SHIPPED: {
     label: "En camino",
-    icon: "🚚",
+    icon: <TruckIcon className="h-3.5 w-3.5" />,
     className: "bg-blue-50 text-blue-700 border-blue-200",
   },
   DELIVERED: {
     label: "Entregado",
-    icon: "📦",
+    icon: <ArchiveBoxIcon className="h-3.5 w-3.5" />,
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   CANCELLED: {
     label: "Cancelado",
-    icon: "🚫",
+    icon: <NoSymbolIcon className="h-3.5 w-3.5" />,
     className: "bg-gray-100 text-gray-500 border-gray-200",
   },
   PAYMENT_FAILED: {
     label: "Pago rechazado",
-    icon: "❌",
+    icon: <XCircleIcon className="h-3.5 w-3.5" />,
     className: "bg-red-50 text-red-600 border-red-200",
   },
 };
@@ -52,28 +63,28 @@ const STATUS_MAP: Record<BuyerOrderStatus, StatusConfig> = {
 const SHIPMENT_STEPS: Array<{
   status: ShipmentStatus;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   activeColor: string;
   doneColor: string;
 }> = [
   {
     status: "LABEL_CREATED",
     label: "Despachado",
-    icon: "📋",
+    icon: <ClipboardDocumentIcon className="h-4 w-4" />,
     activeColor: "text-blue-700 font-bold",
     doneColor: "text-gray-400",
   },
   {
     status: "IN_TRANSIT",
     label: "En camino",
-    icon: "🚚",
+    icon: <TruckIcon className="h-4 w-4" />,
     activeColor: "text-indigo-700 font-bold",
     doneColor: "text-gray-400",
   },
   {
     status: "DELIVERED",
     label: "Entregado",
-    icon: "✅",
+    icon: <CheckCircleIcon className="h-4 w-4" />,
     activeColor: "text-emerald-700 font-bold",
     doneColor: "text-gray-400",
   },
@@ -164,7 +175,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       {/* Banner de resultado de pago */}
       {success === "true" && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl bg-green-50 border border-green-200 p-5">
-          <span className="text-2xl">🎉</span>
+          <SparklesIcon className="h-7 w-7 shrink-0 text-green-600 mt-0.5" aria-hidden="true" />
           <div>
             <h2 className="font-bold text-green-800">¡Pago aprobado!</h2>
             <p className="text-sm text-green-700 mt-0.5">
@@ -175,7 +186,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       )}
       {success === "false" && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 p-5">
-          <span className="text-2xl">❌</span>
+          <XCircleIcon className="h-7 w-7 shrink-0 text-red-500 mt-0.5" aria-hidden="true" />
           <div>
             <h2 className="font-bold text-red-800">Pago rechazado</h2>
             <p className="text-sm text-red-700 mt-0.5">
@@ -339,7 +350,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             </div>
           ) : (
             <div className="flex items-center gap-3 text-sm text-[#6B7280]">
-              <span className="text-2xl">📬</span>
+              <EnvelopeOpenIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
               <p>
                 {order.status === "PENDING_PAYMENT" || order.status === "PAYMENT_FAILED"
                   ? "El envío se gestiona una vez confirmado el pago."

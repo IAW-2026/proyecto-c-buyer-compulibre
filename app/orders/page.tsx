@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db/prisma";
 import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
 import type { ShipmentStatus } from "@/types";
+import { ArchiveBoxIcon, TruckIcon } from "@heroicons/react/24/outline";
 
 export const metadata: Metadata = {
   title: "Mis Órdenes — CompuLibre",
@@ -99,7 +100,9 @@ export default async function OrdersPage() {
 
       {orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-5 text-6xl">📦</div>
+          <div className="mb-5">
+            <ArchiveBoxIcon className="h-16 w-16 text-[#485696]/30" aria-hidden="true" />
+          </div>
           <h2 className="text-lg font-bold text-[#1F2937]">Sin órdenes aún</h2>
           <p className="mt-2 max-w-xs text-sm text-[#6B7280]">
             Cuando realices una compra, la vas a ver acá con su estado actualizado.
@@ -133,11 +136,12 @@ export default async function OrdersPage() {
                     </span>
                     {order.shipmentStatus && SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus] && (
                       <span
-                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
                           SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus].className
                         }`}
                       >
-                        📦 {SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus].label}
+                        <TruckIcon className="h-3 w-3" aria-hidden="true" />
+                        {SHIPMENT_STATUS_MAP[order.shipmentStatus as ShipmentStatus].label}
                       </span>
                     )}
                   </div>

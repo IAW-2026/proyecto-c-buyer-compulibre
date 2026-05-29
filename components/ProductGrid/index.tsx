@@ -1,5 +1,6 @@
 import ProductCard from "@/components/ProductCard";
 import { SellerProductSummary } from "@/types";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 interface ProductGridProps {
   products: SellerProductSummary[];
@@ -10,9 +11,7 @@ export default function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20 text-center">
-        <span className="text-4xl" aria-hidden="true">
-          🔍
-        </span>
+        <MagnifyingGlassIcon className="h-12 w-12 text-[#6B7280]/50" aria-hidden="true" />
         <p className="text-lg font-semibold text-[#1F2937]">
           No encontramos productos
         </p>

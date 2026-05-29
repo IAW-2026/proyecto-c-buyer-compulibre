@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 /**
  * Custom 404 Not Found Page for CompuLibre.
@@ -10,8 +11,8 @@ export default function NotFound() {
     <main className="flex min-h-[calc(100vh-72px)] flex-col items-center justify-center bg-[#E7E7E7] px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md text-center bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
         {/* Visual Cue */}
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#FC7A1E]/10 text-4xl animate-bounce">
-          🔍
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#FC7A1E]/10 animate-bounce">
+          <MagnifyingGlassIcon className="h-10 w-10 text-[#FC7A1E]" aria-hidden="true" />
         </div>
 
         {/* Heading */}

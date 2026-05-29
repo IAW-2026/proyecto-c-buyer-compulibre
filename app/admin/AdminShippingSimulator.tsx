@@ -4,6 +4,11 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { simulateShippingAction } from "@/lib/actions/checkout";
 import type { ShipmentStatus } from "@/types";
+import {
+  ClipboardDocumentIcon,
+  TruckIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 
 interface AdminShippingSimulatorProps {
   orderId: string;
@@ -17,21 +22,21 @@ interface AdminShippingSimulatorProps {
 
 const STEP_CONFIG: Record<
   ShipmentStatus,
-  { label: string; icon: string; activeClass: string }
+  { label: string; icon: React.ReactNode; activeClass: string }
 > = {
   LABEL_CREATED: {
     label: "Etiqueta creada",
-    icon: "📋",
+    icon: <ClipboardDocumentIcon className="h-3 w-3" />,
     activeClass: "bg-blue-100 text-blue-800 border-blue-300",
   },
   IN_TRANSIT: {
     label: "En tránsito",
-    icon: "🚚",
+    icon: <TruckIcon className="h-3 w-3" />,
     activeClass: "bg-indigo-100 text-indigo-800 border-indigo-300",
   },
   DELIVERED: {
     label: "Entregado",
-    icon: "✅",
+    icon: <CheckCircleIcon className="h-3 w-3" />,
     activeClass: "bg-emerald-100 text-emerald-800 border-emerald-300",
   },
 };
@@ -161,8 +166,9 @@ export default function AdminShippingSimulator({
           </button>
         </div>
       ) : (
-        <p className="text-xs text-emerald-600 font-semibold pt-1 border-t border-gray-100">
-          ✅ Flujo de envío completado para esta orden.
+        <p className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold pt-1 border-t border-gray-100">
+          <CheckCircleIcon className="h-3.5 w-3.5" aria-hidden="true" />
+          Flujo de envío completado para esta orden.
         </p>
       )}
     </div>
