@@ -97,7 +97,7 @@ export interface PaymentInitRequest {
   sellerId: string;
   buyerId: string;
   buyerAddress: string;
-  buyerPostalCode: string;
+  buyerCodigoPostal: string;
   items: Array<{
     productId: string;
     quantity: number;
