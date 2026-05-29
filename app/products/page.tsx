@@ -115,9 +115,16 @@ export default async function ProductsPage({
 /** Esqueleto de SearchBar para el fallback de Suspense */
 function SearchBarSkeleton() {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center animate-pulse">
-      <div className="h-10 flex-1 rounded-xl bg-gray-200" />
-      <div className="h-10 w-full rounded-xl bg-gray-200 sm:w-48" />
+    <div className="flex flex-col gap-3 animate-pulse">
+      {/* Fila 1: buscador */}
+      <div className="h-10 w-full rounded-xl bg-gray-200" />
+      {/* Fila 2: pills de filtros */}
+      <div className="flex gap-2">
+        <div className="h-9 w-24 rounded-lg bg-gray-200" />
+        <div className="h-9 w-20 rounded-lg bg-gray-200" />
+        <div className="h-9 w-28 rounded-lg bg-gray-200" />
+        <div className="ml-auto h-9 w-32 rounded-lg bg-gray-200" />
+      </div>
     </div>
   );
 }
