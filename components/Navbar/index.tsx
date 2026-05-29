@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { ArchiveBoxIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useUser();
@@ -51,11 +52,14 @@ export default function Navbar() {
             // Placeholder sutil de carga con las mismas dimensiones para evitar saltos visuales
             <div className="h-8 w-8 animate-pulse rounded-full bg-white/25" />
           ) : isSignedIn ? (
-            <UserButton
-              appearance={{
-                elements: { avatarBox: "h-8 w-8" },
-              }}
-            />
+            <>
+              <NotificationBell />
+              <UserButton
+                appearance={{
+                  elements: { avatarBox: "h-8 w-8" },
+                }}
+              />
+            </>
           ) : (
             <Link
               href="/sign-in"

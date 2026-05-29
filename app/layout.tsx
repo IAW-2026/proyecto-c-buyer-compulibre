@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
-import GlobalNotificationSystem from "@/components/GlobalNotificationSystem";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,7 +29,6 @@ export default function RootLayout({
         <body className="min-h-full flex flex-col bg-[#E7E7E7] text-[#1F2937]">
           <Navbar />
           {children}
-          <GlobalNotificationSystem />
         </body>
       </html>
     </ClerkProvider>
