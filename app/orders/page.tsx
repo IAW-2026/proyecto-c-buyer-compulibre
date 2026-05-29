@@ -87,16 +87,16 @@ export default async function OrdersPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
-          Mis órdenes
-        </h1>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          {orders.length === 0
-            ? "Todavía no realizaste ninguna compra."
-            : `${orders.length} ${orders.length === 1 ? "orden" : "órdenes"} en total.`}
-        </p>
-      </div>
+      {orders.length > 0 && (
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
+            Mis órdenes
+          </h1>
+          <p className="mt-1 text-sm text-[#6B7280]">
+            {`${orders.length} ${orders.length === 1 ? "orden" : "órdenes"} en total.`}
+          </p>
+        </div>
+      )}
 
       {orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
