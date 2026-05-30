@@ -136,9 +136,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
-                    Vendedor verificado
-                  </p>
                   <p className="text-sm font-semibold text-[#1F2937]">
                     {product.sellerName}
                   </p>

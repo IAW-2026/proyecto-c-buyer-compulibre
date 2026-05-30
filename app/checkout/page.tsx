@@ -35,6 +35,12 @@ export default async function CheckoutPage() {
   // Si el carrito está vacío o no existe, volver al carrito
   if (!cart || cart.items.length === 0) redirect("/cart");
 
+  // Verificar si hay múltiples vendedores (esto se debe resolver en el carrito)
+  const uniqueSellers = new Set(cart.items.map((item) => item.sellerId));
+  if (uniqueSellers.size > 1) {
+    redirect("/cart");
+  }
+
   // Hidratar imágenes y nombres actuales desde el mock
   const productIds = cart.items.map((i) => i.externalProductId);
   const productsData = await getProductsByIds(productIds);

@@ -262,3 +262,54 @@ export async function removeItemAction(itemId: string) {
     };
   }
 }
+
+/**
+ * Server Action para eliminar todos los ítems de un vendedor del carrito.
+ */
+export async function removeItemsBySellerAction(sellerId: string) {
+  const { userId } = await auth();
+  if (!userId) {
+    return {
+      success: false,
+      error: "UNAUTHORIZED",
+      message: "Debe iniciar sesión para modificar el carrito.",
+    };
+  }
+
+  try {
+    // Buscar el carrito activo del comprador
+    const cart = await prisma.cart.findFirst({
+      where: {
+        buyerId: userId,
+        status: "ACTIVE",
+      },
+    });
+
+    if (!cart) {
+      return {
+        success: false,
+        error: "NOT_FOUND",
+        message: "No tenés un carrito activo.",
+      };
+    }
+
+    // Eliminar todos los ítems que pertenezcan a este vendedor en este carrito
+    await prisma.cartItem.deleteMany({
+      where: {
+        cartId: cart.id,
+        sellerId: sellerId,
+      },
+    });
+
+    revalidatePath("/cart");
+    return { success: true };
+  } catch (error) {
+    console.error("Error al eliminar los ítems del vendedor de la DB:", error);
+    return {
+      success: false,
+      error: "INTERNAL_ERROR",
+      message: "Error interno al eliminar los ítems del vendedor.",
+    };
+  }
+}
+
