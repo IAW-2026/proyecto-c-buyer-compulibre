@@ -13,7 +13,7 @@ import {
   SpeakerWaveIcon,
 } from "@heroicons/react/24/outline";
 import { HydratedCartItem } from "./types";
-import { updateQuantityAction, removeItemAction } from "@/lib/actions/cart";
+import { updateQuantityAction, removeItemAction, removeItemsBySellerAction } from "@/lib/actions/cart";
 
 interface CartContainerProps {
   items: HydratedCartItem[];
@@ -32,6 +32,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
       action:
         | { type: "UPDATE_QTY"; itemId: string; quantity: number }
         | { type: "REMOVE"; itemId: string }
+        | { type: "REMOVE_SELLER"; sellerId: string }
     ) => {
       if (action.type === "UPDATE_QTY") {
         return state.map((item) =>
@@ -40,6 +41,9 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
       }
       if (action.type === "REMOVE") {
         return state.filter((item) => item.id !== action.itemId);
+      }
+      if (action.type === "REMOVE_SELLER") {
+        return state.filter((item) => item.sellerId !== action.sellerId);
       }
       return state;
     }
@@ -78,6 +82,20 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
       const res = await removeItemAction(itemId);
       if (!res.success) {
         setErrorMessage(res.message || "Error al quitar el producto.");
+      }
+    });
+  };
+
+  // Manejo de eliminación de todos los ítems de un vendedor
+  const handleRemoveSellerItems = (sellerId: string) => {
+    setErrorMessage(null);
+    startTransition(async () => {
+      // Eliminar optimísticamente la UI
+      updateOptimistic({ type: "REMOVE_SELLER", sellerId });
+
+      const res = await removeItemsBySellerAction(sellerId);
+      if (!res.success) {
+        setErrorMessage(res.message || "Error al quitar los productos del vendedor.");
       }
     });
   };
@@ -164,20 +182,6 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
         </div>
       )}
 
-      {/* Banner Mono-Vendedor (Si hay múltiples vendedores) */}
-      {hasMultipleSellers && (
-        <div className="rounded-2xl bg-linear-to-r from-amber-500/10 to-red-500/10 border-2 border-amber-500/30 p-6 flex flex-col md:flex-row md:items-center gap-5 animate-in slide-in-from-top-2 duration-300">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-            <ExclamationTriangleIcon className="h-6 w-6" aria-hidden="true" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="font-bold text-[#1F2937]">Compra Restringida: Múltiples Vendedores</h3>
-            <p className="text-xs text-[#555555] leading-relaxed">
-              Solo puede comprar productos de un vendedor por vez. Elimine los productos de otros vendedores para continuar con la compra.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* Grid Principal */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -191,16 +195,23 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                 className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md duration-300"
               >
                 {/* Cabecera del Vendedor */}
-                <div className="flex items-center gap-2 border-b border-gray-100 pb-4.5 mb-4">
-                  <BuildingStorefrontIcon className="h-5 w-5 text-[#485696]" aria-hidden="true" />
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center justify-between border-b border-gray-100 pb-4.5 mb-4">
+                  <div className="flex items-center gap-2">
+                    <BuildingStorefrontIcon className="h-5 w-5 text-[#485696]" aria-hidden="true" />
                     <span className="font-extrabold text-sm text-[#1F2937] uppercase tracking-wide">
                       {group.sellerName}
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                      <span>✓</span> Vendedor Verificado
-                    </span>
                   </div>
+                  {group.items.length > 1 && (
+                    <button
+                      onClick={() => handleRemoveSellerItems(sellerId)}
+                      disabled={isPending}
+                      className="text-xs font-semibold text-red-500 hover:text-red-700 transition flex items-center gap-1 disabled:opacity-50 cursor-pointer"
+                    >
+                      <TrashIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                      <span>Eliminar todo</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Ítems del Vendedor */}
@@ -208,11 +219,11 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                   {group.items.map((item) => {
                     const maxQuantity = Math.min(item.stock, 10);
                     return (
-                      <div key={item.id} className="py-4.5 flex gap-4 first:pt-0 last:pb-0">
+                      <div key={item.id} className="py-4.5 flex flex-col sm:flex-row gap-4 first:pt-0 last:pb-0">
                         {/* Imagen — enlaza al producto */}
                         <Link
                           href={`/products/${item.externalProductId}`}
-                          className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 hover:opacity-90 transition-opacity"
+                          className="relative h-32 w-32 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 self-center sm:self-start"
                         >
                           <Image
                             src={item.imageUrl}
@@ -225,26 +236,41 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
 
                         {/* Detalle */}
                         <div className="flex-1 flex flex-col justify-between min-w-0">
-                          <div className="flex justify-between items-start gap-2">
-                            <div>
+                          <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2">
+                            {/* Nombre del producto */}
+                            <div className="flex-1">
                               <Link href={`/products/${item.externalProductId}`}>
-                                <h4 className="text-sm font-bold text-[#1F2937] line-clamp-2 leading-snug hover:text-[#485696] transition-colors">
+                                <h4 className="text-lg sm:text-xl font-bold text-[#1F2937] line-clamp-2 leading-snug hover:text-[#485696] transition-colors">
                                   {item.productName}
                                 </h4>
                               </Link>
+                            </div>
+
+                            {/* Precio total y Precio Congelado alineados abajo */}
+                            <div className="flex flex-col sm:items-end shrink-0 sm:text-right mt-1 sm:mt-4">
+                              <span className="text-xl font-extrabold text-[#1F2937]">
+                                {formatCurrency(Number(item.cachedPrice) * item.quantity)}
+                              </span>
                               <p className="text-[10px] text-green-600 font-semibold mt-1">
-                                Precio congelado: {formatCurrency(Number(item.cachedPrice))} c/u
+                                Por unidad: {formatCurrency(Number(item.cachedPrice))} c/u
                               </p>
                             </div>
-                            <span className="text-sm font-extrabold text-[#1F2937] shrink-0">
-                              {formatCurrency(Number(item.cachedPrice) * item.quantity)}
-                            </span>
+                          </div>
+
+                          {/* Información sobre el producto */}
+                          <div className="mt-2.5 mb-3.5 flex flex-col gap-1.5 text-[11px] text-[#6B7280]">
+                            <div className="flex items-center gap-1.5">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 shrink-0">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                              </svg>
+                              <span>Condición: <span className="font-semibold text-gray-700">Nuevo</span></span>
+                            </div>
                           </div>
 
                           {/* Acciones del ítem */}
-                          <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center justify-between">
                             {/* Cantidad */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-[11px] text-[#6B7280] font-bold uppercase tracking-wide">
                                 Cantidad:
                               </span>
@@ -254,7 +280,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                                   onChange={(e) =>
                                     handleQuantityChange(item.id, Number(e.target.value))
                                   }
-                                  disabled={isPending || item.stock === 0}
+                                  disabled={item.stock === 0}
                                   className="appearance-none rounded-lg border border-gray-200 bg-white py-1 pl-2.5 pr-8 text-xs font-bold text-[#1F2937] outline-none focus:border-[#485696] focus:ring-1 focus:ring-[#485696] disabled:bg-gray-100 disabled:text-gray-400"
                                 >
                                   {item.stock === 0 ? (
@@ -273,21 +299,21 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                                   ▼
                                 </span>
                               </div>
-                              {item.stock <= 5 && item.stock > 0 && (
-                                <span className="text-[10px] font-bold text-[#FC7A1E]">
-                                  ¡Sólo {item.stock} disponibles!
+                              {item.quantity === maxQuantity && maxQuantity > 0 && (
+                                <span className="text-[10px] font-bold text-red-500">
+                                  Límite de compra
                                 </span>
                               )}
                             </div>
 
-                            {/* Eliminar */}
+                            {/* Botón Eliminar individual */}
                             <button
                               onClick={() => handleRemoveItem(item.id)}
                               disabled={isPending}
-                              className="text-xs font-bold text-red-500 hover:text-red-700 transition flex items-center gap-1 disabled:opacity-50"
+                              aria-label="Eliminar producto"
+                              className="p-1.5 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
                             >
-                              <TrashIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                              <span className="hidden sm:inline">Eliminar</span>
+                              <TrashIcon className="h-6 w-6" aria-hidden="true" />
                             </button>
                           </div>
                         </div>
@@ -336,30 +362,6 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               <span className="text-xl font-extrabold text-[#1F2937]">
                 {formatCurrency(totalAmount)}
               </span>
-            </div>
-
-            {/* Métodos de pago aceptados */}
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-3.5">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-                Pagos seguros con
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {["Visa", "Mastercard", "Amex", "Naranja X", "Mercado Pago"].map((method) => (
-                  <span
-                    key={method}
-                    className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2 py-0.5 text-[10px] font-bold text-[#4B5563] shadow-xs"
-                  >
-                    {method}
-                  </span>
-                ))}
-              </div>
-              <p className="mt-2 flex items-center gap-1 text-[10px] text-[#6B7280]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="11" height="11" x="3" y="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                Transacción cifrada con SSL
-              </p>
             </div>
 
             {/* Avisos especiales */}
