@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SellerProductSummary } from "@/types";
-import { formatCategory, formatCondition } from "@/lib/formatters";
+import { FireIcon } from "@heroicons/react/24/solid";
 
 interface ProductCardProps {
   product: SellerProductSummary;
@@ -18,59 +18,63 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+      // Agregado h-full para que ocupe todo el alto disponible en su celda del grid
+      className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-[6px] shadow-sm transition-shadow hover:shadow-md"
     >
-      <div className="relative aspect-4/3 w-full bg-gray-100">
+      {/* 1. Contenedor de la Imagen Protagonista */}
+      <div className="relative flex h-[240px] w-full shrink-0 items-center justify-center rounded-xl bg-gray-50 overflow-hidden">
         <Image
           src={product.image}
           alt={product.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          // Reduje el padding de p-4 a p-2 para que la imagen sea más grande
+          className="object-contain p-2" 
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           priority={priority}
         />
+        
+        {/* Badge de Sin Stock */}
         {product.stock === 0 && (
-          // Gris oscuro: estado bloqueante, el usuario no puede comprar
-          <span className="absolute top-2 left-2 rounded-full bg-[#1F2937] px-2 py-0.5 text-xs font-medium text-white">
-            Sin stock
+          <span className="absolute top-2 left-2 z-10 rounded-md bg-[#1F2937] px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Agotado
           </span>
         )}
+
+        {/* Badge de Últimas unidades */}
         {product.stock > 0 && product.stock <= 5 && (
-          // Naranja CTA: urgencia positiva, empuja a la conversión
-          <span className="absolute top-2 left-2 rounded-full bg-[#FC7A1E] px-2 py-0.5 text-xs font-medium text-white">
-            Últimas {product.stock} unidades
+          <span className="absolute bottom-2 left-2 z-10 flex items-center gap-1 rounded bg-[#FC7A1E] px-2 py-1 text-[11px] font-bold text-white shadow-sm">
+            <FireIcon className="h-3.5 w-3.5" />
+            ÚLTIMAS {product.stock}
           </span>
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 p-4">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-semibold text-[#485696] uppercase tracking-wide">
-            {formatCategory(product.category)}
-          </p>
-          <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold border ${
-            product.condition === "NEW"
-              ? "bg-green-50 text-green-700 border-green-200"
-              : product.condition === "USED"
-              ? "bg-amber-50 text-amber-700 border-amber-200"
-              : "bg-indigo-50 text-[#485696] border-indigo-200"
-          }`}>
-            {formatCondition(product.condition)}
-          </span>
-        </div>
+      {/* 2. Detalles del Producto */}
+      <div className="flex flex-1 flex-col p-2 pt-3">
         
-        <h2 className="text-sm font-semibold text-[#1F2937] line-clamp-2 leading-snug group-hover:text-[#485696] transition-colors">
+        {/* Título */}
+        <h3 className="line-clamp-2 text-[14px] font-normal text-gray-800 leading-snug">
           {product.name}
-        </h2>
-        
-        <p className="text-xs text-[#6B7280]">
-          Marca: <span className="font-semibold text-[#4B5563]">{product.brand}</span>
-        </p>
+        </h3>
 
-        <p className="mt-auto pt-3 text-lg font-bold text-[#1F2937]">
+        {/* Vendedor */}
+        <span className="mt-1 text-[12px] text-gray-500">
+          Por {product.sellerName}
+        </span>
+
+        {/* Precio */}
+        <div className="mt-2 text-[22px] font-normal text-gray-900">
           {formattedPrice}
-        </p>
-        <p className="text-xs text-[#6B7280]">por {product.sellerName}</p>
+        </div>
+
+        {/* Condición - Contenedor con altura fija (h-[18px]) para que nunca rompa la grilla */}
+        <div className="mt-1 h-[18px] text-[12px] text-gray-500">
+          {product.condition !== "NEW" && (
+            <span className="font-medium px-1.5 py-0.5 rounded bg-gray-100 text-green-700">
+              {product.condition === "USED" ? "Usado" : "Reacondicionado"}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );
