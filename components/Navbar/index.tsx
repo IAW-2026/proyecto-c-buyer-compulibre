@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { ArchiveBoxIcon, ShoppingCartIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import NotificationBell from "@/components/NotificationBell";
-import { Suspense } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 
 function GlobalSearch() {
   const router = useRouter();
@@ -44,13 +44,25 @@ function GlobalSearch() {
 
 export default function Navbar() {
   const { isLoaded, isSignedIn } = useUser();
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const searchContainerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsMobileSearchOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#485696] shadow-md transition-all duration-300">
-      <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+    <header ref={searchContainerRef} className="sticky top-0 z-50 w-full bg-[#485696] shadow-md transition-all duration-300">
+      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-3">
         
         {/* Fila principal: Logo, Buscador (Desktop) y Acciones */}
-        <div className="flex items-center justify-between gap-4 lg:gap-8">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-8">
           
           {/* Logo */}
           <Link
@@ -64,7 +76,7 @@ export default function Navbar() {
               height={44}
               priority
               unoptimized
-              className="h-8 sm:h-10 w-auto object-contain brightness-0 invert"
+              className="h-6 sm:h-10 w-auto object-contain brightness-0 invert"
               style={{ filter: 'brightness(0) invert(1)' }} // Force white logo for dark blue bg if logo is dark
             />
           </Link>
@@ -77,7 +89,16 @@ export default function Navbar() {
           </div>
 
           {/* Acciones del usuario */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-3 shrink-0">
+            {/* Botón de búsqueda (solo móvil) */}
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              aria-label="Buscar"
+              className="md:hidden flex items-center justify-center rounded-full p-2 text-white transition hover:bg-white/15 active:bg-white/20"
+            >
+              <MagnifyingGlassIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
+            </button>
+
             <Link
               href="/orders"
               aria-label="Ver mis órdenes"
@@ -97,7 +118,7 @@ export default function Navbar() {
             </Link>
 
             {/* Separador */}
-            <div className="hidden sm:block h-5 w-px bg-white/20 mx-1" />
+            <div className="h-5 w-px bg-white/20 mx-1" />
 
             {/* Auth / Perfil */}
             <div className="flex items-center gap-2 pl-1 sm:pl-0">
@@ -115,7 +136,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="rounded-full bg-[#FC7A1E] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-95"
+                  className="rounded-full bg-[#FC7A1E] px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition hover:brightness-110 active:scale-95"
                 >
                   Ingresar
                 </Link>
@@ -125,11 +146,13 @@ export default function Navbar() {
         </div>
 
         {/* Fila secundaria: Buscador - Visible solo en móviles */}
-        <div className="mt-3 block md:hidden">
-          <Suspense fallback={<div className="h-10 w-full bg-white/10 rounded-full animate-pulse" />}>
-            <GlobalSearch />
-          </Suspense>
-        </div>
+        {isMobileSearchOpen && (
+          <div className="mt-3 block md:hidden transition-all duration-300">
+            <Suspense fallback={<div className="h-10 w-full bg-white/10 rounded-full animate-pulse" />}>
+              <GlobalSearch />
+            </Suspense>
+          </div>
+        )}
 
       </div>
     </header>
