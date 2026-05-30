@@ -97,97 +97,36 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* ── Columna Derecha: Información + Buy Box ── */}
-        <div className="space-y-4 lg:col-span-5 lg:space-y-6">
-          {/* En desktop se hace sticky para acompañar el scroll de la galería */}
-          <div className="lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-              {/* Badges: Categoría + Condición */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
-                  {formatCategory(product.category)}
-                </span>
-                <span
-                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
-                    product.condition === "NEW"
-                      ? "border-green-200 bg-green-50 text-green-700"
-                      : product.condition === "USED"
-                      ? "border-amber-200 bg-amber-50 text-amber-700"
-                      : "border-indigo-200 bg-indigo-50 text-[#485696]"
-                  }`}
-                >
-                  {formatCondition(product.condition)}
-                </span>
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-24 flex flex-col pt-2 lg:pt-0">
+            
+            {/* Título */}
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4">
+              {product.name}
+            </h1>
+
+            {/* Descripción */}
+            <p className="text-base text-gray-600 mb-8 leading-relaxed">
+              {product.description}
+            </p>
+
+            {/* Buy Box (Precio, Stock, Selector y Botones) */}
+            <ProductBuyBox product={product} />
+
+            {/* Detalles Adicionales */}
+            <div className="mt-12 border-t border-gray-200 pt-8">
+              <h3 className="font-medium text-[#485696] mb-4">
+                Características Generales
+              </h3>
+              <div className="text-sm text-gray-600">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Marca: {product.brand}</li>
+                  <li>Categoría: {formatCategory(product.category)}</li>
+                  <li>Condición: {formatCondition(product.condition)}</li>
+                </ul>
               </div>
-
-              {/* Nombre */}
-              <h1 className="mt-3 text-xl font-extrabold leading-tight tracking-tight text-[#1F2937] sm:text-2xl lg:text-3xl">
-                {product.name}
-              </h1>
-
-              {/* Marca */}
-              <p className="mt-2 text-sm text-[#6B7280]">
-                Marca:{" "}
-                <span className="font-semibold text-[#1F2937]">
-                  {product.brand}
-                </span>
-              </p>
-
-              {/* Vendedor */}
-              <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#485696]/10 bg-[#485696]/5 px-3 py-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#485696]/10">
-                  <span className="text-sm font-bold text-[#485696]">
-                    {product.sellerName.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-[#1F2937]">
-                    {product.sellerName}
-                  </p>
-                </div>
-                <span className="ml-auto text-green-600" aria-hidden="true">
-                  ✓
-                </span>
-              </div>
-
-              {/* Descripción — visible en mobile, colapsada semánticamente */}
-              <div className="mt-5 border-t border-gray-100 pb-2 pt-4">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-                  Descripción del producto
-                </h2>
-                <p className="mt-2 text-sm leading-relaxed text-[#4B5563]">
-                  {product.description}
-                </p>
-              </div>
-            </div>
-
-            {/* Buy Box — Client Component con carrito, cantidad y modal */}
-            <div className="mt-4">
-              <ProductBuyBox product={product} />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Especificaciones técnicas */}
-      <div className="mt-16 border-t border-gray-200 pt-12">
-        <h2 className="mb-6 text-xl font-bold text-[#1F2937]">
-          Características principales
-        </h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {[
-            { label: "Marca", value: product.brand },
-            { label: "Categoría", value: formatCategory(product.category) },
-            { label: "Condición", value: formatCondition(product.condition) },
-            { label: "Stock disponible", value: `${product.stock} unidades` },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-gray-100 bg-gray-50 p-5"
-            >
-              <p className="text-sm text-gray-500">{label}</p>
-              <p className="mt-1 font-semibold text-gray-900">{value}</p>
-            </div>
-          ))}
         </div>
       </div>
     </main>

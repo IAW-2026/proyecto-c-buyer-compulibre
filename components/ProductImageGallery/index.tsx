@@ -80,10 +80,10 @@ export default function ProductImageGallery({
   );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {/* ── Viewport de Embla ── */}
       <div
-        className="group relative aspect-square w-full overflow-hidden rounded-3xl border border-gray-100 bg-gray-50 shadow-inner"
+        className="group relative aspect-square w-full overflow-hidden bg-white"
         ref={emblaRef}
       >
         {/* ── Contenedor de slides ── */}
@@ -99,7 +99,7 @@ export default function ProductImageGallery({
                 alt={`${productName} — imagen ${i + 1}`}
                 fill
                 sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain p-6 sm:p-8"
+                className="object-contain p-2 sm:p-4"
                 priority={i === 0}
                 unoptimized
               />
@@ -123,12 +123,12 @@ export default function ProductImageGallery({
               className="
                 absolute left-3 top-1/2 -translate-y-1/2
                 hidden sm:flex h-9 w-9 items-center justify-center
-                rounded-full bg-white/80 shadow-md backdrop-blur-sm
+                rounded-full bg-white shadow-md backdrop-blur-sm
                 text-gray-700 ring-1 ring-black/5
                 opacity-0 transition-opacity duration-200
                 group-hover:opacity-100
-                hover:bg-white hover:shadow-lg
-                focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[#485696]
+                hover:bg-gray-50 hover:shadow-lg
+                focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[#4F46E5]
               "
             >
               <ChevronLeftIcon className="h-5 w-5" />
@@ -139,12 +139,12 @@ export default function ProductImageGallery({
               className="
                 absolute right-3 top-1/2 -translate-y-1/2
                 hidden sm:flex h-9 w-9 items-center justify-center
-                rounded-full bg-white/80 shadow-md backdrop-blur-sm
+                rounded-full bg-white shadow-md backdrop-blur-sm
                 text-gray-700 ring-1 ring-black/5
                 opacity-0 transition-opacity duration-200
                 group-hover:opacity-100
-                hover:bg-white hover:shadow-lg
-                focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[#485696]
+                hover:bg-gray-50 hover:shadow-lg
+                focus:outline-none focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-[#4F46E5]
               "
             >
               <ChevronRightIcon className="h-5 w-5" />
@@ -162,16 +162,16 @@ export default function ProductImageGallery({
         >
           {images.map((_, i) => (
             <button
-              key={i}
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`Ir a imagen ${i + 1}`}
-              onClick={() => scrollTo(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === activeIndex
-                  ? "w-5 h-2 bg-[#485696]"
-                  : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
-              }`}
+               key={i}
+               role="tab"
+               aria-selected={i === activeIndex}
+               aria-label={`Ir a imagen ${i + 1}`}
+               onClick={() => scrollTo(i)}
+               className={`rounded-full transition-all duration-300 ${
+                 i === activeIndex
+                   ? "w-5 h-2 bg-[#4F46E5]"
+                   : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+               }`}
             />
           ))}
         </div>
@@ -179,7 +179,7 @@ export default function ProductImageGallery({
 
       {/* ── Miniaturas — solo en desktop ── */}
       {hasMultiple && (
-        <div className="hidden sm:flex gap-3 overflow-x-auto py-2 px-1 -mx-1 justify-center">
+        <div className="hidden sm:flex gap-4 overflow-x-auto py-2 px-1 -mx-1">
           {images.map((img, i) => (
             <button
               key={img.id}
@@ -187,13 +187,13 @@ export default function ProductImageGallery({
               aria-label={`Ver imagen ${i + 1} de ${productName}`}
               aria-pressed={i === activeIndex}
               className={`
-                relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2
+                relative h-24 w-28 shrink-0 overflow-hidden rounded-md border-2 bg-white
                 transition-all duration-200
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#485696]/50
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5]/50
                 ${
                   i === activeIndex
-                    ? "border-[#485696] shadow-md shadow-[#485696]/20 scale-105 z-10"
-                    : "border-gray-200 hover:border-[#485696]/50 hover:scale-[1.03] opacity-60 hover:opacity-100"
+                    ? "border-[#4F46E5] shadow-sm z-10"
+                    : "border-gray-200 hover:border-gray-300 opacity-70 hover:opacity-100"
                 }
               `}
             >
@@ -202,8 +202,8 @@ export default function ProductImageGallery({
                   src={img.imageUrl}
                   alt={`Miniatura ${i + 1}`}
                   fill
-                  sizes="80px"
-                  className="object-contain p-1.5"
+                  sizes="112px"
+                  className="object-contain p-2"
                   unoptimized
                 />
               </span>
