@@ -31,17 +31,8 @@ export default async function ProductsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  // Verificación de BuyerProfile para usuarios autenticados
   const { userId } = await auth();
-  if (userId) {
-    const profile = await getBuyerProfile();
-    if (!profile) {
-      return <ProfileRedirector />;
-    }
-  }
-
-  // Next.js 15+: searchParams es una Promise, hay que awaitearlo
-  const params = await searchParams;
+  const params = await searchParams; // Next.js 15+ requiere await
 
   // Sanitizar parámetros
   const page = Math.max(1, Number(params.page) || 1);
@@ -52,16 +43,26 @@ export default async function ProductsPage({
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
   const sort = params.sort as "ascendingPrice" | "descendingPrice" | undefined;
 
-  const { products, pagination } = await getProducts({
-    query,
-    category,
-    condition,
-    minPrice,
-    maxPrice,
-    sort,
-    page,
-    limit: PAGE_SIZE,
-  });
+  // Resolución paralela del perfil y los productos
+  const [profile, productsResult] = await Promise.all([
+    userId ? getBuyerProfile() : Promise.resolve(null),
+    getProducts({
+      query,
+      category,
+      condition,
+      minPrice,
+      maxPrice,
+      sort,
+      page,
+      limit: PAGE_SIZE,
+    }),
+  ]);
+
+  if (userId && !profile) {
+    return <ProfileRedirector />;
+  }
+
+  const { products, pagination } = productsResult;
 
   const { totalProducts: total, totalPages } = pagination;
 

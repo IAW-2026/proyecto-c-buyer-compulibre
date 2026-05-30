@@ -33,18 +33,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  // 1. Verificación de onboarding para usuarios autenticados
+  // 1 y 2. Resolución paralela de parámetros, producto y perfil
   const { userId } = await auth();
-  if (userId) {
-    const profile = await getBuyerProfile();
-    if (!profile) {
-      return <ProfileRedirector />;
-    }
+  const { id } = await params;
+
+  const [profile, product] = await Promise.all([
+    userId ? getBuyerProfile() : Promise.resolve(null),
+    getProductById(id),
+  ]);
+
+  if (userId && !profile) {
+    return <ProfileRedirector />;
   }
 
-  // 2. Obtener el producto; 404 si no existe
-  const { id } = await params;
-  const product = await getProductById(id);
   if (!product) {
     notFound();
   }
