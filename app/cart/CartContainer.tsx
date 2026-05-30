@@ -154,9 +154,6 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
     <div className="space-y-6">
       <div className="border-b border-gray-200 pb-5">
         <div>
-          <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tight">
-            Mi Carrito
-          </h1>
           <Link
             href="/products"
             className="mt-3.5 inline-flex text-sm font-semibold text-[#485696] hover:underline items-center gap-1.5 transition-transform hover:-translate-x-0.5"
@@ -164,6 +161,9 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
             <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
             <span>Seguir comprando</span>
           </Link>
+           <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tight">
+            Mi Carrito
+          </h1>
         </div>
       </div>
 
