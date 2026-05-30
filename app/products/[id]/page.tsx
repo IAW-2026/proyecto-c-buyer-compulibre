@@ -9,6 +9,7 @@ import ProductBuyBox from "./ProductBuyBox";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import { formatCategory, formatCondition } from "@/lib/formatters";
 import { ProductImage } from "@/types";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -77,9 +78,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="mb-4 sm:mb-6">
         <Link
           href="/products"
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#485696] transition duration-200 hover:translate-x-[-2px] hover:brightness-95"
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#485696] transition duration-200 hover:-translate-x-0.5 hover:brightness-95"
         >
-          <span>←</span> <span className="hidden xs:inline">Volver a la lista de productos</span><span className="xs:hidden">Volver</span>
+          <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden xs:inline">Volver a la lista de productos</span>
+          <span className="xs:hidden">Volver</span>
         </Link>
       </div>
 

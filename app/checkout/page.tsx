@@ -7,6 +7,7 @@ import { getBuyerProfile } from "@/lib/db/profile";
 import { getProductsByIds } from "@/lib/mocks/seller-app";
 import CheckoutConfirmButton from "./CheckoutConfirmButton";
 import type { Metadata } from "next";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export const metadata: Metadata = {
   title: "Confirmar Compra — CompuLibre",
@@ -72,9 +73,10 @@ export default async function CheckoutPage() {
       <div className="mb-8">
         <Link
           href="/cart"
-          className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline"
+          className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline transition-transform hover:-translate-x-0.5"
         >
-          ← Volver al carrito
+          <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+          <span>Volver al carrito</span>
         </Link>
         <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
           Confirmar compra

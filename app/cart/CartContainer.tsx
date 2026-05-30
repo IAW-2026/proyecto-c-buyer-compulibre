@@ -11,6 +11,7 @@ import {
   NoSymbolIcon,
   LightBulbIcon,
   SpeakerWaveIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import { HydratedCartItem } from "./types";
 import { updateQuantityAction, removeItemAction, removeItemsBySellerAction } from "@/lib/actions/cart";
@@ -151,22 +152,19 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
 
   return (
     <div className="space-y-6">
-      {/* Encabezado */}
-      <div className="flex flex-col md:flex-row md:items-baseline md:justify-between border-b border-gray-200 pb-5">
+      <div className="border-b border-gray-200 pb-5">
         <div>
           <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tight">
             Mi Carrito
           </h1>
-          <p className="mt-1 text-sm text-[#6B7280]">
-            Gestioná y asegurá tus productos al precio actual de tu selección.
-          </p>
+          <Link
+            href="/products"
+            className="mt-3.5 inline-flex text-sm font-semibold text-[#485696] hover:underline items-center gap-1.5 transition-transform hover:-translate-x-0.5"
+          >
+            <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+            <span>Seguir comprando</span>
+          </Link>
         </div>
-        <Link
-          href="/products"
-          className="mt-3 md:mt-0 text-sm font-semibold text-[#485696] hover:underline flex items-center gap-1.5"
-        >
-          <span>←</span> Seguir comprando
-        </Link>
       </div>
 
       {/* Alerta de error global */}
@@ -265,6 +263,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                               </svg>
                               <span>Condición: <span className="font-semibold text-gray-700">Nuevo</span></span>
                             </div>
+
                           </div>
 
                           {/* Acciones del ítem */}

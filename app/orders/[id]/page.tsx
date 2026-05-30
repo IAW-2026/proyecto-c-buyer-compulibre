@@ -16,6 +16,7 @@ import {
   ClipboardDocumentIcon,
   EnvelopeOpenIcon,
   SparklesIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
 // ─── Mapas de UI ──────────────────────────────────────────────────────────────
@@ -167,9 +168,10 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       {/* Volver */}
       <Link
         href="/orders"
-        className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline"
+        className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline transition-transform hover:-translate-x-0.5"
       >
-        ← Mis órdenes
+        <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+        <span>Mis órdenes</span>
       </Link>
 
       {/* Banner de resultado de pago */}
