@@ -81,8 +81,8 @@ export default async function ProductsPage({
       {/* Layout de 2 columnas para Desktop, Stack para Mobile */}
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
         
-        {/* Sidebar (Filtros) */}
-        <aside className="w-full lg:w-64 shrink-0">
+        {/* Sidebar (Filtros) - Visible solo en Desktop */}
+        <aside className="hidden lg:block w-full lg:w-64 shrink-0">
           <Suspense fallback={<FiltersSkeleton />}>
             <ProductFilters />
           </Suspense>
@@ -103,9 +103,16 @@ export default async function ProductsPage({
               </p>
             </div>
             
-            <Suspense fallback={<div className="h-10 w-40 bg-gray-100 animate-pulse rounded-lg" />}>
-              <ProductSort />
-            </Suspense>
+            <div className="flex items-center gap-2 self-start sm:self-end">
+              <Suspense fallback={<div className="h-10 w-40 bg-gray-100 animate-pulse rounded-lg" />}>
+                <ProductSort />
+              </Suspense>
+              <div className="lg:hidden">
+                <Suspense fallback={<div className="h-10 w-10 bg-gray-100 animate-pulse rounded-lg" />}>
+                  <ProductFilters isMobileView />
+                </Suspense>
+              </div>
+            </div>
           </div>
 
           {/* Grilla de productos */}

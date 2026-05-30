@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { XMarkIcon, FunnelIcon } from "@heroicons/react/24/outline";
 
 const CATEGORIES = [
@@ -62,7 +62,7 @@ function RoundCheckbox({ id, name, value, checked, onChange, label }: RoundCheck
   );
 }
 
-export default function ProductFilters() {
+export default function ProductFilters({ isMobileView = false }: { isMobileView?: boolean }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -73,6 +73,16 @@ export default function ProductFilters() {
   const [localMax, setLocalMax] = useState(searchParams.get("maxPrice") || "");
   const priceRangeInvalid =
     localMin !== "" && localMax !== "" && Number(localMin) > Number(localMax);
+
+  // Keep body scroll locked when mobile drawer is open
+  useEffect(() => {
+    if (showMobile) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => { document.body.style.overflow = "unset"; };
+  }, [showMobile]);
 
   const updateParams = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams);
@@ -132,20 +142,24 @@ export default function ProductFilters() {
     updateParams({ [param]: current === value ? "" : value });
   };
 
+  const idPrefix = isMobileView ? "mobile-" : "desktop-";
+
   const FiltersContent = (
     <div className="space-y-8">
       {/* Header for desktop filters */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
-        {hasAnyFilter && (
-          <button
-            onClick={clearAllFilters}
-            className="text-sm font-medium text-[#FC7A1E] hover:underline"
-          >
-            Limpiar
-          </button>
-        )}
-      </div>
+      {!isMobileView && (
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900">Filtros</h2>
+          {hasAnyFilter && (
+            <button
+              onClick={clearAllFilters}
+              className="text-sm font-medium text-[#FC7A1E] hover:underline"
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Categorías */}
       <div>
@@ -156,8 +170,8 @@ export default function ProductFilters() {
           {CATEGORIES.map((cat) => (
             <li key={cat.value}>
               <RoundCheckbox
-                id={`category-${cat.value}`}
-                name="category-filter"
+                id={`${idPrefix}category-${cat.value}`}
+                name={`${idPrefix}category-filter`}
                 value={cat.value}
                 checked={searchParams.get("category") === cat.value}
                 onChange={() => toggleSingleValue("category", cat.value)}
@@ -179,8 +193,8 @@ export default function ProductFilters() {
           {CONDITIONS.map((cond) => (
             <li key={cond.value}>
               <RoundCheckbox
-                id={`condition-${cond.value}`}
-                name="condition-filter"
+                id={`${idPrefix}condition-${cond.value}`}
+                name={`${idPrefix}condition-filter`}
                 value={cond.value}
                 checked={searchParams.get("condition") === cond.value}
                 onChange={() => toggleSingleValue("condition", cond.value)}
@@ -228,29 +242,70 @@ export default function ProductFilters() {
     </div>
   );
 
+  if (isMobileView) {
+    return (
+      <>
+        {/* Botón Cuadrado Mobile */}
+        <button
+          onClick={() => setShowMobile(true)}
+          className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:bg-gray-50 lg:hidden"
+          aria-label="Filtros"
+        >
+          <FunnelIcon className="h-5 w-5" />
+          {hasAnyFilter && (
+            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-[#FC7A1E] border-2 border-white"></span>
+          )}
+        </button>
+
+        {/* Drawer Lateral Mobile */}
+        {showMobile && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setShowMobile(false)} />
+             <div className="relative z-10 w-full max-w-[280px] h-full bg-white p-6 shadow-xl overflow-y-auto animate-in slide-in-from-right duration-300">
+               <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                 <h2 className="text-xl font-bold text-gray-900">Filtros</h2>
+                 <button onClick={() => setShowMobile(false)} className="p-2 -mr-2 text-gray-500 rounded-full hover:bg-gray-100 transition">
+                   <XMarkIcon className="h-6 w-6" />
+                 </button>
+               </div>
+               
+               {hasAnyFilter && (
+                 <button
+                   onClick={clearAllFilters}
+                   className="mb-6 flex w-full justify-center rounded-lg border border-gray-200 py-2 text-sm font-semibold text-[#FC7A1E] hover:bg-gray-50"
+                 >
+                   Limpiar todos
+                 </button>
+               )}
+
+               {FiltersContent}
+               
+               {/* Fixed bottom button to close */}
+               <div className="sticky bottom-0 left-0 w-full bg-white pt-6 pb-2 mt-8 border-t border-gray-100">
+                 <button 
+                   onClick={() => setShowMobile(false)}
+                   className="w-full rounded-lg bg-[#485696] py-3 text-sm font-semibold text-white shadow-sm hover:brightness-110"
+                 >
+                   Ver resultados
+                 </button>
+               </div>
+             </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Desktop view
   return (
     <>
-      {/* Botón Mobile para abrir filtros */}
-      <button
-        onClick={() => setShowMobile(!showMobile)}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-sm font-semibold text-gray-900 shadow-sm transition hover:bg-gray-50 lg:hidden"
-      >
-        <FunnelIcon className="h-5 w-5" />
-        Filtros {hasAnyFilter && <span className="ml-1 rounded-full bg-[#FC7A1E] px-2 py-0.5 text-xs text-white">Activos</span>}
-      </button>
-
-      {/* Drawer / Sidebar contenedor */}
-      <div
-        className={`${
-          showMobile ? "block" : "hidden"
-        } mt-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:mt-0 lg:block lg:border-none lg:bg-transparent lg:p-0 lg:shadow-none`}
-      >
+      <div className="hidden lg:block">
         {FiltersContent}
       </div>
       
       {/* Opacidad (Loading State) global sobre los filtros */}
-      {isPending && (
-        <div className="pointer-events-none fixed inset-0 z-10 bg-white/20 backdrop-blur-[1px] transition-all lg:hidden" />
+      {isPending && !isMobileView && (
+        <div className="pointer-events-none fixed inset-0 z-10 bg-white/20 backdrop-blur-[1px] transition-all" />
       )}
     </>
   );
