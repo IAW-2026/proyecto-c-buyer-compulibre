@@ -81,7 +81,31 @@ export async function resetUser(formData: FormData) {
   // 3. Resetear el Perfil
   await db.buyerProfile.update({
     where: { id: buyerId },
-    data: { defaultShippingAddress: null },
+    data: { 
+      defaultShippingAddress: null,
+      defaultPostalCode: null,
+    },
+  });
+
+  revalidatePath("/admin");
+}
+
+export async function resetUserOnboarding(formData: FormData) {
+  const buyerId = formData.get("buyerId") as string;
+
+  const { sessionClaims } = await auth();
+  const role = (sessionClaims?.publicMetadata as { role?: string })?.role || (sessionClaims?.metadata as { role?: string })?.role;
+  
+  if (role !== "admin") {
+    throw new Error("No autorizado");
+  }
+
+  await db.buyerProfile.update({
+    where: { id: buyerId },
+    data: {
+      defaultShippingAddress: null,
+      defaultPostalCode: null,
+    },
   });
 
   revalidatePath("/admin");
