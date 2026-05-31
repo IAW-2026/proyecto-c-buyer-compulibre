@@ -12,8 +12,11 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     stock: 12,
     images: [
       { id: "img_001_1", imageUrl: "/assets/products/monitor-lg.jpeg" },
-      { id: "img_001_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Monitor+LG+Lateral" },
-      { id: "img_001_3", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Monitor+LG+Trasera" },
+      { id: "img_001_2", imageUrl: "/assets/products/lg-lado.jpg" },
+      { id: "img_001_3", imageUrl: "/assets/products/lg-mov.png" },
+      { id: "img_001_4", imageUrl: "/assets/products/lg-atras-montura.png" },
+      { id: "img_001_5", imageUrl: "/assets/products/lg-atras.png" },
+      { id: "img_001_6", imageUrl: "/assets/products/lg-costado-atras.png" },
     ],
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
@@ -32,8 +35,6 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     stock: 5,
     images: [
       { id: "img_002_1", imageUrl: "/assets/products/rtx-4070.jpg" },
-      { id: "img_002_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=RTX+4070+Lateral" },
-      { id: "img_002_3", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=RTX+4070+Puertos" },
     ],
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
@@ -52,8 +53,6 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     stock: 8,
     images: [
       { id: "img_003_1", imageUrl: "/assets/products/ryzen-7-7800x3d.jpg" },
-      { id: "img_003_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Ryzen+7+Frente" },
-      { id: "img_003_3", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Ryzen+7+Caja" },
     ],
     sellerId: "seller_002",
     sellerName: "PC Components BA",
@@ -71,8 +70,10 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     price: 219999,
     stock: 20,
     images: [
-      { id: "img_004_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Samsung+SSD+Frente" },
-      { id: "img_004_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Samsung+SSD+Lateral" },
+      { id: "img_004_1", imageUrl: "/assets/products/ssd-samsung.jpg" },
+      { id: "img_004_2", imageUrl: "/assets/products/ssd-generico.webp" },
+      { id: "img_004_3", imageUrl: "/assets/products/ssd-atras.png" },
+      { id: "img_004_4", imageUrl: "/assets/products/ssd-arriba.webp" },
     ],
     sellerId: "seller_002",
     sellerName: "PC Components BA",
@@ -89,8 +90,6 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     price: 159999,
     stock: 15,
     images: [
-      { id: "img_005_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=RAM+DDR5+Kit" },
-      { id: "img_005_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=RAM+DDR5+Detalle" },
     ],
     sellerId: "seller_001",
     sellerName: "TechStore Argentina",
@@ -111,6 +110,18 @@ const MOCK_PRODUCTS: SellerProduct[] = [
       { id: "img_006_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Frente" },
       { id: "img_006_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Lateral" },
       { id: "img_006_3", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Puertos" },
+      { id: "img_006_4", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Frente" },
+      { id: "img_006_5", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Lateral" },
+      { id: "img_006_6", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Puertos" },
+      { id: "img_006_7", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Frente" },
+      { id: "img_006_8", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Lateral" },
+      { id: "img_006_9", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Puertos" },
+      { id: "img_006_10", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Frente" },
+      { id: "img_006_11", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Lateral" },
+      { id: "img_006_12", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Puertos" },
+      { id: "img_006_13", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Frente" },
+      { id: "img_006_14", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Lateral" },
+      { id: "img_006_15", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=ASUS+ROG+Puertos" },
     ],
     sellerId: "seller_003",
     sellerName: "GamingGear Shop",
@@ -120,14 +131,148 @@ const MOCK_PRODUCTS: SellerProduct[] = [
     createdAt: "2026-05-28T14:20:00.000Z",
     updatedAt: "2026-05-28T14:20:00.000Z",
   },
+  {
+    id: "prod_007",
+    name: "MSI GeForce RTX 4060 Ti Ventus 3X 16GB",
+    description:
+      "Placa de video de 16GB GDDR6 con tres ventiladores premium Ventus para máxima refrigeración y excelente rendimiento a 1080p y 1440p.",
+    price: 629999,
+    stock: 6,
+    images: [
+      { id: "img_007_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=MSI+RTX+4060+Ti+Frente" },
+      { id: "img_007_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=MSI+RTX+4060+Ti+Atras" },
+    ],
+    sellerId: "seller_001",
+    sellerName: "TechStore Argentina",
+    category: "GPU",
+    brand: "MSI",
+    condition: "NEW",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_008",
+    name: "Intel Core i9-14900K",
+    description:
+      "Procesador Intel Core i9 de 14ª generación con 24 núcleos (8 de rendimiento + 16 de eficiencia) y frecuencia de hasta 6.0 GHz desbloqueado.",
+    price: 829999,
+    stock: 4,
+    images: [
+      { id: "img_008_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Intel+i9+14900K+Caja" },
+      { id: "img_008_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Intel+i9+14900K+Chip" },
+    ],
+    sellerId: "seller_002",
+    sellerName: "PC Components BA",
+    category: "CPU",
+    brand: "Intel",
+    condition: "NEW",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_009",
+    name: "Monitor MSI Optix G241 24\" IPS",
+    description:
+      "Monitor gaming de 24 pulgadas con resolución Full HD, panel IPS, frecuencia de actualización de 144Hz y tiempo de respuesta de 1ms.",
+    price: 199999,
+    stock: 15,
+    images: [
+      { id: "img_009_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=MSI+Optix+G241+Frente" },
+      { id: "img_009_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=MSI+Optix+G241+Conectores" },
+    ],
+    sellerId: "seller_003",
+    sellerName: "GamingGear Shop",
+    category: "MONITOR",
+    brand: "MSI",
+    condition: "REFURBISHED",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_010",
+    name: "SSD Kingston A400 960GB SATA3",
+    description:
+      "Unidad de estado sólido de alta velocidad de lectura de 500 MB/s y escritura de 450 MB/s en formato ultra compacto de 2.5 pulgadas.",
+    price: 89999,
+    stock: 35,
+    images: [
+      { id: "img_010_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Kingston+A400+Frente" },
+    ],
+    sellerId: "seller_002",
+    sellerName: "PC Components BA",
+    category: "STORAGE",
+    brand: "Kingston",
+    condition: "USED",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_011",
+    name: "Memoria RAM Kingston Fury Beast 16GB DDR4",
+    description:
+      "Módulo único de memoria de 16GB DDR4 a 3200MHz con disipador térmico elegante y bajo perfil, compatible con Intel XMP 2.0 y AMD Ryzen.",
+    price: 54999,
+    stock: 40,
+    images: [
+      { id: "img_011_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Kingston+Fury+Beast+Frente" },
+      { id: "img_011_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Kingston+Fury+Beast+Detalle" },
+    ],
+    sellerId: "seller_001",
+    sellerName: "TechStore Argentina",
+    category: "RAM",
+    brand: "Kingston",
+    condition: "REFURBISHED",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_012",
+    name: "Gigabyte B650 Gaming X AX WiFi",
+    description:
+      "Motherboard AMD socket AM5 con regulador de voltaje digital directo, soporte DDR5, PCIe 4.0, conectores M.2 NVMe con disipadores y WiFi 6E integrado.",
+    price: 299999,
+    stock: 8,
+    images: [
+      { id: "img_012_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Gigabyte+B650+Frente" },
+      { id: "img_012_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Gigabyte+B650+Caja" },
+    ],
+    sellerId: "seller_003",
+    sellerName: "GamingGear Shop",
+    category: "MOTHERBOARD",
+    brand: "Gigabyte",
+    condition: "USED",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
+  {
+    id: "prod_013",
+    name: "test_longitud:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    description:
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    price: 299999,
+    stock: 0,
+    images: [
+      { id: "img_012_1", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Gigabyte+B650+Frente" },
+      { id: "img_012_2", imageUrl: "https://placehold.co/600x600/f3f4f6/1f2937?text=Gigabyte+B650+Caja" },
+    ],
+    sellerId: "seller_003",
+    sellerName: "Gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    category: "MOTHERBOARD",
+    brand: "Gigabyte",
+    condition: "USED",
+    createdAt: "2026-05-28T14:20:00.000Z",
+    updatedAt: "2026-05-28T14:20:00.000Z",
+  },
 ];
 
 // ─── Tipos de parámetros alineados con la API real ───────────────────────────
 
 export interface GetProductsParams {
   /** Texto libre — busca en nombre, descripción y categoría */
-  query?: string;
+  search?: string;
   category?: string;
+  brand?: string;
+  sellerId?: string;
   condition?: "NEW" | "USED" | "REFURBISHED";
   minPrice?: number;
   maxPrice?: number;
@@ -162,8 +307,8 @@ export async function getProducts(
 
   // ── Filtros ──────────────────────────────────────────────────────────────────
 
-  if (params?.query) {
-    const q = params.query.toLowerCase();
+  if (params?.search) {
+    const q = params.search.toLowerCase();
     filtered = filtered.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
@@ -171,6 +316,14 @@ export async function getProducts(
         p.brand.toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q)
     );
+  }
+
+  if (params?.brand) {
+    filtered = filtered.filter((p) => p.brand === params.brand);
+  }
+
+  if (params?.sellerId) {
+    filtered = filtered.filter((p) => p.sellerId === params.sellerId);
   }
 
   if (params?.category) {

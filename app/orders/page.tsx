@@ -87,31 +87,33 @@ export default async function OrdersPage() {
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
-          Mis órdenes
-        </h1>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          {orders.length === 0
-            ? "Todavía no realizaste ninguna compra."
-            : `${orders.length} ${orders.length === 1 ? "orden" : "órdenes"} en total.`}
-        </p>
-      </div>
+      {orders.length > 0 && (
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
+            Mis órdenes
+          </h1>
+          <p className="mt-1 text-sm text-[#6B7280]">
+            {`${orders.length} ${orders.length === 1 ? "orden" : "órdenes"} en total.`}
+          </p>
+        </div>
+      )}
 
       {orders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-5">
+        <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-300">
+          <div className="mb-6 flex items-center justify-center">
             <ArchiveBoxIcon className="h-16 w-16 text-[#485696]/30" aria-hidden="true" />
           </div>
-          <h2 className="text-lg font-bold text-[#1F2937]">Sin órdenes aún</h2>
-          <p className="mt-2 max-w-xs text-sm text-[#6B7280]">
+          <h2 className="text-2xl font-extrabold text-[#1F2937] tracking-tight">
+            Sin órdenes aún
+          </h2>
+          <p className="mt-2 max-w-md text-sm text-[#6B7280] leading-relaxed">
             Cuando realices una compra, la vas a ver acá con su estado actualizado.
           </p>
           <Link
             href="/products"
-            className="mt-6 rounded-xl bg-[#485696] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 hover:scale-[1.02] active:scale-[0.98]"
+            className="mt-8 rounded-xl bg-[#485696] px-6 py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 hover:scale-[1.02] active:scale-[0.98]"
           >
-            Ir al catálogo
+            Ir al Catálogo
           </Link>
         </div>
       ) : (

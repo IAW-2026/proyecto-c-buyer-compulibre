@@ -123,7 +123,7 @@ export default function NotificationBell() {
       }
     };
 
-    const interval = setInterval(checkNotifications, 5000);
+    const interval = setInterval(checkNotifications, 30000);
     checkNotifications();
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps

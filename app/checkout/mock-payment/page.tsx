@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 
 export const metadata: Metadata = {
   title: "CompuLibre Pay — Simulador de Pago",
@@ -28,7 +29,7 @@ export default async function MockPaymentPage({ searchParams }: MockPaymentPageP
     return (
       <main className="flex min-h-screen items-center justify-center bg-gray-100">
         <div className="rounded-2xl bg-white p-8 shadow-lg text-center max-w-sm">
-          <p className="text-2xl mb-2">⚠️</p>
+          <ExclamationTriangleIcon className="mx-auto mb-2 h-10 w-10 text-amber-500" aria-hidden="true" />
           <h1 className="font-bold text-[#1F2937] mb-2">Parámetros inválidos</h1>
           <p className="text-sm text-[#6B7280] mb-4">
             Faltan datos de la transacción.

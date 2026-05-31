@@ -151,7 +151,6 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
       orderReference: order.id,
       amount: finalAmount,
       currency: "ARS",
-      sellerId,
       buyerId: userId,
       buyerAddress: profile.defaultShippingAddress,
       buyerCodigoPostal: profile.defaultPostalCode,
@@ -160,6 +159,7 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
         quantity: item.quantity,
         name: item.productName,
         unitPrice: Number(item.cachedPrice),
+        sellerId: item.sellerId,
       })),
     });
 

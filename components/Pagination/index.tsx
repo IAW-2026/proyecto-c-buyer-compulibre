@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 interface PaginationProps {
   page: number;
@@ -48,7 +49,7 @@ export default function Pagination({ page, totalPages, searchParams }: Paginatio
   const hasNext = page < totalPages;
 
   const baseClass =
-    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors";
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 sm:px-3 text-sm font-medium transition-colors";
   const activeClass = "bg-[#485696] text-white shadow-sm";
   const defaultClass = "text-[#1F2937] hover:bg-gray-200";
   const disabledClass = "text-[#6B7280] cursor-not-allowed pointer-events-none";
@@ -59,14 +60,16 @@ export default function Pagination({ page, totalPages, searchParams }: Paginatio
       {hasPrev ? (
         <Link
           href={buildPageUrl(searchParams, page - 1)}
-          className={`${baseClass} ${defaultClass}`}
+          className={`${baseClass} ${defaultClass} gap-1`}
           aria-label="Página anterior"
         >
-          ← Anterior
+          <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Anterior</span>
         </Link>
       ) : (
-        <span className={`${baseClass} ${disabledClass}`} aria-disabled="true">
-          ← Anterior
+        <span className={`${baseClass} ${disabledClass} gap-1`} aria-disabled="true">
+          <ChevronLeftIcon className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden sm:inline">Anterior</span>
         </span>
       )}
 
@@ -92,14 +95,16 @@ export default function Pagination({ page, totalPages, searchParams }: Paginatio
       {hasNext ? (
         <Link
           href={buildPageUrl(searchParams, page + 1)}
-          className={`${baseClass} ${defaultClass}`}
+          className={`${baseClass} ${defaultClass} gap-1`}
           aria-label="Página siguiente"
         >
-          Siguiente →
+          <span className="hidden sm:inline">Siguiente</span>
+          <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
         </Link>
       ) : (
-        <span className={`${baseClass} ${disabledClass}`} aria-disabled="true">
-          Siguiente →
+        <span className={`${baseClass} ${disabledClass} gap-1`} aria-disabled="true">
+          <span className="hidden sm:inline">Siguiente</span>
+          <ChevronRightIcon className="h-4 w-4" aria-hidden="true" />
         </span>
       )}
     </nav>

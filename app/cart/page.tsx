@@ -19,23 +19,23 @@ export default async function CartPage() {
     redirect("/sign-in");
   }
 
-  // 2. Obtener el perfil local para verificar si está onboarding completo
-  const profile = await getBuyerProfile();
-
-  // 3. Buscar el carrito activo del comprador en la base de datos
-  const cart = await prisma.cart.findFirst({
-    where: {
-      buyerId: userId,
-      status: "ACTIVE",
-    },
-    include: {
-      items: {
-        orderBy: {
-          id: "asc",
+  // 2 y 3. Obtener el perfil y el carrito activo en paralelo
+  const [profile, cart] = await Promise.all([
+    getBuyerProfile(),
+    prisma.cart.findFirst({
+      where: {
+        buyerId: userId,
+        status: "ACTIVE",
+      },
+      include: {
+        items: {
+          orderBy: {
+            id: "asc",
+          },
         },
       },
-    },
-  });
+    }),
+  ]);
 
   let hydratedItems: HydratedCartItem[] = [];
 
@@ -59,6 +59,7 @@ export default async function CartPage() {
         sellerName: productData?.sellerName ?? "Vendedor Desconocido",
         imageUrl: productData?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
         stock: productData?.stock ?? 0,
+        condition: productData?.condition ?? "new",
       };
     });
   }

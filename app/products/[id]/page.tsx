@@ -9,6 +9,7 @@ import ProductBuyBox from "./ProductBuyBox";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import { formatCategory, formatCondition } from "@/lib/formatters";
 import { ProductImage } from "@/types";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,18 +34,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  // 1. Verificación de onboarding para usuarios autenticados
+  // 1 y 2. Resolución paralela de parámetros, producto y perfil
   const { userId } = await auth();
-  if (userId) {
-    const profile = await getBuyerProfile();
-    if (!profile) {
-      return <ProfileRedirector />;
-    }
+  const { id } = await params;
+
+  const [profile, product, cart] = await Promise.all([
+    userId ? getBuyerProfile() : Promise.resolve(null),
+    getProductById(id),
+    userId ? import("@/lib/db/prisma").then(m => m.prisma.cart.findFirst({ where: { buyerId: userId, status: "ACTIVE" }, include: { items: true } })) : Promise.resolve(null),
+  ]);
+
+  const hasItemsInCart = (cart?.items?.length || 0) > 0;
+
+  if (userId && !profile) {
+    return <ProfileRedirector />;
   }
 
-  // 2. Obtener el producto; 404 si no existe
-  const { id } = await params;
-  const product = await getProductById(id);
   if (!product) {
     notFound();
   }
@@ -55,7 +60,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
-      <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#6B7280]">
+      <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[#6B7280] sm:mb-6 sm:gap-2">
         <Link href="/products" className="transition hover:text-[#485696]">
           Inicio
         </Link>
@@ -67,23 +72,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {formatCategory(product.category)}
         </Link>
         <span>/</span>
-        <span className="max-w-[200px] truncate text-[#1F2937] sm:max-w-none">
+        <span className="flex-1 truncate text-[#1F2937]" title={product.name}>
           {product.name}
         </span>
       </nav>
 
       {/* Volver */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Link
           href="/products"
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#485696] transition duration-200 hover:translate-x-[-2px] hover:brightness-95"
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#485696] transition duration-200 hover:-translate-x-0.5 hover:brightness-95"
         >
-          <span>←</span> Volver a la lista de productos
+          <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+          <span className="hidden xs:inline">Volver a la lista de productos</span>
+          <span className="xs:hidden">Volver</span>
         </Link>
       </div>
 
       {/* Grid principal: Galería | Info + Buy Box */}
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
         {/* ── Columna Izquierda: Galería de imágenes ── */}
         <div className="lg:col-span-7">
           <ProductImageGallery
@@ -93,95 +100,39 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* ── Columna Derecha: Información + Buy Box ── */}
-        <div className="space-y-6 lg:col-span-5">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Badges: Categoría + Condición */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex rounded-full bg-[#485696]/10 px-3 py-1 text-xs font-bold text-[#485696]">
-                {formatCategory(product.category)}
-              </span>
-              <span
-                className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
-                  product.condition === "NEW"
-                    ? "border-green-200 bg-green-50 text-green-700"
-                    : product.condition === "USED"
-                    ? "border-amber-200 bg-amber-50 text-amber-700"
-                    : "border-indigo-200 bg-indigo-50 text-[#485696]"
-                }`}
-              >
-                {formatCondition(product.condition)}
-              </span>
-            </div>
-
-            {/* Nombre */}
-            <h1 className="mt-3 text-2xl font-extrabold leading-tight tracking-tight text-[#1F2937] sm:text-3xl">
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-24 flex flex-col pt-2 lg:pt-0">
+            
+            {/* Título */}
+            <h1 
+              className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4 wrap-break-word line-clamp-3"
+              title={product.name}
+            >
               {product.name}
             </h1>
 
-            {/* Marca */}
-            <p className="mt-2 text-sm text-[#6B7280]">
-              Marca:{" "}
-              <span className="font-semibold text-[#1F2937]">
-                {product.brand}
-              </span>
+            {/* Descripción */}
+            <p className="text-base text-gray-600 mb-8 leading-relaxed wrap-break-word line-clamp-6">
+              {product.description}
             </p>
 
-            {/* Vendedor */}
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#485696]/10 bg-[#485696]/5 px-3 py-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#485696]/10">
-                <span className="text-sm font-bold text-[#485696]">
-                  {product.sellerName.charAt(0)}
-                </span>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#6B7280]">
-                  Vendedor verificado
-                </p>
-                <p className="text-sm font-semibold text-[#1F2937]">
-                  {product.sellerName}
-                </p>
-              </div>
-              <span className="ml-auto text-green-600" aria-hidden="true">
-                ✓
-              </span>
-            </div>
+            {/* Buy Box (Precio, Stock, Selector y Botones) */}
+            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} />
 
-            {/* Descripción */}
-            <div className="mt-6 border-t border-gray-100 pb-2 pt-5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-[#6B7280]">
-                Descripción del producto
-              </h2>
-              <p className="mt-2.5 text-sm leading-relaxed text-[#4B5563]">
-                {product.description}
-              </p>
+            {/* Detalles Adicionales */}
+            <div className="mt-12 border-t border-gray-200 pt-8">
+              <h3 className="font-medium text-[#485696] mb-4">
+                Características Generales
+              </h3>
+              <div className="text-sm text-gray-600">
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Marca: {product.brand}</li>
+                  <li>Categoría: {formatCategory(product.category)}</li>
+                  <li>Condición: {formatCondition(product.condition)}</li>
+                </ul>
+              </div>
             </div>
           </div>
-
-          {/* Buy Box — Client Component con carrito, cantidad y modal */}
-          <ProductBuyBox product={product} />
-        </div>
-      </div>
-
-      {/* Especificaciones técnicas */}
-      <div className="mt-16 border-t border-gray-200 pt-12">
-        <h2 className="mb-6 text-xl font-bold text-[#1F2937]">
-          Características principales
-        </h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {[
-            { label: "Marca", value: product.brand },
-            { label: "Categoría", value: formatCategory(product.category) },
-            { label: "Condición", value: formatCondition(product.condition) },
-            { label: "Stock disponible", value: `${product.stock} unidades` },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-gray-100 bg-gray-50 p-5"
-            >
-              <p className="text-sm text-gray-500">{label}</p>
-              <p className="mt-1 font-semibold text-gray-900">{value}</p>
-            </div>
-          ))}
         </div>
       </div>
     </main>

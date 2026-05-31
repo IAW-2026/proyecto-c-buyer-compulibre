@@ -96,7 +96,6 @@ export interface PaymentInitRequest {
   orderReference: string;
   amount: number;
   currency: string;
-  sellerId: string;
   buyerId: string;
   buyerAddress: string;
   buyerCodigoPostal: string;
@@ -105,6 +104,7 @@ export interface PaymentInitRequest {
     quantity: number;
     name: string;
     unitPrice: number;
+    sellerId: string;
   }>;
 }
 
@@ -116,20 +116,20 @@ export interface PaymentInitResponse {
 // ─── Mocks: Shipping App ─────────────────────────────────────────────────────
 
 export interface ShipmentCreateRequest {
-  orderId: string;
-  buyerAddress: string;
+  sellerOrderId: string;
+  buyerOrderId: string;
   sellerId: string;
-  items: Array<{
-    externalProductId: string;
-    productName: string;
-    quantity: number;
-  }>;
+  externalTrackingId: string;
+  buyerAddress: string;
+  originAddress: string;
+  courier: string;
 }
 
 export interface ShipmentCreateResponse {
   trackingId: string;
   courier: string;
   status: ShipmentStatus;
+  labelUrl: string;
 }
 
 // ─── Formato de error estándar ────────────────────────────────────────────────
