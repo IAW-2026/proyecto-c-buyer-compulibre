@@ -66,7 +66,7 @@ export default function ProductFilters({ isMobileView = false }: { isMobileView?
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [showMobile, setShowMobile] = useState(false);
 
   const [localMin, setLocalMin] = useState(searchParams.get("minPrice") || "");
@@ -302,11 +302,6 @@ export default function ProductFilters({ isMobileView = false }: { isMobileView?
       <div className="hidden lg:block">
         {FiltersContent}
       </div>
-      
-      {/* Opacidad (Loading State) global sobre los filtros */}
-      {isPending && !isMobileView && (
-        <div className="pointer-events-none fixed inset-0 z-10 bg-white/20 backdrop-blur-[1px] transition-all" />
-      )}
     </>
   );
 }

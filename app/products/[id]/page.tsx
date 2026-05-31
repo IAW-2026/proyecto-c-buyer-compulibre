@@ -72,7 +72,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {formatCategory(product.category)}
         </Link>
         <span>/</span>
-        <span className="max-w-[200px] truncate text-[#1F2937] sm:max-w-none">
+        <span className="flex-1 truncate text-[#1F2937]" title={product.name}>
           {product.name}
         </span>
       </nav>
@@ -104,12 +104,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="lg:sticky lg:top-24 flex flex-col pt-2 lg:pt-0">
             
             {/* Título */}
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4">
+            <h1 
+              className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4 wrap-break-word line-clamp-3"
+              title={product.name}
+            >
               {product.name}
             </h1>
 
             {/* Descripción */}
-            <p className="text-base text-gray-600 mb-8 leading-relaxed">
+            <p className="text-base text-gray-600 mb-8 leading-relaxed wrap-break-word line-clamp-6">
               {product.description}
             </p>
 

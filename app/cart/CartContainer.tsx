@@ -123,7 +123,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
     0
   );
 
-  // Costo de envío: Gratis si compra > 300,000 ARS, sino costo plano de 4999 ARS.
+  // (TEST) Costo de envío: Gratis si compra > 300,000 ARS, sino costo plano de 4999 ARS. 
   const shippingCost = subtotal > 300000 || subtotal === 0 ? 0 : 4999;
   const totalAmount = subtotal + shippingCost;
 

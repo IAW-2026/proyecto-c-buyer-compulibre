@@ -20,6 +20,10 @@
   --font-sans: var(--font-inter);
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: var(--cl-bg);
   color: var(--cl-text);

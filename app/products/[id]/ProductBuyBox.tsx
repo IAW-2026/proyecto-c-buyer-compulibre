@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCartIcon, CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
@@ -20,6 +21,8 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
   const [modalActionType, setModalActionType] = useState<"cart" | "buy">("cart");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [capturedHasItems, setCapturedHasItems] = useState(hasItemsInCart);
+  const router = useRouter();
 
   // Bloquear el scroll de la página cuando el modal está abierto
   useEffect(() => {
@@ -53,6 +56,7 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
 
   const handleAddToCart = () => {
     setErrorMsg(null);
+    setCapturedHasItems(hasItemsInCart);
     startTransition(async () => {
       const res = await addToCartAction(product.id, quantity);
       if (res.success) {
@@ -66,13 +70,33 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
 
   const handleBuyNow = () => {
     setErrorMsg(null);
+    setCapturedHasItems(hasItemsInCart);
+    setModalActionType("buy");
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmBuy = () => {
+    setErrorMsg(null);
     startTransition(async () => {
       const res = await addToCartAction(product.id, quantity);
       if (res.success) {
-        setModalActionType("buy");
-        setIsModalOpen(true);
+        router.push("/checkout");
       } else {
         setErrorMsg(res.message || "No se pudo iniciar la compra.");
+        setIsModalOpen(false);
+      }
+    });
+  };
+
+  const handleConfirmBuyAndGoToCart = () => {
+    setErrorMsg(null);
+    startTransition(async () => {
+      const res = await addToCartAction(product.id, quantity);
+      if (res.success) {
+        router.push("/cart");
+      } else {
+        setErrorMsg(res.message || "No se pudo iniciar la compra.");
+        setIsModalOpen(false);
       }
     });
   };
@@ -109,11 +133,11 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
       </div>
 
       {/* Seller */}
-      <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-        <span>
+      <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-2 overflow-hidden">
+        <span className="min-w-0 truncate" title={`Vendido por ${product.sellerName}`}>
           Vendido por <span className="font-semibold text-gray-900">{product.sellerName}</span>
         </span>
-        <CheckCircleIcon className="h-4 w-4 text-green-500" aria-hidden="true" />
+        <CheckCircleIcon className="h-4 w-4 text-green-500 shrink-0" aria-hidden="true" />
       </div>
 
       {/* Estado del stock */}
@@ -211,14 +235,14 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
               <h3 className="text-lg font-bold text-[#1F2937]">
                 {modalActionType === "cart"
                   ? "¡Agregado al carrito!"
-                  : hasItemsInCart
+                  : capturedHasItems
                     ? "¡Agregado a tu pedido!"
                     : "¡Iniciando tu orden de compra!"}
               </h3>
               <p className="text-xs text-[#6B7280] mt-1 leading-normal">
                 {modalActionType === "cart"
                   ? "El producto ha sido sumado a tu carrito de compras temporal."
-                  : hasItemsInCart
+                  : capturedHasItems
                     ? "Como tenés otros productos en el carrito, te sugerimos revisarlo."
                     : "Estamos configurando tu checkout de forma segura."}
               </p>
@@ -262,24 +286,43 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
                 </>
               ) : (
                 <>
-                  {hasItemsInCart ? (
-                    <Link
-                      href="/cart"
-                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
+                  {capturedHasItems ? (
+                    <button
+                      onClick={handleConfirmBuyAndGoToCart}
+                      disabled={isPending}
+                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      <ShoppingCartIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                      Revisar carrito antes de pagar
-                    </Link>
+                      {isPending ? (
+                        <>
+                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                          Procesando...
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCartIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                          Revisar carrito antes de pagar
+                        </>
+                      )}
+                    </button>
                   ) : (
-                    <Link
-                      href="/checkout"
-                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
+                    <button
+                      onClick={handleConfirmBuy}
+                      disabled={isPending}
+                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      Proceder al Pago ({formattedPrice})
-                    </Link>
+                      {isPending ? (
+                        <>
+                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
+                          Procesando...
+                        </>
+                      ) : (
+                        `Proceder al Pago (${formattedPrice})`
+                      )}
+                    </button>
                   )}
                   <button
                     onClick={() => setIsModalOpen(false)}
+                    disabled={isPending}
                     className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99]"
                   >
                     Cancelar

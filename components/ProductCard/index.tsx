@@ -58,7 +58,7 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
         </h3>
 
         {/* Vendedor */}
-        <span className="mt-1 text-[12px] text-gray-500">
+        <span className="mt-1 line-clamp-1 text-[12px] text-gray-500" title={`Por ${product.sellerName}`}>
           Por {product.sellerName}
         </span>
 
