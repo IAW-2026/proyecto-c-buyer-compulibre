@@ -22,7 +22,7 @@ import {
   ArchiveBoxXMarkIcon,
   ClockIcon
 } from "@heroicons/react/24/outline";
-import { Suspense } from "react";
+import Link from "next/link";
 
 export default async function AdminBuyersPage({
     searchParams,
@@ -61,7 +61,7 @@ export default async function AdminBuyersPage({
         activeShippingOrders,
         abandonedCarts,
         stuckOrders
-    ] = await Promise.all([
+    ] = await db.$transaction([
         db.buyerOrder.aggregate({
             _sum: { totalAmount: true },
             where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } }
@@ -81,7 +81,7 @@ export default async function AdminBuyersPage({
             orderBy: { createdAt: "asc" },
             include: { items: { take: 1 } }
         }),
-        db.cart.count({ where: { status: "ABANDONED" } }),
+        db.cart.count({ where: { status: { in: ["CANCELLED", "REJECTED"] } } }),
         db.buyerOrder.count({ where: { status: "PAID" } })
     ]);
 
@@ -166,13 +166,13 @@ export default async function AdminBuyersPage({
                             </li>
                             
                             <li className="pt-4 border-t border-gray-100 mt-4">
-                                <a 
+                                <Link 
                                     href="/products" 
                                     className="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#485696] rounded-xl transition group"
                                 >
                                     <HomeIcon className="w-5 h-5 mr-3 shrink-0 text-gray-400 group-hover:text-[#485696]" />
                                     <span>Ir al Catálogo</span>
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </aside>
