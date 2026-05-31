@@ -30,14 +30,18 @@ export default async function OnboardingPage({
   const params = await searchParams;
   const returnUrl = params.returnUrl || "/products";
 
-  // Si el usuario ya posee un perfil en Postgres Y tiene dirección configurada, no debe rellenar el onboarding
+  // Si el usuario ya posee un perfil en Postgres Y tiene dirección configurada Y ya realizó una compra, no debe rellenar el onboarding
   const profile = await getBuyerProfile();
-  if (profile && profile.defaultShippingAddress) {
+  const orderCount = await import("@/lib/db/prisma").then(m => m.prisma.buyerOrder.count({ where: { buyerId: user.id } }));
+
+  if (profile && profile.defaultShippingAddress && orderCount > 0) {
     redirect(returnUrl);
   }
 
-  // Pre-completar el nombre usando los claims oficiales de Clerk
-  const defaultName = user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim();
+  // Pre-completar datos usando el perfil existente o los claims de Clerk
+  const defaultName = profile?.fullName || user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim();
+  const defaultAddress = profile?.defaultShippingAddress || "";
+  const defaultPostalCode = profile?.defaultPostalCode || "";
 
   return (
     <main className="flex min-h-[calc(100vh-72px)] flex-col items-center justify-center bg-[#F3F4F6] px-4 py-12 sm:px-6 lg:px-8">
@@ -56,16 +60,21 @@ export default async function OnboardingPage({
           </div>
 
           <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-gray-900">
-            Prepará tu cuenta
+            ¡Ya casi es tuyo!
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-gray-500">
-            ¿A dónde enviamos tus compras? Completá tus datos de envío para empezar a explorar nuestro catálogo de hardware.
+            Antes de finalizar la compra, necesitamos tu dirección para calcular el envío.
           </p>
         </div>
 
         {/* Formulario Interactivo */}
         <div className="w-full">
-          <OnboardingForm defaultName={defaultName} returnUrl={returnUrl} />
+          <OnboardingForm 
+            defaultName={defaultName} 
+            defaultAddress={defaultAddress}
+            defaultPostalCode={defaultPostalCode}
+            returnUrl={returnUrl} 
+          />
         </div>
 
         {/* Mensaje de confianza */}

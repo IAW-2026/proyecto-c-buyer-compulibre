@@ -21,7 +21,8 @@ export async function getBuyerProfile() {
 export interface OnboardingState {
   success: boolean;
   error?: string;
-  fullName?: string;
+  name?: string;
+  surname?: string;
   address?: string;
   postalCode?: string;
 }
@@ -39,22 +40,24 @@ export async function createProfileFromOnboarding(
     return { success: false, error: "No autorizado. Inicie sesión nuevamente." };
   }
 
-  const fullName = formData.get("fullName")?.toString().trim() ?? "";
+  const name = formData.get("name")?.toString().trim() ?? "";
+  const surname = formData.get("surname")?.toString().trim() ?? "";
+  const fullName = `${name} ${surname}`.trim();
   const address = formData.get("address")?.toString().trim() ?? "";
   const postalCode = formData.get("postalCode")?.toString().trim() ?? "";
   const returnUrl = formData.get("returnUrl")?.toString().trim() || "/products";
 
   // 1. Validaciones estrictas de servidor
-  if (fullName.length < 3) {
-    return { success: false, error: "El nombre es requerido y debe tener al menos 3 caracteres.", fullName, address, postalCode };
+  if (name.length < 2 || surname.length < 2) {
+    return { success: false, error: "El nombre y apellido son requeridos y deben tener al menos 2 caracteres cada uno.", name, surname, address, postalCode };
   }
 
   if (address.length < 10) {
-    return { success: false, error: "La dirección es requerida y debe tener al menos 10 caracteres para ser válida.", fullName, address, postalCode };
+    return { success: false, error: "La dirección es requerida y debe tener al menos 10 caracteres para ser válida.", name, surname, address, postalCode };
   }
 
   if (postalCode.length < 4) {
-    return { success: false, error: "El código postal es requerido y debe ser válido.", fullName, address, postalCode };
+    return { success: false, error: "El código postal es requerido y debe ser válido.", name, surname, address, postalCode };
   }
 
   let success = false;
@@ -83,7 +86,7 @@ export async function createProfileFromOnboarding(
     return { 
       success: false, 
       error: "Error interno al guardar tu perfil. Es posible que el perfil ya esté registrado.",
-      fullName, address, postalCode
+      name, surname, address, postalCode
     };
   }
 

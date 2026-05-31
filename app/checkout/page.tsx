@@ -7,7 +7,7 @@ import { getBuyerProfile } from "@/lib/db/profile";
 import { getProductsByIds } from "@/lib/mocks/seller-app";
 import CheckoutConfirmButton from "./CheckoutConfirmButton";
 import type { Metadata } from "next";
-import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, MapPinIcon, TruckIcon } from "@heroicons/react/24/outline";
 
 export const metadata: Metadata = {
   title: "Confirmar Compra — CompuLibre",
@@ -25,12 +25,13 @@ export default async function CheckoutPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const [profile, cart] = await Promise.all([
+  const [profile, cart, orderCount] = await Promise.all([
     getBuyerProfile(),
     prisma.cart.findFirst({
       where: { buyerId: userId, status: "ACTIVE" },
       include: { items: { orderBy: { id: "asc" } } },
     }),
+    prisma.buyerOrder.count({ where: { buyerId: userId } }),
   ]);
 
   // Si el carrito está vacío o no existe, volver al carrito
@@ -40,6 +41,12 @@ export default async function CheckoutPage() {
   const uniqueSellers = new Set(cart.items.map((item) => item.sellerId));
   if (uniqueSellers.size > 1) {
     redirect("/cart");
+  }
+
+  const hasProfile = !!profile?.defaultShippingAddress;
+  if (!hasProfile) {
+    // Si no tiene perfil, redirigir al onboarding antes del checkout
+    redirect("/onboarding?returnUrl=/checkout");
   }
 
   // Hidratar imágenes y nombres actuales desde el mock
@@ -53,178 +60,162 @@ export default async function CheckoutPage() {
       cachedPrice: item.cachedPrice.toString(),
       imageUrl: product?.image ?? "https://placehold.co/80x80?text=?",
       sellerName: product?.sellerName ?? "Vendedor",
+      productName: product?.name ?? item.productName,
     };
   });
 
   const subtotal = hydratedItems.reduce(
-    (sum, i) => sum + Number(i.cachedPrice) * i.quantity,
+    (sum: number, i: typeof hydratedItems[0]) => sum + Number(i.cachedPrice) * i.quantity,
     0
   );
   const shippingCost = subtotal > 300000 ? 0 : 4999;
   const total = subtotal + shippingCost;
-  const totalItemsCount = hydratedItems.reduce((sum, i) => sum + i.quantity, 0);
-
-  // Bloquear checkout si hay problema con el perfil
-  const hasProfile = !!profile?.defaultShippingAddress;
+  const totalItemsCount = hydratedItems.reduce((sum: number, i: typeof hydratedItems[0]) => sum + i.quantity, 0);
 
   return (
-    <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
-      {/* Encabezado */}
-      <div className="mb-8">
-        <Link
-          href="/cart"
-          className="mb-4 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline transition-transform hover:-translate-x-0.5"
-        >
-          <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-          <span>Volver al carrito</span>
-        </Link>
-        <h1 className="text-2xl font-extrabold tracking-tight text-[#1F2937]">
-          Confirmar compra
-        </h1>
-        <p className="mt-1 text-sm text-[#6B7280]">
-          Revisá el resumen antes de proceder al pago.
-        </p>
-      </div>
+    <div className="min-h-[calc(100vh-72px)] bg-gray-50/50 pt-8 pb-16">
+      <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* Encabezado */}
+        <div className="mb-8">
+          <Link
+            href="/cart"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-[#485696] hover:text-[#374151] transition-colors"
+          >
+            <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
+            <span>Volver al carrito</span>
+          </Link>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+            Finalizar compra
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">
+            Casi listo. Revisá los detalles y confirmá tu pedido.
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Columna izquierda: listado de ítems (solo lectura) */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div className="border-b border-gray-100 px-6 py-4">
-              <h2 className="text-sm font-extrabold uppercase tracking-wider text-[#1F2937]">
-                {totalItemsCount} {totalItemsCount === 1 ? "producto" : "productos"}
-              </h2>
-            </div>
-            <ul className="divide-y divide-gray-100">
-              {hydratedItems.map((item) => (
-                <li key={item.id} className="flex gap-4 px-6 py-5">
-                  {/* Imagen del producto */}
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  {/* Detalle */}
-                  <div className="flex flex-1 items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-bold text-[#1F2937] leading-snug line-clamp-2">
-                        {item.productName}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          {/* Columna izquierda: Información y Resumen */}
+          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
+            
+            {/* Tarjeta de Dirección de envío */}
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                <h2 className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-gray-900">
+                  <MapPinIcon className="h-5 w-5 text-[#485696]" />
+                  Dirección de entrega
+                </h2>
+              </div>
+              <div className="px-6 py-5">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1">
+                    <p className="text-base font-bold text-gray-900">{profile.fullName}</p>
+                    <p className="mt-1 text-sm text-gray-600 leading-relaxed">
+                      {profile.defaultShippingAddress}
+                    </p>
+                    {orderCount > 0 && (
+                      <p className="mt-2 inline-flex items-center gap-1.5 rounded bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">
+                        La dirección no se puede editar porque ya registraste compras previas.
                       </p>
-                      <p className="mt-0.5 text-xs text-[#6B7280]">
-                        Cantidad: {item.quantity} · {formatCurrency(Number(item.cachedPrice))} c/u
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-sm font-extrabold text-[#1F2937]">
-                      {formatCurrency(Number(item.cachedPrice) * item.quantity)}
-                    </span>
+                    )}
                   </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Dirección de envío */}
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm px-6 py-5">
-            <h2 className="mb-3 text-sm font-extrabold uppercase tracking-wider text-[#1F2937]">
-              Dirección de entrega
-            </h2>
-            {hasProfile ? (
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 text-lg">📍</span>
-                <div>
-                  <p className="text-sm font-semibold text-[#1F2937]">{profile.fullName}</p>
-                  <p className="text-sm text-[#6B7280]">{profile.defaultShippingAddress}</p>
+                  {orderCount === 0 && (
+                    <Link
+                      href="/onboarding?returnUrl=/checkout"
+                      className="text-sm font-semibold text-[#FC7A1E] hover:underline"
+                    >
+                      Editar
+                    </Link>
+                  )}
                 </div>
               </div>
-            ) : (
-              <div className="rounded-xl bg-amber-50 border border-amber-100 p-4 text-sm text-[#FC7A1E] font-medium">
-                📢 No tenés una dirección registrada.{" "}
-                <Link href="/onboarding?returnUrl=/checkout" className="font-bold underline">
-                  Registrá tu dirección →
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Columna derecha: resumen y CTA */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 rounded-2xl border border-gray-200 bg-white shadow-sm p-6 space-y-5">
-            <h2 className="text-base font-extrabold uppercase tracking-wider text-[#1F2937] pb-3 border-b border-gray-100">
-              Resumen de pago
-            </h2>
-
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between text-[#6B7280]">
-                <span>Subtotal ({totalItemsCount} productos)</span>
-                <span>{formatCurrency(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-[#6B7280]">
-                <span>Envío</span>
-                {shippingCost === 0 ? (
-                  <span className="font-bold text-green-600">Gratis</span>
-                ) : (
-                  <span>{formatCurrency(shippingCost)}</span>
-                )}
-              </div>
             </div>
 
-            <div className="flex justify-between border-t border-gray-100 pt-4">
-              <span className="text-sm font-bold text-[#1F2937]">Total</span>
-              <span className="text-xl font-extrabold text-[#1F2937]">
-                {formatCurrency(total)}
-              </span>
-            </div>
-
-            {/* Métodos de pago aceptados */}
-            <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-              <p className="mb-2.5 text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">
-                Pagos seguros con
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["Visa", "Mastercard", "Amex", "Naranja X", "Mercado Pago"].map((method) => (
-                  <span
-                    key={method}
-                    className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2.5 py-1 text-[10px] font-bold text-[#4B5563] shadow-xs"
-                  >
-                    {method}
-                  </span>
+            {/* Tarjeta de Productos */}
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
+                <h2 className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-gray-900">
+                  <TruckIcon className="h-5 w-5 text-[#485696]" />
+                  Tu pedido
+                </h2>
+                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-600">
+                  {totalItemsCount} {totalItemsCount === 1 ? "artículo" : "artículos"}
+                </span>
+              </div>
+              <ul className="divide-y divide-gray-100">
+                {hydratedItems.map((item) => (
+                  <li key={item.id} className="flex gap-4 px-6 py-5 hover:bg-gray-50/50 transition-colors">
+                    {/* Imagen del producto */}
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-white">
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    {/* Detalle */}
+                    <div className="flex flex-1 flex-col justify-between">
+                      <div className="flex justify-between items-start gap-4">
+                        <p className="text-sm font-bold text-gray-900 leading-snug line-clamp-2">
+                          {item.productName}
+                        </p>
+                        <span className="shrink-0 text-base font-extrabold text-gray-900">
+                          {formatCurrency(Number(item.cachedPrice) * item.quantity)}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs font-medium text-gray-500">
+                        Cantidad: {item.quantity} × {formatCurrency(Number(item.cachedPrice))}
+                      </p>
+                    </div>
+                  </li>
                 ))}
-              </div>
-              <p className="mt-2.5 flex items-center gap-1 text-[10px] text-[#6B7280]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="10"
-                  height="10"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect width="11" height="11" x="3" y="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                Transacción cifrada con SSL
-              </p>
+              </ul>
             </div>
+          </div>
 
-            {/* Botón CTA */}
-            <CheckoutConfirmButton disabled={!hasProfile} />
+          {/* Columna derecha: Resumen de pago y CTA */}
+          <div className="lg:col-span-5 xl:col-span-4">
+            <div className="sticky top-24 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
+              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-5">
+                <h2 className="text-sm font-extrabold uppercase tracking-wider text-gray-900">
+                  Resumen de la compra
+                </h2>
+              </div>
+              <div className="px-6 py-6 space-y-4">
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Subtotal de productos</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Costo de envío</span>
+                  {shippingCost === 0 ? (
+                    <span className="font-bold text-green-600">¡Gratis!</span>
+                  ) : (
+                    <span className="font-medium text-gray-900">{formatCurrency(shippingCost)}</span>
+                  )}
+                </div>
 
-            {!hasProfile && (
-              <p className="text-center text-xs text-[#6B7280]">
-                Registrá tu dirección para habilitar el pago.
-              </p>
-            )}
+                <div className="my-4 border-t border-dashed border-gray-200"></div>
+
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-bold text-gray-900">Total a pagar</span>
+                  <span className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    {formatCurrency(total)}
+                  </span>
+                </div>
+
+                <div className="pt-6">
+                  <CheckoutConfirmButton />
+                </div>
+                
+                <p className="mt-4 text-center text-xs text-gray-500">
+                  Al confirmar, aceptás los Términos y Condiciones de CompuLibre.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
