@@ -38,10 +38,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const { userId } = await auth();
   const { id } = await params;
 
-  const [profile, product] = await Promise.all([
+  const [profile, product, cart] = await Promise.all([
     userId ? getBuyerProfile() : Promise.resolve(null),
     getProductById(id),
+    userId ? import("@/lib/db/prisma").then(m => m.prisma.cart.findFirst({ where: { buyerId: userId, status: "ACTIVE" }, include: { items: true } })) : Promise.resolve(null),
   ]);
+
+  const hasItemsInCart = (cart?.items?.length || 0) > 0;
 
   if (userId && !profile) {
     return <ProfileRedirector />;
@@ -111,7 +114,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </p>
 
             {/* Buy Box (Precio, Stock, Selector y Botones) */}
-            <ProductBuyBox product={product} />
+            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} />
 
             {/* Detalles Adicionales */}
             <div className="mt-12 border-t border-gray-200 pt-8">

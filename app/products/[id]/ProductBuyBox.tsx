@@ -11,9 +11,10 @@ import { addToCartAction } from "@/lib/actions/cart";
 
 interface ProductBuyBoxProps {
   product: SellerProduct;
+  hasItemsInCart?: boolean;
 }
 
-export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
+export default function ProductBuyBox({ product, hasItemsInCart = false }: ProductBuyBoxProps) {
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalActionType, setModalActionType] = useState<"cart" | "buy">("cart");
@@ -200,7 +201,7 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
 
       {/* Modal de confirmación / Feedback premium (Renderizado con Portal para escapar del stacking context) */}
       {isModalOpen && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[9999] pointer-events-auto flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-9999 pointer-events-auto flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity duration-300">
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
             {/* Header del Modal */}
             <div className="text-center mb-5">
@@ -210,12 +211,16 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
               <h3 className="text-lg font-bold text-[#1F2937]">
                 {modalActionType === "cart"
                   ? "¡Agregado al carrito!"
-                  : "¡Iniciando tu orden de compra!"}
+                  : hasItemsInCart
+                    ? "¡Agregado a tu pedido!"
+                    : "¡Iniciando tu orden de compra!"}
               </h3>
               <p className="text-xs text-[#6B7280] mt-1 leading-normal">
                 {modalActionType === "cart"
                   ? "El producto ha sido sumado a tu carrito de compras temporal."
-                  : "Estamos configurando tu checkout de forma segura."}
+                  : hasItemsInCart
+                    ? "Como tenés otros productos en el carrito, te sugerimos revisarlo."
+                    : "Estamos configurando tu checkout de forma segura."}
               </p>
             </div>
 
@@ -257,12 +262,22 @@ export default function ProductBuyBox({ product }: ProductBuyBoxProps) {
                 </>
               ) : (
                 <>
-                  <Link
-                    href="/checkout"
-                    className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
-                  >
-                    Proceder al Pago ({formattedPrice})
-                  </Link>
+                  {hasItemsInCart ? (
+                    <Link
+                      href="/cart"
+                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
+                    >
+                      <ShoppingCartIcon className="h-5 w-5 mr-2" aria-hidden="true" />
+                      Revisar carrito antes de pagar
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/checkout"
+                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
+                    >
+                      Proceder al Pago ({formattedPrice})
+                    </Link>
+                  )}
                   <button
                     onClick={() => setIsModalOpen(false)}
                     className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99]"
