@@ -61,7 +61,8 @@ export async function POST(
     // Mapeo de estados del webhook a nuestra base de datos
     const statusMap: Record<string, BuyerOrderStatus> = {
       APPROVED: 'PAID',
-      REJECTED: 'PAYMENT_FAILED'
+      REJECTED: 'PAYMENT_FAILED',
+      CANCELLED: 'CANCELLED'
     };
 
     const newStatus = statusMap[incomingStatus];
@@ -82,12 +83,27 @@ export async function POST(
     }
 
     // Actualizar la orden
-    await prisma.buyerOrder.update({
+    const updatedOrder = await prisma.buyerOrder.update({
       where: { id: order_id },
       data: { status: newStatus }
     });
 
-    // TODO: Si es REJECTED, se debería llamar a mockUnlockStock() según la skill
+    // Mapeo del estado del carrito
+    const cartStatusMap: Record<string, "CONVERTED" | "REJECTED" | "CANCELLED"> = {
+      APPROVED: 'CONVERTED',
+      REJECTED: 'REJECTED',
+      CANCELLED: 'CANCELLED'
+    };
+
+    const newCartStatus = cartStatusMap[incomingStatus];
+    if (updatedOrder.cartId && newCartStatus) {
+      await prisma.cart.update({
+        where: { id: updatedOrder.cartId },
+        data: { status: newCartStatus }
+      });
+    }
+
+    // TODO: Si es REJECTED o CANCELLED, se debería llamar a mockUnlockStock() según la skill
 
     return NextResponse.json({ success: true, orderStatus: newStatus });
   } catch (error) {
