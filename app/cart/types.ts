@@ -8,4 +8,5 @@ export interface HydratedCartItem {
   sellerName: string;
   imageUrl: string;
   stock: number;
+  condition: string;
 }

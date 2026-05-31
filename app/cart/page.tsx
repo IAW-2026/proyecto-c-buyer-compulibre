@@ -59,6 +59,7 @@ export default async function CartPage() {
         sellerName: productData?.sellerName ?? "Vendedor Desconocido",
         imageUrl: productData?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
         stock: productData?.stock ?? 0,
+        condition: productData?.condition ?? "new",
       };
     });
   }

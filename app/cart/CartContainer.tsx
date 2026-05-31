@@ -10,11 +10,11 @@ import {
   TrashIcon,
   NoSymbolIcon,
   LightBulbIcon,
-  SpeakerWaveIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import { HydratedCartItem } from "./types";
 import { updateQuantityAction, removeItemAction, removeItemsBySellerAction } from "@/lib/actions/cart";
+import { formatCondition } from "@/lib/formatters";
 
 interface CartContainerProps {
   items: HydratedCartItem[];
@@ -261,7 +261,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 shrink-0">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                               </svg>
-                              <span>Condición: <span className="font-semibold text-gray-700">Nuevo</span></span>
+                              <span>Condición: <span className="font-semibold text-gray-700">{formatCondition(item.condition)}</span></span>
                             </div>
 
                           </div>
@@ -363,22 +363,7 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
               </span>
             </div>
 
-            {/* Avisos especiales */}
-            {!hasProfile && (
-              <div className="rounded-xl bg-amber-50 p-3.5 border border-amber-100 text-xs text-[#FC7A1E] font-medium leading-relaxed">
-                <span className="inline-flex items-center gap-1">
-                  <SpeakerWaveIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  <strong>Dirección requerida:</strong>
-                </span>
-                {" "}Necesitás registrar tu dirección de envío antes de proceder al pago.
-                <Link
-                  href="/onboarding?returnUrl=/cart"
-                  className="block font-bold underline mt-1 text-[#e0620c] hover:brightness-90"
-                >
-                  Registrar mi dirección ahora →
-                </Link>
-              </div>
-            )}
+
 
             {hasMultipleSellers && (
               <div className="flex items-start gap-1.5 rounded-xl bg-red-50 p-3.5 border border-red-100 text-xs text-red-600 font-medium leading-normal">
@@ -396,17 +381,10 @@ export default function CartContainer({ items, hasProfile }: CartContainerProps)
                 <NoSymbolIcon className="h-4 w-4" aria-hidden="true" />
                 Resolver vendedores primero
               </button>
-            ) : !hasProfile ? (
-              <Link
-                href="/onboarding?returnUrl=/cart"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#485696] py-4 text-sm font-extrabold text-white shadow-md transition-all hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
-              >
-                Registrar dirección →
-              </Link>
             ) : (
               <Link
                 id="checkout-link"
-                href="/checkout"
+                href={hasProfile ? "/checkout" : "/onboarding?returnUrl=/checkout"}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FC7A1E] py-4 text-sm font-extrabold text-white shadow-lg shadow-[#FC7A1E]/25 transition-all hover:brightness-95 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
