@@ -433,13 +433,20 @@ export default async function AdminTabContent({
                                                             {buyer.id}
                                                         </td>
                                                         <td className="py-5 px-5 align-top">
-                                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${
-                                                                buyer.isActive 
-                                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                                                                    : "bg-red-50 text-red-700 border-red-200"
-                                                            }`}>
-                                                                {buyer.isActive ? "Activa" : "Suspendida"}
-                                                            </span>
+                                                            <div className="flex gap-2 items-center">
+                                                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                                                                    buyer.isActive 
+                                                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                                                                        : "bg-red-50 text-red-700 border-red-200"
+                                                                }`}>
+                                                                    {buyer.isActive ? "Activa" : "Suspendida"}
+                                                                </span>
+                                                                {adminIds.includes(buyer.id) && (
+                                                                    <span className="inline-flex items-center rounded-full bg-[#485696]/10 border border-[#485696]/20 px-2.5 py-0.5 text-xs font-bold text-[#485696]">
+                                                                        Admin
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td className="py-5 px-5 align-top">
                                                             <div className="flex justify-end w-full max-w-[220px] ml-auto">
