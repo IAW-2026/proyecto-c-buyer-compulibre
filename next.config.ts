@@ -14,15 +14,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/products",
-        permanent: false, // Usar redirección 307 temporal
-      },
-    ];
-  },
 };
 
 export default nextConfig;
