@@ -18,7 +18,7 @@ export default function ProfileRedirector() {
   }, [router]);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#E7E7E7] text-[#1F2937]">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#E6E6E6] text-[#1F2937]">
       <div className="flex flex-col items-center gap-4">
         {/* Spinner animado con los colores corporativos (Azul #485696 y Naranja #FC7A1E) */}
         <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#485696]/20 border-t-[#FC7A1E]" />
