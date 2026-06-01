@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const orderId = searchParams.get("order_id");
@@ -14,6 +16,8 @@ export async function GET(request: NextRequest) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const tokenToSend = process.env.SERVICE_TOKEN ?? "";
+  console.log(`[MOCK-SUCCESS DEBUG] Intentando enviar token: '${tokenToSend}'`);
 
   try {
     const webhookRes = await fetch(
@@ -23,7 +27,7 @@ export async function GET(request: NextRequest) {
         headers: {
           "Content-Type": "application/json",
           // Incluido para estar preparado para Etapa 3 (validación comentada en el webhook por ahora)
-          "x-service-token": process.env.SERVICE_TOKEN ?? "",
+          "x-service-token": tokenToSend,
         },
         body: JSON.stringify({
           transactionId: txn ?? `txn_mock_${Date.now()}`,

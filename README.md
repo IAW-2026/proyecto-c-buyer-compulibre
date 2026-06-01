@@ -1,53 +1,70 @@
 # CompuLibre - Buyer App
 
-## Descripción
+Aplicación **Buyer** del [Proyecto IAW 2026](https://iaw-2026.github.io/proyecto/) — comisión `CompuLibre`.
 
-**Buyer App** es el portal principal de compras del marketplace de hardware **CompuLibre**. Esta aplicación permite a los usuarios buscar componentes, agregar productos a su carrito, procesar pagos de forma segura y realizar el seguimiento en tiempo real de sus envíos. Forma parte de un ecosistema de 4 aplicaciones interconectadas mediante APIs REST.
+Esta app corresponde al rol del comprador en el proyecto de tipo **C (Marketplace)**.
 
-## Enlace al Deploy
+---
 
-🔗 **https://proyecto-c-buyer-compulibre.vercel.app/**
+## Deploy
 
-## Acceso al Sistema
+🔗 **(https://proyecto-c-buyer-compulibre.vercel.app/)**
 
-La autenticación de todo el ecosistema CompuLibre está gestionada de forma centralizada a través de **Clerk**.
+## Usuarios de Prueba:
 
-### Usuario Final (Comprador)
+**Usuario Comprador (Buyer)**
 
-- **Acceso:** Cualquier persona puede registrarse libremente utilizando una cuenta de Google, o correo electrónico desde (`/sign-in`).
-- **Funcionalidades:** Generación automática de perfil, uso de carritos mono-vendedor, flujo de pago (mock) y seguimiento visual del estado del envío.
+- **Email:** `buyer+clerk_test@iaw.com`
+- **Contraseña:** `iawuser#`
+- **Codigo de confirmación:** 424242
+- **Descripción:** Permite realizar el flujo completo de compras de forma segura. Puede explorar el catálogo, agregar componentes al carrito (con la regla de pedir a un solo vendedor a la vez), definir datos de envío, procesar pagos y consultar tanto sus órdenes realizadas como notificaciones.
 
-### Usuario Administrador (Evaluación)
+**Usuario Administrador (Admin)**
 
-Para evaluar el panel de control, por favor utiliza las siguientes credenciales de prueba:
+- **Email:** `administrador+clerk_test@iaw.com`
+- **Contraseña:** `iawuser#`
+- **Codigo de confirmación:** 424242
+- **Descripción:** Además de poseer todas las capacidades del usuario regular, accede a la ruta `/admin` para gestionar la plataforma. Desde allí puede visualizar métricas financieras y el historial global de transacciones, actualizar los estados de envío (despacho, en tránsito, entregado) y restablecer los datos de los usuarios a su estado inicial.
 
-- **Email:** `test_buyer+clerk_test@example.com`
-- **Contraseña:** `admintest2026!`
-- **Funcionalidades:** Al iniciar sesión con este rol, aparecerá un botón "Admin" en el Navbar. La ruta `/admin` permite ver el panel de métricas, gráficos de estado, historial de transacciones global y permite la suspensión de cuentas de compradores.
+Este usuario debe tener el rol `"admin"` configurado en su `publicMetadata` de Clerk:
 
-## Desarrollo Local e Instalación
+```json
+{
+  "role": "admin"
+}
+```
 
-Para ejecutar este proyecto localmente:
+## Instrucciones para utilizar o evaluar la aplicación
 
-1. Clona el repositorio e ingresa al directorio.
-2. ¡IMPORTANTE! Instala las dependencias utilizando pnpm:
+### Flujo en la Interfaz Web:
 
-   ```bash
-   pnpm install
-   ```
+**Webhook de pagos (Payment App):**
 
-   > **Nota sobre pnpm:** Si al intentar instalar o iniciar el servidor te encuentras con el error `[ERR_PNPM_IGNORED_BUILDS]`, se debe a las políticas de seguridad de pnpm (v9+). Para solucionarlo, ejecuta el comando `pnpm approve-builds`, selecciona con la barra espaciadora los paquetes (como `esbuild` o `prisma`) y presiona Enter para aprobarlos.
+1. Inicia sesión con el usuario **Buyer**.
+2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido.
+3. El sistema te redirigirá a un **Simulador de Pagos** interno (mock). Aprueba o rechaza la transacción para disparar los webhooks y ver cómo se actualiza el estado de la orden en tiempo real.
 
-3. Configura tus variables de entorno copiando el archivo de ejemplo:
-   ```bash
-   cp .env.example .env.local
-   ```
-4. Sincroniza la base de datos de Prisma y genera el cliente:
-   ```bash
-   pnpm dlx prisma generate
-   pnpm dlx prisma db push
-   ```
-5. Inicia el servidor de desarrollo:
-   ```bash
-   pnpm dev
-   ```
+**Webhook de pagos (Shipping App):**
+
+1. Inicia sesión con el usuario **Admin**
+2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido y confirme la compra en el mock de Payments.
+   (Este paso lo puede hacer con un usuario **Buyer** tambien)
+3. Con el usuario **Admin** dirijase a `/admin` y luego clicke en `Logística Operativa`
+4. Busque entre todas las órdenes una que coincida con el número de orden que se le brindó (ej: #ABCD1234), debe tener la etiqueta `PAID`.
+5. Clicke `Simular Despacho` para crear la etiqueta.
+6. Clicke `Simular en tránsito` para actualizar el estado a en tránsito.
+7. Clicke `Simular Entrega` para actualizar el estado a entregado.
+
+- **[Guía de Evaluación Local y Testing de APIs](./docs/evaluacion-local.md)**
+
+## Descripción del Proyecto
+
+**Buyer App** es el portal de compras principal del marketplace de hardware **CompuLibre**. Su arquitectura orientada a eventos escucha activamente webhooks asíncronos para actualizar el estado de las órdenes en tiempo real, sin depender de recargas manuales.
+
+## Documentación Adicional
+
+Para no sobrecargar este archivo principal, la información técnica extendida se encuentra separada:
+
+- **[Notas o comentarios para la corrección](./docs/comentarios.md)**: Detalla decisiones de diseño y consideraciones técnicas tomadas durante el desarrollo.
+
+- **[Guía de Evaluación Local y Testing de APIs](./docs/evaluacion-local.md)**: Detalla cómo instalar el proyecto localmente usando pnpm, y proporciona la estructura JSON exacta y los headers necesarios para probar los endpoints de webhooks con herramientas como Thunder Client.

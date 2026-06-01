@@ -67,7 +67,7 @@ export default function Navbar() {
           
           {/* Logo */}
           <Link
-            href="/products"
+            href="/"
             className="shrink-0 flex items-center transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <Image

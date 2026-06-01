@@ -33,43 +33,78 @@ export default async function MockShippingAppPage({
   };
 
   return (
-    <div style={{ fontFamily: "monospace", padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-      <h1>Mock Shipping App</h1>
-      <p>Este es un entorno de pruebas simulado de la Shipping App.</p>
-      
-      <h2>Datos del envío</h2>
-      <ul>
-        <li><strong>Tracking ID:</strong> {mockShipmentData.trackingId}</li>
-        <li><strong>ID Orden Vendedor:</strong> {mockShipmentData.externalSellerOrderId}</li>
-        <li><strong>Courier:</strong> {mockShipmentData.courier}</li>
-        <li><strong>Estado actual:</strong> {mockShipmentData.status}</li>
-        <li><strong>Dirección de origen:</strong> {mockShipmentData.originAddress}</li>
-        <li><strong>Dirección de destino:</strong> {mockShipmentData.destinationAddress}</li>
-        <li><strong>Fecha creación:</strong> {new Date(mockShipmentData.createdAt).toLocaleString("es-AR")}</li>
-        <li><strong>Última actualización:</strong> {new Date(mockShipmentData.updatedAt).toLocaleString("es-AR")}</li>
-      </ul>
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4 font-sans">
+      <div className="w-full max-w-2xl">
+        <div className="rounded-2xl bg-white shadow-xl overflow-hidden border border-gray-100">
+          {/* Header simple */}
+          <div className="px-6 py-6 border-b border-gray-100 text-center">
+            <h1 className="text-xl font-bold text-gray-900">Shipping app</h1>
+            <p className="mt-1 text-sm text-gray-500">Entorno de prueba (Etapa 2)</p>
+          </div>
 
-      <h2>Historial de eventos</h2>
-      <table border={1} cellPadding={8} style={{ borderCollapse: "collapse", width: "100%", textAlign: "left" }}>
-        <thead>
-          <tr>
-            <th>ID Evento</th>
-            <th>Estado</th>
-            <th>Ubicación</th>
-            <th>Fecha y Hora</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockShipmentData.events.map((event) => (
-            <tr key={event.id}>
-              <td>{event.id}</td>
-              <td>{event.statusUpdate}</td>
-              <td>{event.location}</td>
-              <td>{new Date(event.timestamp).toLocaleString("es-AR")}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          <div className="px-6 py-6 space-y-6">
+            {/* Datos principales */}
+            <div className="rounded-lg bg-gray-50 border border-gray-200 text-sm">
+              <div className="px-4 py-3 border-b border-gray-200">
+                <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Tracking ID</span>
+                <span className="block font-mono text-gray-900 break-all">{mockShipmentData.trackingId}</span>
+              </div>
+              <div className="px-4 py-3 border-b border-gray-200">
+                <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">ID Orden Vendedor</span>
+                <span className="block font-mono text-gray-900 break-all">{mockShipmentData.externalSellerOrderId}</span>
+              </div>
+              <div className="px-4 py-3 border-b border-gray-200 flex justify-between">
+                <div>
+                  <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Courier</span>
+                  <span className="block font-medium text-gray-900">{mockShipmentData.courier}</span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Estado Actual</span>
+                  <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                    {mockShipmentData.status}
+                  </span>
+                </div>
+              </div>
+              <div className="px-4 py-3 border-b border-gray-200">
+                <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Ruta</span>
+                <p className="text-gray-900"><span className="text-gray-500">Origen:</span> {mockShipmentData.originAddress}</p>
+                <p className="text-gray-900"><span className="text-gray-500">Destino:</span> {mockShipmentData.destinationAddress}</p>
+              </div>
+              <div className="px-4 py-3 text-xs text-gray-500 sm:flex sm:justify-between space-y-1 sm:space-y-0">
+                <span>Creado: {new Date(mockShipmentData.createdAt).toLocaleString("es-AR")}</span>
+                <span>Actualizado: {new Date(mockShipmentData.updatedAt).toLocaleString("es-AR")}</span>
+              </div>
+            </div>
+
+            {/* Historial de Eventos */}
+            <div>
+              <h2 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">Historial de eventos</h2>
+              <div className="overflow-x-auto rounded-lg border border-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 text-sm text-left">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold text-gray-500">ID</th>
+                      <th className="px-4 py-3 font-semibold text-gray-500">Estado</th>
+                      <th className="px-4 py-3 font-semibold text-gray-500">Ubicación</th>
+                      <th className="px-4 py-3 font-semibold text-gray-500">Fecha y Hora</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {mockShipmentData.events.map((event) => (
+                      <tr key={event.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-gray-500">{event.id}</td>
+                        <td className="px-4 py-3 font-medium text-gray-900">{event.statusUpdate}</td>
+                        <td className="px-4 py-3 text-gray-600">{event.location}</td>
+                        <td className="px-4 py-3 text-gray-500">{new Date(event.timestamp).toLocaleString("es-AR")}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 }

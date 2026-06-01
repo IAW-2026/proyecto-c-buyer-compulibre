@@ -5,6 +5,7 @@ import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
 import ProductSort from "@/components/ProductSort";
 import Pagination from "@/components/Pagination";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Productos — CompuLibre",
@@ -65,7 +66,8 @@ export default async function ProductsPage({
   if (sort) currentParams.sort = sort;
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <>
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       
       {/* Layout de 2 columnas para Desktop, Stack para Mobile */}
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
@@ -129,7 +131,9 @@ export default async function ProductsPage({
           )}
         </div>
       </div>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }
 
