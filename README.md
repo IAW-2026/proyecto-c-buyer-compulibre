@@ -1,18 +1,26 @@
 # CompuLibre - Buyer App
 
 ## Descripción
+
 **Buyer App** es el portal principal de compras del marketplace de hardware **CompuLibre**. Esta aplicación permite a los usuarios buscar componentes, agregar productos a su carrito, procesar pagos de forma segura y realizar el seguimiento en tiempo real de sus envíos. Forma parte de un ecosistema de 4 aplicaciones interconectadas mediante APIs REST.
 
-## 🚀 Enlace al Deploy
+## Enlace al Deploy
+
 🔗 **[Agregar el link del deploy en Vercel / hosting aquí]**
 
-## 🔐 Acceso al Sistema
+## Acceso al Sistema
 
-La autenticación de todo el ecosistema CompuLibre está gestionada de forma centralizada a través de **Clerk**. 
+La autenticación de todo el ecosistema CompuLibre está gestionada de forma centralizada a través de **Clerk**.
 
 ### Usuario Final (Comprador)
-Esta aplicación está diseñada exclusivamente para la experiencia de compra.
-- **Cómo acceder:** Cualquier persona puede registrarse libremente utilizando una cuenta de Google, GitHub o correo electrónico desde la pantalla principal (`/sign-in`).
-- **Configuración de rol:** Al iniciar sesión por primera vez, el sistema detectará tu cuenta de Clerk y generará automáticamente tu perfil de comprador (`BuyerProfile`) en la base de datos para que puedas empezar a operar de inmediato.
 
-> **Nota sobre otros roles:** Como se estableció en la arquitectura del proyecto, la *Buyer App* no posee panel de administración ni de ventas. Para gestionar publicaciones debes ingresar a la **Seller App**, y para administración general al **Panel de control** o **Shipping App**.
+- **Acceso:** Cualquier persona puede registrarse libremente utilizando una cuenta de Google, o correo electrónico desde (`/sign-in`).
+- **Funcionalidades:** Generación automática de perfil, uso de carritos mono-vendedor, flujo de pago (mock) y seguimiento visual del estado del envío.
+
+### Usuario Administrador (Evaluación)
+
+Para evaluar el panel de control, por favor utiliza las siguientes credenciales de prueba:
+
+- **Email:** `admin-compulibre@ejemplo.com` _(reemplazar por el que vayas a crear)_
+- **Contraseña:** `AdminTest2026!` _(reemplazar)_
+- **Funcionalidades:** Al iniciar sesión con este rol, aparecerá un botón "Admin" en el Navbar. La ruta `/admin` permite ver el panel de métricas, gráficos de estado, historial de transacciones global y permite la suspensión de cuentas de compradores.
