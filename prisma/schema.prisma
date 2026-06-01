@@ -3,51 +3,65 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model BuyerProfile {
-  id                     String       @id @default(cuid())
-  clerkUserId            String       @unique
+  id                     String       @id // id es clerk_user_id
   fullName               String
   defaultShippingAddress String?
+  defaultPostalCode      String?
+  isActive               Boolean      @default(true)
   carts                  Cart[]
   orders                 BuyerOrder[]
 }
 
 model Cart {
-  id        String     @id @default(cuid())
-  buyerId   String
-  buyer     BuyerProfile @relation(fields: [buyerId], references: [id])
-  status    CartStatus @default(ACTIVE)
+  id        String       @id @default(cuid())
+  buyerId   String //buyer_clerk_id
+  buyer     BuyerProfile @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  status    CartStatus   @default(ACTIVE)
   items     CartItem[]
+  orders    BuyerOrder[]
 }
 
 enum CartStatus {
   ACTIVE
-  ABANDONED
+  CANCELLED
+  REJECTED
   CONVERTED
 }
 
 model CartItem {
   id                String  @id @default(cuid())
   cartId            String
-  cart              Cart    @relation(fields: [cartId], references: [id])
-  externalProductId String  // ID del producto en la Seller App
+  cart              Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  externalProductId String // ID del producto en la Seller App
+  productName       String // nombre al momento de agregar al carrito
   quantity          Int
-  cachedPrice       Decimal // snapshot del precio al agregar al carrito
+  cachedPrice       Decimal // precio al momento de agregarlo al carrito
+  sellerId          String // necesario para validar checkout mono-vendedor
 }
 
 model BuyerOrder {
   id                    String           @id @default(cuid())
-  buyerId               String
+  buyerId               String // buyer_clerk_id
   buyer                 BuyerProfile     @relation(fields: [buyerId], references: [id])
+  sellerId              String // necesario para enviar a Payments App en el checkout
   totalAmount           Decimal
   status                BuyerOrderStatus @default(PENDING_PAYMENT)
-  externalTransactionId String?          // referencia a Payments App
-  trackingId            String?          // referencia a Shipping App, null hasta el despacho
-  shipmentStatus        String?          // último estado recibido de Shipping App
+  externalTransactionId String? // referencia a Payments App, null hasta que se inicia el pago
+  trackingId            String? // referencia a Shipping App, null hasta el despacho
+  courier               String? // Snapshot logístico recibido por webhook
+  shipmentStatus        String? // (LABEL_CREATED, IN_TRANSIT, DELIVERED),  ultimo estado recibido de Shipping App
+  cartId                String? // Enlace al carrito que originó la orden, sino el webhook no sabria que carrito modificar
+  cart                  Cart?            @relation(fields: [cartId], references: [id], onDelete: SetNull)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
   items                 BuyerOrderItem[]
 }
 
@@ -57,14 +71,15 @@ enum BuyerOrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  PAYMENT_FAILED
 }
 
 model BuyerOrderItem {
   id                String     @id @default(cuid())
   buyerOrderId      String
-  order             BuyerOrder @relation(fields: [buyerOrderId], references: [id])
-  externalProductId String     // ID del producto en la Seller App
-  productName       String     // snapshot del nombre al momento de la compra
+  order             BuyerOrder @relation(fields: [buyerOrderId], references: [id], onDelete: Cascade)
+  externalProductId String // ID del producto en la Seller App
+  productName       String // snapshot del nombre al momento de la compra
   quantity          Int
-  unitPrice         Decimal    // snapshot del precio al momento de la compra
+  unitPrice         Decimal // snapshot del precio al momento de la compra
 }

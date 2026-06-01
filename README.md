@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CompuLibre - Buyer App
 
-## Getting Started
+## Descripción
 
-First, run the development server:
+**Buyer App** es el portal principal de compras del marketplace de hardware **CompuLibre**. Esta aplicación permite a los usuarios buscar componentes, agregar productos a su carrito, procesar pagos de forma segura y realizar el seguimiento en tiempo real de sus envíos. Forma parte de un ecosistema de 4 aplicaciones interconectadas mediante APIs REST.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Enlace al Deploy
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔗 **[Agregar el link del deploy en Vercel / hosting aquí]**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Acceso al Sistema
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+La autenticación de todo el ecosistema CompuLibre está gestionada de forma centralizada a través de **Clerk**.
 
-## Learn More
+### Usuario Final (Comprador)
 
-To learn more about Next.js, take a look at the following resources:
+- **Acceso:** Cualquier persona puede registrarse libremente utilizando una cuenta de Google, o correo electrónico desde (`/sign-in`).
+- **Funcionalidades:** Generación automática de perfil, uso de carritos mono-vendedor, flujo de pago (mock) y seguimiento visual del estado del envío.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Usuario Administrador (Evaluación)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Para evaluar el panel de control, por favor utiliza las siguientes credenciales de prueba:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Email:** `test_buyer+clerk_test@example.com`
+- **Contraseña:** `admintest2026!`
+- **Funcionalidades:** Al iniciar sesión con este rol, aparecerá un botón "Admin" en el Navbar. La ruta `/admin` permite ver el panel de métricas, gráficos de estado, historial de transacciones global y permite la suspensión de cuentas de compradores.
