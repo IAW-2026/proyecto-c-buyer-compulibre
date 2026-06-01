@@ -204,6 +204,27 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         </div>
       )}
 
+      {/* Banner de pago pendiente */}
+      {order.status === "PENDING_PAYMENT" && success !== "false" && (
+        <div className="mb-6 flex flex-col sm:flex-row items-start gap-4 rounded-2xl bg-amber-50 border border-amber-200 p-5">
+          <ClockIcon className="h-7 w-7 shrink-0 text-amber-600 mt-0.5" aria-hidden="true" />
+          <div className="flex-1">
+            <h2 className="font-bold text-amber-800">Falta completar el pago</h2>
+            <p className="text-sm text-amber-700 mt-0.5">
+              Tu orden está reservada, pero el pago no se ha completado. Podés continuar desde donde dejaste.
+            </p>
+          </div>
+          {order.externalTransactionId ? (
+            <a
+              href={`/checkout/mock-payment?txn=${order.externalTransactionId}&order_id=${order.id}&amount=${order.totalAmount.toNumber()}`}
+              className="mt-2 sm:mt-0 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-700 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Completar pago
+            </a>
+          ) : null}
+        </div>
+      )}
+
       {/* Encabezado de la orden */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -354,8 +375,10 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
             <div className="flex items-center gap-3 text-sm text-[#6B7280]">
               <EnvelopeOpenIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
               <p>
-                {order.status === "PENDING_PAYMENT" || order.status === "PAYMENT_FAILED"
+                {order.status === "PENDING_PAYMENT"
                   ? "El envío se gestiona una vez confirmado el pago."
+                  : order.status === "PAYMENT_FAILED" || order.status === "CANCELLED"
+                  ? "El envío no se realizará ya que la orden fue cancelada o el pago rechazado."
                   : "Los datos de envío estarán disponibles cuando el vendedor despache tu pedido."}
               </p>
             </div>

@@ -123,13 +123,19 @@ export default async function OrdersPage() {
             const previewItem = order.items[0];
 
             return (
-              <Link
+              <div
                 key={order.id}
-                href={`/orders/${order.id}`}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm transition hover:shadow-md hover:border-[#485696]/30 duration-200"
+                className="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm transition hover:shadow-md hover:border-[#485696]/30 duration-200"
               >
+                {/* Enlace invisible sobre toda la tarjeta para hacerla clickeable entera */}
+                <Link
+                  href={`/orders/${order.id}`}
+                  className="absolute inset-0 z-0 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#485696] focus:ring-offset-2"
+                  aria-label={`Ver orden ${order.id}`}
+                />
+
                 {/* Info izquierda */}
-                <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex flex-col gap-1 min-w-0 relative z-10 pointer-events-none">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
                       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${badge.className}`}
@@ -162,10 +168,20 @@ export default async function OrdersPage() {
                 </div>
 
                 {/* Info derecha */}
-                <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-base font-extrabold text-[#1F2937]">
-                    {formatCurrency(order.totalAmount.toNumber())}
-                  </span>
+                <div className="flex items-center gap-4 shrink-0 relative z-10 pointer-events-none">
+                  <div className="flex flex-col items-end gap-1.5 pointer-events-auto">
+                    <span className="text-base font-extrabold text-[#1F2937]">
+                      {formatCurrency(order.totalAmount.toNumber())}
+                    </span>
+                    {order.status === "PENDING_PAYMENT" && order.externalTransactionId && (
+                      <a
+                        href={`/checkout/mock-payment?txn=${order.externalTransactionId}&order_id=${order.id}&amount=${order.totalAmount.toNumber()}`}
+                        className="rounded-lg bg-amber-600 px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition hover:bg-amber-700 hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Pagar ahora
+                      </a>
+                    )}
+                  </div>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -181,7 +197,7 @@ export default async function OrdersPage() {
                     <path d="m9 18 6-6-6-6" />
                   </svg>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
