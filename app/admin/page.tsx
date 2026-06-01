@@ -44,11 +44,7 @@ export default async function AdminBuyersPage({
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937] flex items-center gap-2">
                             <span>Panel de Control</span>
-                            <span className="rounded-full bg-[#485696]/10 border border-[#485696]/20 px-2 py-0.5 text-xs font-bold text-[#485696]">
-                                Admin
-                            </span>
                         </h1>
-                        <p className="text-[#6B7280] mt-1 text-sm font-medium">Métricas históricas acumuladas · Actualizado en tiempo real</p>
                     </div>
                 </div>
 

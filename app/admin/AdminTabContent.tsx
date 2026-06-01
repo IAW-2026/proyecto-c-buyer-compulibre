@@ -56,14 +56,16 @@ export default async function AdminTabContent({
         retainedRevenueSum,
         lostCapitalItems,
         recentPaidOrders,
-        metricsConvertedCarts
+        metricsConvertedCarts,
+        paidOrdersCount
     ] = activeTab === "metrics" ? await db.$transaction([
         db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } }),
         db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED"] } } }),
         db.cartItem.findMany({ where: { cart: { status: { in: ["CANCELLED", "REJECTED"] } } }, select: { quantity: true, cachedPrice: true } }),
-        db.buyerOrder.findMany({ orderBy: orderQuery, take: 5, include: { buyer: { select: { fullName: true } } } }),
-        db.cart.count({ where: { status: "CONVERTED" } })
-    ]) : [{ _sum: { totalAmount: null } }, { _sum: { totalAmount: null } }, [], [], 0];
+        db.buyerOrder.findMany({ orderBy: orderQuery, take: 15, include: { buyer: { select: { fullName: true } } } }),
+        db.cart.count({ where: { status: "CONVERTED" } }),
+        db.buyerOrder.count({ where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } })
+    ]) : [{ _sum: { totalAmount: null } }, { _sum: { totalAmount: null } }, [], [], 0, 0];
 
     const [
         totalCarts,
@@ -107,7 +109,7 @@ export default async function AdminTabContent({
     const totalSales = Number(salesSum._sum.totalAmount) || 0;
     const retainedRevenue = Number(retainedRevenueSum._sum.totalAmount) || 0;
     const conversionRate = totalCarts > 0 ? (actualConvertedCarts / totalCarts) * 100 : 0;
-    const averageOrderValue = actualConvertedCarts > 0 ? totalSales / actualConvertedCarts : 0;
+    const averageOrderValue = paidOrdersCount > 0 ? totalSales / paidOrdersCount : 0;
     const lostCapital = lostCapitalItems.reduce((acc, item) => acc + (item.quantity * Number(item.cachedPrice)), 0);
     const activeCarts = totalCarts - actualConvertedCarts - cancelledCarts - rejectedCarts;
 
@@ -181,9 +183,9 @@ export default async function AdminTabContent({
                                 {/* Historial de Transacciones */}
                                 <div>
                                     <h4 className="text-md font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2">Últimas Transacciones</h4>
-                                    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                                    <div className="bg-white rounded-2xl border border-gray-200 overflow-auto shadow-sm max-h-[400px]">
                                         <table className="w-full text-left text-sm">
-                                            <thead className="bg-gray-50 border-b border-gray-200">
+                                            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                                                 <tr>
                                                     {[
                                                         { id: "fecha", label: "Fecha", align: "left" },
@@ -431,13 +433,20 @@ export default async function AdminTabContent({
                                                             {buyer.id}
                                                         </td>
                                                         <td className="py-5 px-5 align-top">
-                                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${
-                                                                buyer.isActive 
-                                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                                                                    : "bg-red-50 text-red-700 border-red-200"
-                                                            }`}>
-                                                                {buyer.isActive ? "Activa" : "Suspendida"}
-                                                            </span>
+                                                            <div className="flex gap-2 items-center">
+                                                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                                                                    buyer.isActive 
+                                                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                                                                        : "bg-red-50 text-red-700 border-red-200"
+                                                                }`}>
+                                                                    {buyer.isActive ? "Activa" : "Suspendida"}
+                                                                </span>
+                                                                {adminIds.includes(buyer.id) && (
+                                                                    <span className="inline-flex items-center rounded-full bg-[#485696]/10 border border-[#485696]/20 px-2.5 py-0.5 text-xs font-bold text-[#485696]">
+                                                                        Admin
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </td>
                                                         <td className="py-5 px-5 align-top">
                                                             <div className="flex justify-end w-full max-w-[220px] ml-auto">

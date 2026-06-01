@@ -5,9 +5,6 @@ import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
 import ProductSort from "@/components/ProductSort";
 import Pagination from "@/components/Pagination";
-import { auth } from "@clerk/nextjs/server";
-import { getBuyerProfile } from "@/lib/db/profile";
-import ProfileRedirector from "@/components/ProfileRedirector";
 
 export const metadata: Metadata = {
   title: "Productos — CompuLibre",
@@ -32,7 +29,6 @@ export default async function ProductsPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const { userId } = await auth();
   const params = await searchParams; // Next.js 15+ requiere await
 
   // Sanitizar parámetros
@@ -44,24 +40,17 @@ export default async function ProductsPage({
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
   const sort = params.sort as "ascendingPrice" | "descendingPrice" | undefined;
 
-  // Resolución paralela del perfil y los productos
-  const [profile, productsResult] = await Promise.all([
-    userId ? getBuyerProfile() : Promise.resolve(null),
-    getProducts({
-      search,
-      category,
-      condition,
-      minPrice,
-      maxPrice,
-      sort,
-      page,
-      limit: PAGE_SIZE,
-    }),
-  ]);
-
-  if (userId && !profile) {
-    return <ProfileRedirector />;
-  }
+  // Resolución de los productos
+  const productsResult = await getProducts({
+    search,
+    category,
+    condition,
+    minPrice,
+    maxPrice,
+    sort,
+    page,
+    limit: PAGE_SIZE,
+  });
 
   const { products, pagination } = productsResult;
   const { totalProducts: total, totalPages } = pagination;

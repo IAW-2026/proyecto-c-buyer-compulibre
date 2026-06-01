@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import { getProductById } from "@/lib/mocks/seller-app";
 import { revalidatePath } from "next/cache";
@@ -20,6 +20,20 @@ export async function getOrCreateActiveCart(userId: string) {
   });
 
   if (!cart) {
+    // Asegurarse de que el perfil exista antes de crear el carrito
+    const profileExists = await prisma.buyerProfile.findUnique({ where: { id: userId } });
+    if (!profileExists) {
+      const user = await currentUser();
+      const fullName = user ? (user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim()) : "";
+      
+      await prisma.buyerProfile.create({
+        data: {
+          id: userId,
+          fullName: fullName,
+        }
+      });
+    }
+
     cart = await prisma.cart.create({
       data: {
         buyerId: userId,

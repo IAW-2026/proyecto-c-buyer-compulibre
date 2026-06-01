@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
@@ -28,10 +28,24 @@ export default async function RootLayout({
   let isSuspended = false;
 
   if (userId) {
-    const profile = await prisma.buyerProfile.findUnique({
+    let profile = await prisma.buyerProfile.findUnique({
       where: { id: userId },
       select: { isActive: true },
     });
+
+    if (!profile) {
+      const user = await currentUser();
+      const fullName = user ? (user.fullName || `${user.firstName || ""} ${user.lastName || ""}`.trim()) : "";
+      
+      profile = await prisma.buyerProfile.create({
+        data: {
+          id: userId,
+          fullName: fullName,
+        },
+        select: { isActive: true }
+      });
+    }
+
     if (profile && profile.isActive === false) {
       isSuspended = true;
     }

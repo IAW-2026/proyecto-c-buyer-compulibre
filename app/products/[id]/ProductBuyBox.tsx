@@ -262,7 +262,7 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-bold text-[#1F2937] truncate">{product.name}</p>
                 <p className="text-xs text-[#6B7280] mt-0.5">
-                  Cantidad: {quantity} unidad{quantity > 1 ? "s" : ""}
+                  Cantidad: {quantity} unidad{quantity > 1 ? "es" : ""}
                 </p>
               </div>
             </div>
