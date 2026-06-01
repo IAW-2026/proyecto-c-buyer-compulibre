@@ -366,9 +366,29 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
                   Seguir envío en {order.courier ?? "la app de envíos"} →
                 </a>
               ) : (
-                <div className="rounded-xl border border-dashed border-gray-300 py-3 text-center text-xs text-[#9CA3AF]">
-                  Seguimiento disponible próximamente
-                </div>
+                <a
+                  href={`/mock-shipping/${order.trackingId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#485696] bg-transparent py-3 text-sm font-bold text-[#485696] transition hover:bg-[#485696]/5"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" x2="21" y1="14" y2="3" />
+                  </svg>
+                  Ver seguimiento en Mock Shipping App →
+                </a>
               )}
             </div>
           ) : (
