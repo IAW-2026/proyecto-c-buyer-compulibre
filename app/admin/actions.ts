@@ -10,7 +10,7 @@ export async function toggleBuyerStatus(formData: FormData) {
   const currentStatus = currentStatusStr === "true";
 
   const { sessionClaims } = await auth();
-  const role = (sessionClaims?.publicMetadata as { role?: string })?.role;
+  const role = (sessionClaims?.publicMetadata as { role?: string })?.role || (sessionClaims?.metadata as { role?: string })?.role;
   
   if (role !== "admin") {
     throw new Error("No autorizado");
@@ -34,7 +34,7 @@ export async function clearUserOrders(formData: FormData) {
     throw new Error("No autorizado");
   }
 
-  // Borrar primero los ítems de las órdenes
+  // 1. Borrar órdenes y sus ítems
   const orders = await db.buyerOrder.findMany({ where: { buyerId }, select: { id: true } });
   const orderIds = orders.map(o => o.id);
 
@@ -43,10 +43,22 @@ export async function clearUserOrders(formData: FormData) {
       where: { buyerOrderId: { in: orderIds } }
     });
     
-    // Luego borrar las órdenes
     await db.buyerOrder.deleteMany({
       where: { id: { in: orderIds } }
     });
+  }
+
+  // 2. Limpiar el historial de carritos (Convertidos, Cancelados, Rechazados) para evitar métricas fantasma.
+  // Mantenemos intacto el carrito "ACTIVE" para no interrumpir compras en curso.
+  const historicalCarts = await db.cart.findMany({
+    where: { buyerId, status: { not: "ACTIVE" } },
+    select: { id: true }
+  });
+  
+  if (historicalCarts.length > 0) {
+    const historicalCartIds = historicalCarts.map(c => c.id);
+    await db.cartItem.deleteMany({ where: { cartId: { in: historicalCartIds } } });
+    await db.cart.deleteMany({ where: { id: { in: historicalCartIds } } });
   }
 
   revalidatePath("/admin");
@@ -82,6 +94,7 @@ export async function resetUser(formData: FormData) {
   await db.buyerProfile.update({
     where: { id: buyerId },
     data: { 
+      fullName: "",
       defaultShippingAddress: null,
       defaultPostalCode: null,
     },
@@ -103,6 +116,7 @@ export async function resetUserOnboarding(formData: FormData) {
   await db.buyerProfile.update({
     where: { id: buyerId },
     data: {
+      fullName: "",
       defaultShippingAddress: null,
       defaultPostalCode: null,
     },
