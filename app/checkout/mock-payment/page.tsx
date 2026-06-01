@@ -149,9 +149,30 @@ export default async function MockPaymentPage({ searchParams }: MockPaymentPageP
                   strokeLinejoin="round"
                 >
                   <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
                 </svg>
                 Rechazar Pago
+              </Link>
+
+              <Link
+                id="mock-cancel-btn"
+                href={`/checkout/mock-cancel?order_id=${order_id}&txn=${txn}`}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-gray-50 py-3.5 text-sm font-extrabold text-gray-600 hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                </svg>
+                Cancelar Pago
               </Link>
             </div>
 

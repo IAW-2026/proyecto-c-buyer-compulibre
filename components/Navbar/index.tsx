@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ArchiveBoxIcon, ShoppingCartIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { ArchiveBoxIcon, ShoppingCartIcon, MagnifyingGlassIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import NotificationBell from "@/components/NotificationBell";
 import { Suspense, useState, useRef, useEffect } from "react";
 
@@ -43,7 +43,8 @@ function GlobalSearch() {
 }
 
 export default function Navbar() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin";
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const searchContainerRef = useRef<HTMLElement>(null);
 
@@ -98,6 +99,17 @@ export default function Navbar() {
             >
               <MagnifyingGlassIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
             </button>
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                aria-label="Panel de Administración"
+                className="flex items-center gap-1.5 rounded-full md:rounded-lg px-2.5 py-2 sm:px-3 text-sm font-medium text-emerald-100 transition hover:bg-white/15 active:bg-white/20 bg-emerald-500/20 border border-emerald-400/30"
+              >
+                <ShieldCheckIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
+                <span className="hidden md:inline">Admin</span>
+              </Link>
+            )}
 
             <Link
               href="/orders"

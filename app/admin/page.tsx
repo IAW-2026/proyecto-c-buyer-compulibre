@@ -1,19 +1,25 @@
-import { prisma as db } from "@/lib/db/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import Link from "next/link";
+import {
+  UserGroupIcon,
+  HomeIcon,
+  CurrencyDollarIcon,
+  ShoppingCartIcon,
+  TruckIcon,
+} from "@heroicons/react/24/outline";
 
-import { toggleBuyerStatus, clearUserOrders, resetUser } from "./actions";
-import AdminShippingSimulator from "./AdminShippingSimulator";
-import type { ShipmentStatus } from "@/types";
+import AdminTabContent from "./AdminTabContent";
+import AdminTabSkeleton from "./AdminTabSkeleton";
 
 export default async function AdminBuyersPage({
     searchParams,
 }: {
-    searchParams: { page?: string; search?: string };
+    searchParams: Promise<{ page?: string; search?: string; tab?: string; sortCol?: string; sortDir?: string }>;
 }) {
-    // Validación de Seguridad
+    // Seguridad y Roles
     const { sessionClaims } = await auth();
-
     const role = 
         (sessionClaims?.publicMetadata as { role?: string })?.role || 
         (sessionClaims?.metadata as { role?: string })?.role;
@@ -22,196 +28,114 @@ export default async function AdminBuyersPage({
         redirect("/"); // Expulsar si no es admin
     }
 
-    // Parámetros de paginación y búsqueda
-    const page = Number(searchParams.page) || 1;
-    const search = searchParams.search || "";
-    const take = 10;
-    const skip = (page - 1) * take;
-
-    const where = search ? {
-        fullName: { contains: search, mode: "insensitive" as const },
-    } : {};
-
-    // Consulta a Prisma (orden alfabético)
-    const buyers = await db.buyerProfile.findMany({
-        where,
-        skip,
-        take,
-        orderBy: {
-            fullName: "asc", 
-        },
-    });
-
-    const total = await db.buyerProfile.count({ where });
-
-    // Órdenes activas para el simulador de envíos (PAID o SHIPPED)
-    const activeShippingOrders = await db.buyerOrder.findMany({
-        where: { status: { in: ["PAID", "SHIPPED"] } },
-        orderBy: { createdAt: "asc" },
-        include: { items: { take: 1 } },
-    });
+    const params = await searchParams;
+    const page = Number(params.page) || 1;
+    const search = params.search || "";
+    const activeTab = params.tab || "metrics";
+    const sortCol = params.sortCol || "fecha";
+    const sortDir = params.sortDir || "desc";
 
     return (
-        <div className="min-h-screen bg-[#E7E7E7] p-8">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-[#E6E6E6] py-6 sm:py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
                 {/* Cabecera del Panel */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[#1F2937]">Panel de Administración</h1>
-                    <p className="text-[#6B7280] mt-2">Gestiona los compradores y revisa el rendimiento de CompuLibre.</p>
-                </div>
-
-                {/* Tabs / Navegación */}
-                <div className="flex gap-4 mb-6 border-b border-gray-300 pb-4">
-                    <div className="px-4 py-2 font-semibold text-[#485696] border-b-2 border-[#485696]">
-                        Compradores
-                    </div>
-                    <div className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#485696] cursor-not-allowed opacity-50">
-                        Carritos Abandonados (Próximamente)
-                    </div>
-                    <div className="px-4 py-2 font-medium text-[#6B7280] hover:text-[#485696] cursor-not-allowed opacity-50">
-                        Dashboard (Próximamente)
+                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-300/60 pb-6">
+                    <div>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-[#1F2937] flex items-center gap-2">
+                            <span>Panel de Control</span>
+                            <span className="rounded-full bg-[#485696]/10 border border-[#485696]/20 px-2 py-0.5 text-xs font-bold text-[#485696]">
+                                Admin
+                            </span>
+                        </h1>
+                        <p className="text-[#6B7280] mt-1 text-sm font-medium">Métricas históricas acumuladas · Actualizado en tiempo real</p>
                     </div>
                 </div>
 
-                {/* ── Simulador de Envíos ── */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-[#FC7A1E]" />
-                        <h2 className="text-lg font-extrabold text-[#1F2937]">Simulador de Envíos</h2>
-                        <span className="rounded-full bg-[#FC7A1E]/10 border border-[#FC7A1E]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FC7A1E] uppercase">
-                            Etapa 2 — Dev
-                        </span>
-                    </div>
-                    <p className="text-sm text-[#6B7280] mb-4">
-                        Órdenes esperando despacho o en curso. Avanzá el estado logístico de cada una.
-                    </p>
-
-                    {activeShippingOrders.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-8 text-center">
-                            <p className="text-sm text-[#6B7280]">No hay órdenes pendientes de envío en este momento.</p>
-                        </div>
-                    ) : (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            {activeShippingOrders.map((order) => (
-                                <AdminShippingSimulator
-                                    key={order.id}
-                                    orderId={order.id}
-                                    orderShortId={order.id.slice(-8).toUpperCase()}
-                                    buyerName={order.buyerId}
-                                    orderStatus={order.status}
-                                    shipmentStatus={order.shipmentStatus as ShipmentStatus | null}
-                                    courier={order.courier}
-                                    trackingId={order.trackingId}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Contenido: Tabla de Usuarios */}
-                <div className="bg-[#FFFFFF] rounded-xl shadow-sm p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold text-[#1F2937]">Listado de Compradores</h2>
-                        
-                        <form className="flex items-center" action="/admin" method="GET">
-                            <input 
-                                type="text" 
-                                name="search"
-                                defaultValue={search}
-                                placeholder="Buscar comprador..." 
-                                className="border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#485696] text-[#1F2937]"
-                            />
-                            <button type="submit" className="bg-[#485696] text-white px-4 py-2 rounded-r-lg hover:brightness-110 transition-all">
-                                Buscar
-                            </button>
-                        </form>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-gray-200 text-[#6B7280]">
-                                    <th className="py-3 px-4">Nombre Completo</th>
-                                    <th className="py-3 px-4">Clerk ID</th>
-                                    <th className="py-3 px-4">Estado</th>
-                                    <th className="py-3 px-4 text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {buyers.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="text-center py-8 text-[#6B7280]">
-                                            No se encontraron compradores.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    buyers.map((buyer) => (
-                                        <tr key={buyer.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                                            <td className="py-3 px-4 font-medium text-[#1F2937]">{buyer.fullName}</td>
-                                            <td className="py-3 px-4 text-sm text-[#6B7280]">{buyer.id}</td>
-                                            <td className="py-3 px-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                    buyer.isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                                                }`}>
-                                                    {buyer.isActive ? "ACTIVO" : "SUSPENDIDO"}
-                                                </span>
-                                            </td>
-                                            <td className="py-3 px-4 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    {/* Botón de Suspender (Server Action) */}
-                                                    <form action={toggleBuyerStatus}>
-                                                        <input type="hidden" name="buyerId" value={buyer.id} />
-                                                        <input type="hidden" name="currentStatus" value={String(buyer.isActive)} />
-                                                        
-                                                        {buyer.isActive ? (
-                                                            <button type="submit" className="bg-[#FC7A1E] text-white px-3 py-1.5 rounded-lg hover:brightness-90 transition-all text-xs font-semibold shadow-sm">
-                                                                Suspender
-                                                            </button>
-                                                        ) : (
-                                                            <button type="submit" className="bg-[#485696] text-white px-3 py-1.5 rounded-lg hover:brightness-110 transition-all text-xs font-semibold shadow-sm">
-                                                                Activar
-                                                            </button>
-                                                        )}
-                                                    </form>
-
-                                                    <form action={clearUserOrders}>
-                                                        <input type="hidden" name="buyerId" value={buyer.id} />
-                                                        <button type="submit" className="bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition-all text-xs font-semibold shadow-sm" title="Borrar historial de compras">
-                                                            Borrar Órdenes
-                                                        </button>
-                                                    </form>
-
-                                                    <form action={resetUser}>
-                                                        <input type="hidden" name="buyerId" value={buyer.id} />
-                                                        <button type="submit" className="bg-red-800 text-white px-3 py-1.5 rounded-lg hover:bg-red-900 transition-all text-xs font-semibold shadow-sm" title="Borrar compras, carrito y dirección de envío">
-                                                            Hard Reset
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                {/* Grid con Sidebar e Info Principal */}
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     
-                    {/* Paginación simple */}
-                    <div className="flex justify-between items-center mt-6 text-[#6B7280] text-sm">
-                        <span>Mostrando {buyers.length} de {total} resultados</span>
-                        <div className="flex gap-2">
-                            {page > 1 && (
-                                <a href={`/admin?page=${page - 1}${search ? `&search=${search}` : ''}`} className="px-3 py-1 border rounded-lg hover:bg-gray-50">
-                                    Anterior
-                                </a>
-                            )}
-                            {skip + take < total && (
-                                <a href={`/admin?page=${page + 1}${search ? `&search=${search}` : ''}`} className="px-3 py-1 border rounded-lg hover:bg-gray-50">
-                                    Siguiente
-                                </a>
-                            )}
-                        </div>
-                    </div>
+                    {/* Sidebar de Navegación Lateral */}
+                    <aside className="w-full lg:w-60 shrink-0 h-fit bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+                        <ul className="space-y-1 font-medium">
+                            <li>
+                                <Link 
+                                    href="/admin?tab=metrics" 
+                                    className={`flex items-center px-3 py-2 text-sm rounded-xl transition group ${
+                                        activeTab === "metrics" 
+                                            ? "bg-[#485696] text-white font-bold shadow-sm" 
+                                            : "text-gray-700 hover:bg-gray-50 hover:text-[#485696]"
+                                    }`}
+                                >
+                                    <CurrencyDollarIcon className={`w-5 h-5 mr-3 shrink-0 transition ${
+                                        activeTab === "metrics" ? "text-white" : "text-gray-400 group-hover:text-[#485696]"
+                                    }`} />
+                                    <span>Rendimiento Financiero</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link 
+                                    href="/admin?tab=carts" 
+                                    className={`flex items-center px-3 py-2 text-sm rounded-xl transition group ${
+                                        activeTab === "carts" 
+                                            ? "bg-[#485696] text-white font-bold shadow-sm" 
+                                            : "text-gray-700 hover:bg-gray-50 hover:text-[#485696]"
+                                    }`}
+                                >
+                                    <ShoppingCartIcon className={`w-5 h-5 mr-3 shrink-0 transition ${
+                                        activeTab === "carts" ? "text-white" : "text-gray-400 group-hover:text-[#485696]"
+                                    }`} />
+                                    <span>Análisis de Carritos</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link 
+                                    href="/admin?tab=simulator" 
+                                    className={`flex items-center px-3 py-2 text-sm rounded-xl transition group ${
+                                        activeTab === "simulator" 
+                                            ? "bg-[#485696] text-white font-bold shadow-sm" 
+                                            : "text-gray-700 hover:bg-gray-50 hover:text-[#485696]"
+                                    }`}
+                                >
+                                    <TruckIcon className={`w-5 h-5 mr-3 shrink-0 transition ${
+                                        activeTab === "simulator" ? "text-white" : "text-gray-400 group-hover:text-[#485696]"
+                                    }`} />
+                                    <span>Logística Operativa</span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link 
+                                    href="/admin?tab=buyers" 
+                                    className={`flex items-center px-3 py-2 text-sm rounded-xl transition group ${
+                                        activeTab === "buyers" 
+                                            ? "bg-[#485696] text-white font-bold shadow-sm" 
+                                            : "text-gray-700 hover:bg-gray-50 hover:text-[#485696]"
+                                    }`}
+                                >
+                                    <UserGroupIcon className={`w-5 h-5 mr-3 shrink-0 transition ${
+                                        activeTab === "buyers" ? "text-white" : "text-gray-400 group-hover:text-[#485696]"
+                                    }`} />
+                                    <span>Compradores</span>
+                                </Link>
+                            </li>
+                            
+                            <li className="pt-4 border-t border-gray-100 mt-4">
+                                <Link 
+                                    href="/products" 
+                                    className="flex items-center px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[#485696] rounded-xl transition group"
+                                >
+                                    <HomeIcon className="w-5 h-5 mr-3 shrink-0 text-gray-400 group-hover:text-[#485696]" />
+                                    <span>Ir al Catálogo</span>
+                                </Link>
+                            </li>
+                        </ul>
+                    </aside>
+
+                    {/* Contenido Principal (Extraído para habilitar Suspense y cargas parciales) */}
+                    <Suspense key={activeTab} fallback={<AdminTabSkeleton />}>
+                        <AdminTabContent activeTab={activeTab} page={page} search={search} sortCol={sortCol} sortDir={sortDir} />
+                    </Suspense>
+
                 </div>
             </div>
         </div>

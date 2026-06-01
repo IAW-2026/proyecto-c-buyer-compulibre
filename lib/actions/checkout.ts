@@ -114,6 +114,7 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
           sellerId,
           totalAmount: finalAmount,
           status: "PENDING_PAYMENT",
+          cartId: cart.id,
           items: {
             create: cart.items.map((item) => ({
               externalProductId: item.externalProductId,
@@ -124,12 +125,6 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
           },
         },
         select: { id: true },
-      });
-
-      // Marcar el carrito como CONVERTED
-      await tx.cart.update({
-        where: { id: cart.id },
-        data: { status: "CONVERTED" },
       });
 
       return newOrder;

@@ -16,7 +16,7 @@ export interface Cart {
   updatedAt: Date;
 }
 
-export type CartStatus = "ACTIVE" | "ABANDONED" | "CONVERTED";
+export type CartStatus = "ACTIVE" | "CANCELLED" | "REJECTED" | "CONVERTED";
 
 export interface CartItem {
   id: string;
