@@ -169,6 +169,10 @@ export async function updateQuantityAction(itemId: string, quantity: number) {
       await prisma.cartItem.delete({
         where: { id: itemId },
       });
+      const remainingItems = await prisma.cartItem.count({ where: { cartId: cartItem.cartId } });
+      if (remainingItems === 0) {
+        await prisma.cart.delete({ where: { id: cartItem.cartId } });
+      }
       revalidatePath("/cart");
       return { success: true };
     }
@@ -251,6 +255,11 @@ export async function removeItemAction(itemId: string) {
       where: { id: itemId },
     });
 
+    const remainingItems = await prisma.cartItem.count({ where: { cartId: cartItem.cartId } });
+    if (remainingItems === 0) {
+      await prisma.cart.delete({ where: { id: cartItem.cartId } });
+    }
+
     revalidatePath("/cart");
     return { success: true };
   } catch (error) {
@@ -300,6 +309,11 @@ export async function removeItemsBySellerAction(sellerId: string) {
         sellerId: sellerId,
       },
     });
+
+    const remainingItems = await prisma.cartItem.count({ where: { cartId: cart.id } });
+    if (remainingItems === 0) {
+      await prisma.cart.delete({ where: { id: cart.id } });
+    }
 
     revalidatePath("/cart");
     return { success: true };
