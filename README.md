@@ -21,6 +21,6 @@ La autenticación de todo el ecosistema CompuLibre está gestionada de forma cen
 
 Para evaluar el panel de control, por favor utiliza las siguientes credenciales de prueba:
 
-- **Email:** `admin-compulibre@ejemplo.com` _(reemplazar por el que vayas a crear)_
-- **Contraseña:** `AdminTest2026!` _(reemplazar)_
+- **Email:** `test_buyer+clerk_test@example.com`
+- **Contraseña:** `admintest2026!`
 - **Funcionalidades:** Al iniciar sesión con este rol, aparecerá un botón "Admin" en el Navbar. La ruta `/admin` permite ver el panel de métricas, gráficos de estado, historial de transacciones global y permite la suspensión de cuentas de compradores.
