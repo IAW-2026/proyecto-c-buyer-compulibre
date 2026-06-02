@@ -31,8 +31,11 @@ Este usuario debe tener el rol `"admin"` configurado en su `publicMetadata` de C
   "role": "admin"
 }
 ```
+---
 
-- **[Instrucciones para utilizar o evaluar la aplicación](./docs/evaluacion-local.md)**
+### **[Instrucciones para utilizar o evaluar la aplicación](./docs/evaluacion-local.md)**
+
+---
 
 ## Descripción del Proyecto
 
