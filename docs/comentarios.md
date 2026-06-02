@@ -20,3 +20,7 @@
 - **Idempotencia en webhooks:** Los endpoints que reciben eventos externos verifican el estado actual de la orden en la base de datos antes de procesar la solicitud. Si un sistema externo reintenta enviar el mismo evento (ej. `LABEL_CREATED`), el servidor responde con éxito sin duplicar operaciones lógicas.
 
 - **Precisión de métricas simuladas (seed):** Para poblar las métricas del dashboard de administrador se utiliza el script de generación de datos (`prisma/seed.ts`). Crea cada orden de compra vinculada directamente a su carrito original, igualando exactamente los montos y derivando los estados correspondientes.
+
+- **Resolución dinámica de URLs para webhooks internos en vercel:** Para simular las llamadas webhook en Vercel, se implementó la extracción dinámica mediante request.nextUrl.origin. Esto garantiza que las peticiones entre rutas (Server-to-Server) nunca fallen por inconsistencias de dominio (ej. Custom Domains vs Preview URLs).
+
+- **Evasión de la vercel authentication protection en webhooks simulados:** Durante las pruebas en Vercel, la plataforma bloquea peticiones anónimas. Para resolver que los mocks internos (mock-success, mock-failure) pudieran llamar al webhook de la API sin ser bloqueados por el firewall de Vercel, se implementó el reenvío dinámico de la cabecera Cookie del cliente hacia la petición fetch interna.
