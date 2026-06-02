@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
         headers: {
           "Content-Type": "application/json",
           "x-service-token": tokenToSend,
+          ...(request.headers.get("cookie") ? { "Cookie": request.headers.get("cookie") as string } : {}),
         },
         body: JSON.stringify({
           transactionId: txn ?? `txn_mock_${Date.now()}`,
