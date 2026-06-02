@@ -185,7 +185,7 @@ export default async function AdminTabContent({
                                     <h4 className="text-md font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2">Últimas Transacciones</h4>
                                     <div className="bg-white rounded-2xl border border-gray-200 overflow-auto shadow-sm max-h-[400px]">
                                         <table className="w-full text-left text-sm">
-                                            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                                            <thead className="bg-gray-200 border-b border-gray-200 sticky top-0 z-10">
                                                 <tr>
                                                     {[
                                                         { id: "fecha", label: "Fecha", align: "left" },
@@ -353,7 +353,7 @@ export default async function AdminTabContent({
                                 </div>
 
                                 {/* Simulador de Envíos */}
-                                <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+                                <div className="bg-gray-200 rounded-2xl border border-gray-200 p-6 shadow-sm">
                                     <div className="flex items-center gap-3 mb-4">
                                         <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-[#FC7A1E]" />
                                         <h2 className="text-lg font-bold text-gray-900">Simulador de Envíos en Curso</h2>
@@ -391,7 +391,7 @@ export default async function AdminTabContent({
 
                         {/* TAB COMPRADORES */}
                         {activeTab === "buyers" && (
-                            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6">
+                            <div className="bg-gray-200 rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6">
                                 
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
@@ -475,7 +475,7 @@ export default async function AdminTabContent({
                                         {page > 1 && (
                                             <Link 
                                                 href={`/admin?tab=buyers&page=${page - 1}${search ? `&search=${search}` : ''}`} 
-                                                className="flex items-center justify-center px-4 h-9 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all shadow-sm active:bg-gray-200"
+                                                className="flex items-center justify-center px-4 h-9 text-sm font-bold text-gray-700 bg-gray-200 border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all shadow-sm active:bg-gray-200"
                                             >
                                                 &larr; Anterior
                                             </Link>
@@ -483,7 +483,7 @@ export default async function AdminTabContent({
                                         {skip + take < totalBuyersCount && (
                                             <Link 
                                                 href={`/admin?tab=buyers&page=${page + 1}${search ? `&search=${search}` : ''}`} 
-                                                className="flex items-center justify-center px-4 h-9 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all shadow-sm active:bg-gray-200"
+                                                className="flex items-center justify-center px-4 h-9 text-sm font-bold text-gray-700 bg-gray-200 border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-all shadow-sm active:bg-gray-200"
                                             >
                                                 Siguiente &rarr;
                                             </Link>

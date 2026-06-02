@@ -45,7 +45,7 @@ export default async function MockPaymentPage({ searchParams }: MockPaymentPageP
   const amountNumber = amount ? Number(amount) : null;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4 font-sans">
+    <main className="flex min-h-screen items-center justify-center bg-gray-400 p-4 font-sans">
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-white shadow-xl overflow-hidden border border-gray-100">
           {/* Header simple */}
