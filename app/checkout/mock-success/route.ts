@@ -26,8 +26,10 @@ export async function GET(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Incluido para estar preparado para Etapa 3 (validación comentada en el webhook por ahora)
+          // Incluido para estar preparado para Etapa 3
           "x-service-token": tokenToSend,
+          // Reenviamos las cookies del navegador para sortear la protección de Vercel Preview
+          ...(request.headers.get("cookie") ? { "Cookie": request.headers.get("cookie") as string } : {}),
         },
         body: JSON.stringify({
           transactionId: txn ?? `txn_mock_${Date.now()}`,
