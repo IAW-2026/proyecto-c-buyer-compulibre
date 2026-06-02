@@ -1,8 +1,28 @@
-# Instrucciones de Evaluación Local y Testing de APIs
+# Instrucciones de Evaluación
+
+## Flujo en la Interfaz Web:
+
+**Webhook de pagos (Payment App):**
+
+1. Inicia sesión con el usuario **Buyer**.
+2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido.
+3. El sistema te redirigirá a un **Simulador de Pagos** interno (mock). Aprueba o rechaza la transacción para disparar los webhooks y ver cómo se actualiza el estado de la orden en tiempo real.
+
+**Webhook de pagos (Shipping App):**
+
+1. Inicia sesión con el usuario **Admin**
+2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido y confirme la compra en el mock de Payments.
+   (Este paso lo puede hacer con un usuario **Buyer** tambien)
+3. Con el usuario **Admin** dirijase a `/admin` y luego clicke en `Logística Operativa`
+4. Busque entre todas las órdenes una que coincida con el número de orden que se le brindó (ej: #ABCD1234), debe tener la etiqueta `PAID`.
+5. Clicke `Simular Despacho` para crear la etiqueta.
+6. Clicke `Simular en tránsito` para actualizar el estado a en tránsito.
+7. Clicke `Simular Entrega` para actualizar el estado a entregado.
+
+
+## Instrucciones de Evaluación Local y Testing de APIs
 
 Para evaluarlo localmente probando la comunicación inter-servicios (webhooks) de forma manual utilizando herramientas como Thunder Client o Postman, debe tener en cuenta lo siguiente:
-
-## 1. Descarga e Instalación Local (VS Code)
 
 1. Este proyecto utiliza **pnpm** como gestor de paquetes principal, por lo tanto se debe utilizar:
 
