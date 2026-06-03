@@ -43,44 +43,7 @@ async function main() {
   }
   console.log('Perfiles creados');
 
-  // 2. Crear un historial de carritos en distintos estados (Distribución Fija)
-  const cartDistribution = [
-    ...Array(8).fill('CONVERTED'),
-    ...Array(5).fill('ACTIVE'),
-    ...Array(4).fill('CANCELLED'),
-    ...Array(3).fill('REJECTED'),
-  ] as CartStatus[];
-  
-  const createdCarts = [];
-  for (let i = 0; i < cartDistribution.length; i++) {
-    const randomUser = profiles[Math.floor(Math.random() * profiles.length)];
-    const status = cartDistribution[i];
-    const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
-
-    const cart = await prisma.cart.create({
-      data: {
-        buyerId: randomUser.id,
-        status: status,
-        createdAt: createdAt,
-        updatedAt: createdAt,
-        items: {
-          create: [
-            {
-              externalProductId: `prod_${Math.floor(Math.random() * 1000)}`,
-              productName: `Producto Seed ${i}`,
-              quantity: Math.floor(Math.random() * 3) + 1,
-              cachedPrice: Math.floor(Math.random() * 100000) + 5000,
-              sellerId: `seller_seed_${Math.floor(Math.random() * 3)}`,
-            }
-          ]
-        }
-      }
-    });
-    createdCarts.push(cart);
-  }
-  console.log('Carritos creados');
-
-  // 3. Crear Órdenes de compra (BuyerOrder)
+  // 2. Crear Órdenes de compra y sus Carritos correspondientes para que los montos coincidan exactamente
   const orderDistribution = [
     ...Array(6).fill('DELIVERED'),
     ...Array(4).fill('SHIPPED'),
@@ -90,35 +53,51 @@ async function main() {
     ...Array(3).fill('PAYMENT_FAILED'),
   ] as BuyerOrderStatus[];
   
-  // Vamos a usar los carritos CONVERTED para enlazarlos a las órdenes exitosas
-  const convertedCarts = createdCarts.filter(c => c.status === 'CONVERTED');
-  let convertedCartIndex = 0;
-
   for (let i = 0; i < orderDistribution.length; i++) {
     const randomUser = profiles[Math.floor(Math.random() * profiles.length)];
-    const status = orderDistribution[i];
+    const orderStatus = orderDistribution[i];
     const createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
     const amount = Math.floor(Math.random() * 500000) + 10000;
     
-    let linkedCartId = null;
-    if (['PAID', 'SHIPPED', 'DELIVERED'].includes(status) && convertedCartIndex < convertedCarts.length) {
-      linkedCartId = convertedCarts[convertedCartIndex].id;
-      convertedCartIndex++;
-    }
+    // Mapear el estado de la orden al estado del carrito
+    let cartStatus: CartStatus = 'ACTIVE';
+    if (['PAID', 'SHIPPED', 'DELIVERED'].includes(orderStatus)) cartStatus = 'CONVERTED';
+    else if (orderStatus === 'CANCELLED') cartStatus = 'CANCELLED';
+    else if (orderStatus === 'PAYMENT_FAILED') cartStatus = 'REJECTED';
+
+    const cart = await prisma.cart.create({
+      data: {
+        buyerId: randomUser.id,
+        status: cartStatus,
+        createdAt: createdAt,
+        updatedAt: createdAt,
+        items: {
+          create: [
+            {
+              externalProductId: `prod_${Math.floor(Math.random() * 1000)}`,
+              productName: `Hardware Component ${i}`,
+              quantity: 1,
+              cachedPrice: amount, // El precio del carrito coincide exactamente con el de la orden
+              sellerId: `seller_seed_${Math.floor(Math.random() * 3)}`,
+            }
+          ]
+        }
+      }
+    });
 
     await prisma.buyerOrder.create({
       data: {
         buyerId: randomUser.id,
         sellerId: `seller_seed_${Math.floor(Math.random() * 3)}`,
-        totalAmount: amount,
-        status: status,
+        totalAmount: amount, // La orden tiene el mismo monto
+        status: orderStatus,
         createdAt: createdAt,
         updatedAt: createdAt,
-        externalTransactionId: status !== 'PENDING_PAYMENT' ? `txn_seed_${i}` : null,
-        trackingId: ['SHIPPED', 'DELIVERED'].includes(status) ? `TRK-SEED-${i}` : null,
-        courier: ['SHIPPED', 'DELIVERED'].includes(status) ? 'Andreani' : null,
-        shipmentStatus: status === 'DELIVERED' ? 'DELIVERED' : status === 'SHIPPED' ? 'IN_TRANSIT' : null,
-        cartId: linkedCartId,
+        externalTransactionId: orderStatus !== 'PENDING_PAYMENT' ? `txn_seed_${i}` : null,
+        trackingId: ['SHIPPED', 'DELIVERED'].includes(orderStatus) ? `TRK-SEED-${i}` : null,
+        courier: ['SHIPPED', 'DELIVERED'].includes(orderStatus) ? 'Andreani' : null,
+        shipmentStatus: orderStatus === 'DELIVERED' ? 'DELIVERED' : orderStatus === 'SHIPPED' ? 'IN_TRANSIT' : null,
+        cartId: cart.id, // Vinculado correctamente
         items: {
           create: [
             {
@@ -132,7 +111,28 @@ async function main() {
       }
     });
   }
-  console.log('Órdenes de compra creados');
+  
+  // 3. Crear un par de carritos abandonados extra (sin orden) para mayor realismo
+  for (let i = 0; i < 3; i++) {
+    const randomUser = profiles[Math.floor(Math.random() * profiles.length)];
+    await prisma.cart.create({
+      data: {
+        buyerId: randomUser.id,
+        status: 'ACTIVE',
+        items: {
+          create: [{
+            externalProductId: `prod_abandoned_${i}`,
+            productName: `Producto Abandonado ${i}`,
+            quantity: 1,
+            cachedPrice: Math.floor(Math.random() * 50000) + 5000,
+            sellerId: `seller_seed_${Math.floor(Math.random() * 3)}`,
+          }]
+        }
+      }
+    });
+  }
+
+  console.log('Carritos y Órdenes de compra sincronizados creados');
   console.log('Seed finalizado correctamente.');
 }
 

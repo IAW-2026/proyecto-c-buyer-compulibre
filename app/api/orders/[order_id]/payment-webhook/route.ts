@@ -16,7 +16,7 @@ export async function POST(
   try {
     const { order_id } = await params;
     
-    // Validación de x-service-token para autenticación inter-servicios
+    // Validación de x-service-token para autenticación inter-servicios (TODO: canbiar etapa 3)
     if (!validateServiceToken(request)) {
       return NextResponse.json(
         { success: false, error: "UNAUTHORIZED", message: "Token de servicio inválido o ausente" },
