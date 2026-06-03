@@ -18,3 +18,5 @@
 - **Inmutabilidad Histórica (Snapshots):** Los ítems de las órdenes (`BuyerOrderItem`) guardan una copia estática del precio (`unitPrice`) y nombre del producto al momento de la compra. Esto garantiza que futuros cambios en el catálogo de los vendedores no alteren el registro financiero de compras pasadas.
 
 - **Idempotencia en Webhooks:** Los endpoints que reciben eventos externos verifican el estado actual de la orden en la base de datos antes de procesar la solicitud. Si un sistema externo reintenta enviar el mismo evento (ej. `LABEL_CREATED`), el servidor responde con éxito sin duplicar operaciones lógicas.
+
+- **Precisión de Métricas Simuladas (Seed):** Para que las métricas del dashboard de administrador (como la "Fuga de Capital") coincidan exactamente con la suma de transacciones fallidas de la tabla, el script de generación de datos (`prisma/seed.ts`) crea cada orden de compra vinculada directamente a su carrito original, igualando exactamente los montos y derivando los estados correspondientes.
