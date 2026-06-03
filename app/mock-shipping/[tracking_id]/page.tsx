@@ -1,3 +1,6 @@
+import { getMockShipmentByTrackingId } from "@/lib/mocks/shipping-app";
+import { notFound } from "next/navigation";
+
 export default async function MockShippingAppPage({
   params,
 }: {
@@ -5,32 +8,12 @@ export default async function MockShippingAppPage({
 }) {
   const { tracking_id } = await params;
 
-  const mockShipmentData = {
-    trackingId: tracking_id,
-    externalSellerOrderId: "sell_ord_888",
-    courier: "Andreani",
-    originAddress: "Av. Siempreviva 742, Springfield",
-    destinationAddress: "Calle Falsa 123, Belgrano",
-    status: "IN_TRANSIT",
-    createdAt: "2026-05-19T14:32:00.000Z",
-    updatedAt: "2026-05-20T10:15:00.000Z",
-    events: [
-      {
-        id: 1,
-        trackingId: tracking_id,
-        statusUpdate: "LABEL_CREATED",
-        location: "Sucursal de origen Andreani",
-        timestamp: "2026-05-19T14:32:00.000Z",
-      },
-      {
-        id: 2,
-        trackingId: tracking_id,
-        statusUpdate: "IN_TRANSIT",
-        location: "Centro de distribución principal",
-        timestamp: "2026-05-20T10:15:00.000Z",
-      },
-    ],
-  };
+  let mockShipmentData;
+  try {
+    mockShipmentData = await getMockShipmentByTrackingId(tracking_id);
+  } catch (error) {
+    notFound();
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4 font-sans">
