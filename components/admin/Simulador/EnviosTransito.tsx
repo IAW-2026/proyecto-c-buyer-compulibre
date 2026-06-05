@@ -1,5 +1,6 @@
 ﻿import { TruckIcon } from "@heroicons/react/24/outline";
 
+// Tarjeta que muestra la cantidad de ordenes que actualmente estan en transito hacia el comprador.
 export default function EnviosTransito({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">

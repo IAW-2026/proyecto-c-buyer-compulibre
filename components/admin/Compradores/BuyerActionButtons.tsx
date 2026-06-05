@@ -76,6 +76,7 @@ function ActionButton({
   );
 }
 
+// Botones de accion para gestionar a un comprador (Suspender/Reactivar, Resetear formulario, Borrar ordenes o Borrar todos los datos).
 export default function BuyerActionButtons({
   buyerId,
   isActive,
@@ -131,7 +132,7 @@ export default function BuyerActionButtons({
       />
       <ActionButton
         icon={ArrowPathIcon}
-        label="Resetear datos"
+        label="Resetear formulario"
         variant="re-onboard"
         title="Forzar al usuario a reingresar sus datos logísticos"
         onClick={handleResetOnboarding}

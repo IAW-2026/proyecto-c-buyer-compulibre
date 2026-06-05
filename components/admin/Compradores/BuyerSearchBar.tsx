@@ -4,6 +4,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
+// Barra de busqueda para filtrar la tabla de compradores por nombre, email o DNI.
 export default function BuyerSearchBar({ defaultValue }: { defaultValue: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();

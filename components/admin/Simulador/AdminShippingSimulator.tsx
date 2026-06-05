@@ -41,6 +41,7 @@ const STEP_CONFIG: Record<
   },
 };
 
+// Panel de control para el simulador de envios. Permite avanzar el tiempo u obligar actualizaciones de estado. (TODO: ver si es necesario cambiarlo en etapa 3)
 export default function AdminShippingSimulator({
   orderId,
   orderShortId,

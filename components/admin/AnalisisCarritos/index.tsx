@@ -4,6 +4,7 @@ import TasaConversion from "./TasaConversion";
 import CanceladosManual from "./CanceladosManual";
 import RechazosPasarela from "./RechazosPasarela";
 
+// Componente orquestador de la pestana de Analisis de Carritos del dashboard. Muestra metricas de conversion y el grafico de estado.
 export default function AnalisisCarritos({
     convertedCarts,
     activeCarts,

@@ -1,5 +1,6 @@
 ﻿import { ArrowTrendingDownIcon } from "@heroicons/react/24/outline";
 
+// Muestra el total de dinero retenido historicamente en carritos cancelados o rechazados.
 export default function FugaCapital({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">

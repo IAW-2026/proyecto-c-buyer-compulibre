@@ -4,6 +4,7 @@ import { BuyerOrder } from "@prisma/client";
 
 type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null } };
 
+// Tabla que lista las ultimas ordenes de compra concretadas y su desglose financiero.
 export default function TransactionsTable({ 
     recentPaidOrders, 
     sortCol, 

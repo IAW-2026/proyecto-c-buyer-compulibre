@@ -1,5 +1,6 @@
 ﻿import { ArchiveBoxXMarkIcon } from "@heroicons/react/24/outline";
 
+// Muestra los usuarios que deciden cancelar la operación manualmente
 export default function CanceladosManual({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
@@ -7,7 +8,7 @@ export default function CanceladosManual({ value }: { value: string | number }) 
                 <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100 text-blue-600">
                     <ArchiveBoxXMarkIcon className="h-5 w-5" />
                 </div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cancelados Manual.</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cancelados Manual</p>
             </div>
             <h3 className="text-2xl font-extrabold text-gray-900">{value}</h3>
             <p className="text-xs text-gray-500 mt-2 leading-snug">Total histórico de usuarios que iniciaron el proceso de pago pero decidieron cancelar la operación manualmente.</p>

@@ -1,5 +1,6 @@
 ﻿import { ClockIcon } from "@heroicons/react/24/outline";
 
+// Tarjeta que alerta sobre ordenes en transito que llevan mas de 5 dias sin actualizar su estado.
 export default function OrdenesEstancadas({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">

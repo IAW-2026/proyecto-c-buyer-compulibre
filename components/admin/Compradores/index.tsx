@@ -2,6 +2,7 @@ import BuyerSearchBar from "./BuyerSearchBar";
 import BuyerTable from "./BuyerTable";
 import { BuyerProfile } from "@prisma/client";
 
+// Componente orquestador de la pestana de Compradores. Contiene la barra de busqueda, la tabla y la paginacion.
 export default function Compradores({
     buyers,
     totalBuyersCount,

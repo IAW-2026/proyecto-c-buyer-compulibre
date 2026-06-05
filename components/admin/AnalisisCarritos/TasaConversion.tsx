@@ -1,5 +1,6 @@
 ﻿import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 
+// Muestra el porcentaje de carritos que se convirtieron exitosamente en ordenes pagadas.
 export default function TasaConversion({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">

@@ -1,5 +1,6 @@
 ﻿import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
 
+// Muestra el volumen total historico de dinero procesado en ordenes exitosas.
 export default function IngresosTotales({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">

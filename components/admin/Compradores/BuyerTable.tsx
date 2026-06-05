@@ -3,6 +3,7 @@ import BuyerActionButtons from "./BuyerActionButtons";
 import { toggleBuyerStatus, clearUserOrders, resetUser, resetUserOnboarding } from "@/app/admin/actions";
 import { BuyerProfile } from "@prisma/client";
 
+// Tabla principal que lista todos los compradores registrados con sus datos, estado y acciones.
 export default function BuyerTable({
     buyers,
     totalBuyersCount,

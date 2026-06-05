@@ -9,6 +9,7 @@ interface CartStatusChartProps {
   rejected: number;
 }
 
+// Renderiza un grafico de rosquilla mostrando la distribucion del estado de todos los carritos, utilizando la libreria de terceros "recharts".
 export default function CartStatusChart({
   converted,
   active,

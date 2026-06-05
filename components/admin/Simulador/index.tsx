@@ -4,6 +4,7 @@ import { BuyerOrder } from "@prisma/client";
 import OrdenesEstancadas from "./OrdenesEstancadas";
 import EnviosTransito from "./EnviosTransito";
 
+// Componente orquestador de la pestana de Simulador de Envios. Contiene metricas de envios y el panel de control.
 export default function Simulador({
     activeShippingOrders,
     stuckOrders

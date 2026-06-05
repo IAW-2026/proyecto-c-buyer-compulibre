@@ -1,5 +1,6 @@
 ﻿import { BanknotesIcon } from "@heroicons/react/24/outline";
 
+// Muestra el dinero que actualmente esta retenido en la pasarela de pagos pendiente de liberacion.
 export default function IngresosRetenidos({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">

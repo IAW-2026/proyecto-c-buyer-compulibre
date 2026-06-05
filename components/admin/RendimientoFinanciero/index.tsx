@@ -7,6 +7,7 @@ import { BuyerOrder } from "@prisma/client";
 
 type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null } };
 
+// Componente orquestador de la pestana de Rendimiento Financiero. Muestra metricas de ingresos y tabla de transacciones.
 export default function RendimientoFinanciero({
     totalSales,
     retainedRevenue,

@@ -1,5 +1,6 @@
 ﻿import { ChartBarIcon } from "@heroicons/react/24/outline";
 
+// Calcula y muestra el valor promedio gastado por orden exitosa.
 export default function TicketPromedio({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">

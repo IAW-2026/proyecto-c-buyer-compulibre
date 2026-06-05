@@ -1,5 +1,6 @@
 ﻿import { NoSymbolIcon } from "@heroicons/react/24/outline";
 
+// Muestra el total de carritos que fueron rechazados por problemas en la pasarela de pagos.
 export default function RechazosPasarela({ value }: { value: string | number }) {
     return (
         <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
