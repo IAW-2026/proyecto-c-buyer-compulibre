@@ -8,6 +8,7 @@ import ProductImageGallery from "@/components/ProductImageGallery";
 import { formatCategory, formatCondition } from "@/lib/formatters";
 import { ProductImage } from "@/types";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import Footer from "@/components/Footer";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -51,7 +52,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const galleryImages: ProductImage[] = product.images;
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
       <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[#6B7280] sm:mb-6 sm:gap-2">
         <Link href="/products" className="transition hover:text-[#485696]">
@@ -128,6 +130,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }

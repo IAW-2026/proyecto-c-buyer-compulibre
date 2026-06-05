@@ -205,7 +205,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       )}
 
       {/* Banner de pago pendiente */}
-      {order.status === "PENDING_PAYMENT" && success !== "false" && (
+      {order.status === "PENDING_PAYMENT" && !success && (
         <div className="mb-6 flex flex-col sm:flex-row items-start gap-4 rounded-2xl bg-amber-50 border border-amber-200 p-5">
           <ClockIcon className="h-7 w-7 shrink-0 text-amber-600 mt-0.5" aria-hidden="true" />
           <div className="flex-1">

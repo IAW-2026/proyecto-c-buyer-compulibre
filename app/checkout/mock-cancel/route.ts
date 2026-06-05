@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const orderId = searchParams.get("order_id");
@@ -13,7 +15,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = request.nextUrl.origin;
+  const tokenToSend = process.env.SERVICE_TOKEN ?? "";
 
   try {
     const webhookRes = await fetch(
@@ -22,7 +25,8 @@ export async function GET(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-service-token": process.env.SERVICE_TOKEN ?? "",
+          "x-service-token": tokenToSend,
+          ...(request.headers.get("cookie") ? { "Cookie": request.headers.get("cookie") as string } : {}),
         },
         body: JSON.stringify({
           transactionId: txn ?? `txn_mock_${Date.now()}`,
