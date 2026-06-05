@@ -38,7 +38,7 @@ export default function CategoryCarousel() {
   }, [emblaApi]);
 
   return (
-    <div className="relative group">
+    <div className="relative group/carousel">
       {/* Carrusel container */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-4 sm:gap-6 backface-hidden touch-pan-y">
@@ -63,7 +63,7 @@ export default function CategoryCarousel() {
       {/* Flechas (Solo visibles en hover en desktop o siempre en mobile si se desea, pero las ocultamos si no son necesarias; aquí las ponemos al costado absoluto) */}
       <button
         onClick={scrollPrev}
-        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white rounded-full p-2 shadow-lg border border-gray-200 text-gray-600 hover:text-[#485696] hover:scale-110 transition-transform hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100"
+        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white rounded-full p-2 shadow-lg border border-gray-200 text-gray-600 hover:text-[#485696] hover:scale-110 transition-transform hidden md:flex items-center justify-center opacity-0 group-hover/carousel:opacity-100"
         aria-label="Anterior"
       >
         <ChevronLeftIcon className="h-6 w-6" />
@@ -71,7 +71,7 @@ export default function CategoryCarousel() {
       
       <button
         onClick={scrollNext}
-        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-white rounded-full p-2 shadow-lg border border-gray-200 text-gray-600 hover:text-[#485696] hover:scale-110 transition-transform hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100"
+        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-white rounded-full p-2 shadow-lg border border-gray-200 text-gray-600 hover:text-[#485696] hover:scale-110 transition-transform hidden md:flex items-center justify-center opacity-0 group-hover/carousel:opacity-100"
         aria-label="Siguiente"
       >
         <ChevronRightIcon className="h-6 w-6" />
