@@ -61,7 +61,7 @@ export default function ProductBuyBox({ product, hasItemsInCart = false, cartSel
 
   const handleAddToCart = () => {
     setErrorMsg(null);
-    if (cartSellers.length > 0 && !cartSellers.includes(product.sellerId)) {
+    if (cartSellers.length > 0 && cartSellers.some(id => id !== product.sellerId)) {
       setModalActionType("sellerWarning");
       setIsModalOpen(true);
       return;
@@ -80,7 +80,7 @@ export default function ProductBuyBox({ product, hasItemsInCart = false, cartSel
 
   const handleBuyNow = () => {
     setErrorMsg(null);
-    if (cartSellers.length > 0 && !cartSellers.includes(product.sellerId)) {
+    if (cartSellers.length > 0 && cartSellers.some(id => id !== product.sellerId)) {
       setModalActionType("sellerWarning");
       setIsModalOpen(true);
       return;
