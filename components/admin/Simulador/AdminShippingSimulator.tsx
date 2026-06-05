@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { simulateShippingAction } from "./actions";
+import { simulateShippingAction } from "@/app/admin/actions";
 import type { ShipmentStatus } from "@/types";
 import {
   ClipboardDocumentIcon,

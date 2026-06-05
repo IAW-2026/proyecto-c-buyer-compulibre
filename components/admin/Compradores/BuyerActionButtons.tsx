@@ -69,7 +69,7 @@ function ActionButton({
       ) : (
         <Icon className="h-5 w-5" />
       )}
-      <span className="leading-tight truncate w-full px-1">
+      <span className="leading-tight wrap-break-words w-full px-1">
         {showSuccess ? "¡Listo!" : label}
       </span>
     </button>
@@ -131,21 +131,21 @@ export default function BuyerActionButtons({
       />
       <ActionButton
         icon={ArrowPathIcon}
-        label="Onboarding"
+        label="Resetear datos"
         variant="re-onboard"
         title="Forzar al usuario a reingresar sus datos logísticos"
         onClick={handleResetOnboarding}
       />
       <ActionButton
         icon={TrashIcon}
-        label="Órdenes"
+        label="Resetear órdenes"
         variant="clear"
         title="Borrar historial de órdenes y compras"
         onClick={handleClearOrders}
       />
       <ActionButton
         icon={ArrowUturnLeftIcon}
-        label="Hard Reset"
+        label="Resetear todo"
         variant="reset"
         title="Eliminar carritos, compras y limpiar dirección"
         onClick={handleHardReset}
