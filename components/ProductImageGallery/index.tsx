@@ -25,7 +25,10 @@ export default function ProductImageGallery({
   images,
   productName,
 }: ProductImageGalleryProps) {
-  const hasMultiple = images.length > 1;
+  const displayImages = images.length > 0 
+    ? images 
+    : [{ id: "placeholder", imageUrl: "https://placehold.co/400x300?text=Sin+Imagen" } as ProductImage];
+  const hasMultiple = displayImages.length > 1;
 
   // ── Embla principal ──────────────────────────────────────────────────────
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -88,7 +91,7 @@ export default function ProductImageGallery({
       >
         {/* ── Contenedor de slides ── */}
         <div className="flex h-full">
-          {images.map((img, i) => (
+          {displayImages.map((img, i) => (
             <div
               key={img.id}
               className="relative h-full w-full shrink-0"
@@ -110,7 +113,7 @@ export default function ProductImageGallery({
         {/* Contador numérico — siempre visible en mobile, hover en desktop */}
         {hasMultiple && (
           <span className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm sm:opacity-0 sm:transition-opacity sm:duration-300 sm:group-hover:opacity-100">
-            {activeIndex + 1} / {images.length}
+            {activeIndex + 1} / {displayImages.length}
           </span>
         )}
 
@@ -160,7 +163,7 @@ export default function ProductImageGallery({
           role="tablist"
           aria-label="Imágenes del producto"
         >
-          {images.map((_, i) => (
+          {displayImages.map((_, i) => (
             <button
                key={i}
                role="tab"
@@ -180,7 +183,7 @@ export default function ProductImageGallery({
       {/* ── Miniaturas — solo en desktop ── */}
       {hasMultiple && (
         <div className="hidden sm:flex gap-4 overflow-x-auto py-2 px-1 -mx-1">
-          {images.map((img, i) => (
+          {displayImages.map((img, i) => (
             <button
               key={img.id}
               onClick={() => scrollTo(i)}

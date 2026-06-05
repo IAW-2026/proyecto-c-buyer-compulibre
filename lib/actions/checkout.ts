@@ -2,7 +2,6 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { initMockPayment } from "@/lib/mocks/payments-app";
 import { getBuyerProfile } from "@/lib/db/profile";
@@ -176,69 +175,4 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
 
   // 8. Redirigir al checkout URL (fuera del try/catch para que Next.js lo maneje)
   redirect(checkoutUrl);
-}
-
-export async function simulateShippingAction(
-  orderId: string,
-  status: "LABEL_CREATED" | "IN_TRANSIT" | "DELIVERED"
-): Promise<{ success: boolean; error?: string; message?: string }> {
-  const { sessionClaims } = await auth();
-  const role = 
-    (sessionClaims?.publicMetadata as { role?: string })?.role || 
-    (sessionClaims?.metadata as { role?: string })?.role;
-
-  if (role !== "admin") {
-    return {
-      success: false,
-      error: "FORBIDDEN",
-      message: "No tenés permisos para realizar esta acción.",
-    };
-  }
-
-  // ── 2. Construir payload del webhook de envío ─────────────────────
-  const appUrl = 
-    process.env.NEXT_PUBLIC_APP_URL || 
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const trackingId = `TRK-MOCK-${Date.now()}`;
-
-  const body: Record<string, string> = {
-    courier: "Andreani",
-    status,
-  };
-  if (status === "LABEL_CREATED") {
-    body.trackingId = trackingId;
-  }
-
-  // ── 3. Llamar al shipping-webhook internamente ────────────────────
-  try {
-    const res = await fetch(`${appUrl}/api/orders/${orderId}/shipping-webhook`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-service-token": process.env.SERVICE_TOKEN ?? "",
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!res.ok) {
-      const err = await res.json();
-      console.error("simulateShippingAction error:", err);
-      return {
-        success: false,
-        error: "WEBHOOK_ERROR",
-        message: err?.message ?? "Error al simular el envío.",
-      };
-    }
-
-    revalidatePath(`/orders/${orderId}`);
-    return { success: true };
-  } catch (err) {
-    console.error("simulateShippingAction network error:", err);
-    return {
-      success: false,
-      error: "NETWORK_ERROR",
-      message: "Error de red al llamar al webhook de envío.",
-    };
-  }
 }
