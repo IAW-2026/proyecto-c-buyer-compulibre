@@ -83,6 +83,8 @@ export async function addToCartAction(productId: string, quantity: number) {
     // 2. Obtener o crear carrito activo del usuario
     const cart = await getOrCreateActiveCart(userId);
 
+
+
     // 3. Buscar si el producto ya existe en el carrito activo
     const existingItem = cart.items.find(
       (item) => item.externalProductId === productId

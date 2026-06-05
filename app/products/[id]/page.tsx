@@ -43,6 +43,32 @@ export default async function ProductDetailPage({ params }: PageProps) {
   ]);
 
   const hasItemsInCart = (cart?.items?.length || 0) > 0;
+  const cartSellers = cart?.items ? Array.from(new Set(cart.items.map(item => item.sellerId))) : [];
+
+  let cartSnapshot = null;
+  if (cart && cart.items.length > 0) {
+    const { getProductsByIds } = await import("@/lib/mocks/seller-app");
+    const productIds = cart.items.map((item) => item.externalProductId);
+    const productsData = await getProductsByIds(productIds);
+    
+    let subtotal = 0;
+    let totalQuantity = 0;
+    const items = cart.items.map(item => {
+      const p = productsData.find(pd => pd.id === item.externalProductId);
+      const price = Number(item.cachedPrice);
+      subtotal += price * item.quantity;
+      totalQuantity += item.quantity;
+      return {
+        imageUrl: p?.image ?? "https://placehold.co/400x300?text=Sin+Imagen"
+      };
+    });
+    
+    cartSnapshot = {
+      items,
+      subtotal,
+      totalQuantity
+    };
+  }
 
   if (!product) {
     notFound();
@@ -112,7 +138,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </p>
 
             {/* Buy Box (Precio, Stock, Selector y Botones) */}
-            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} />
+            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} cartSellers={cartSellers} cartSnapshot={cartSnapshot} />
 
             {/* Detalles Adicionales */}
             <div className="mt-12 border-t border-gray-200 pt-8">

@@ -61,17 +61,25 @@ export default async function AdminTabContent({
     }
 
     if (activeTab === "carts") {
-        const [
-            totalCarts,
-            convertedCarts,
-            cancelledCarts,
-            rejectedCarts
-        ] = await db.$transaction([
-            db.cart.count(),
-            db.cart.count({ where: { status: "CONVERTED" } }),
-            db.cart.count({ where: { status: "CANCELLED" } }),
-            db.cart.count({ where: { status: "REJECTED" } })
-        ]);
+        // Usar groupBy para obtener todos los conteos en 1 sola consulta y no agotar el pool de Neon
+        const cartStats = await db.cart.groupBy({
+            by: ['status'],
+            _count: {
+                _all: true
+            }
+        });
+
+        let totalCarts = 0;
+        let convertedCarts = 0;
+        let cancelledCarts = 0;
+        let rejectedCarts = 0;
+
+        cartStats.forEach(stat => {
+            totalCarts += stat._count._all;
+            if (stat.status === "CONVERTED") convertedCarts = stat._count._all;
+            if (stat.status === "CANCELLED") cancelledCarts = stat._count._all;
+            if (stat.status === "REJECTED") rejectedCarts = stat._count._all;
+        });
 
         const conversionRate = totalCarts > 0 ? (convertedCarts / totalCarts) * 100 : 0;
         const activeCarts = totalCarts - convertedCarts - cancelledCarts - rejectedCarts;

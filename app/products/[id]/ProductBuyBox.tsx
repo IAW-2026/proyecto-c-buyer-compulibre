@@ -1,24 +1,29 @@
 "use client";
 
-import { createPortal } from "react-dom";
-
 import { useState, useTransition, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { ShoppingCartIcon, CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
 import { addToCartAction } from "@/lib/actions/cart";
+import AddToCartModal from "@/app/products/[id]/AddToCartModal";
+
+interface CartSnapshot {
+  items: { imageUrl: string }[];
+  subtotal: number;
+  totalQuantity: number;
+}
 
 interface ProductBuyBoxProps {
   product: SellerProduct;
   hasItemsInCart?: boolean;
+  cartSellers?: string[];
+  cartSnapshot?: CartSnapshot | null;
 }
 
-export default function ProductBuyBox({ product, hasItemsInCart = false }: ProductBuyBoxProps) {
+export default function ProductBuyBox({ product, hasItemsInCart = false, cartSellers = [], cartSnapshot = null }: ProductBuyBoxProps) {
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalActionType, setModalActionType] = useState<"cart" | "buy">("cart");
+  const [modalActionType, setModalActionType] = useState<"cart" | "buy" | "sellerWarning">("cart");
   const [isPending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [capturedHasItems, setCapturedHasItems] = useState(hasItemsInCart);
@@ -56,6 +61,11 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
 
   const handleAddToCart = () => {
     setErrorMsg(null);
+    if (cartSellers.length > 0 && !cartSellers.includes(product.sellerId)) {
+      setModalActionType("sellerWarning");
+      setIsModalOpen(true);
+      return;
+    }
     setCapturedHasItems(hasItemsInCart);
     startTransition(async () => {
       const res = await addToCartAction(product.id, quantity);
@@ -70,6 +80,11 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
 
   const handleBuyNow = () => {
     setErrorMsg(null);
+    if (cartSellers.length > 0 && !cartSellers.includes(product.sellerId)) {
+      setModalActionType("sellerWarning");
+      setIsModalOpen(true);
+      return;
+    }
     setCapturedHasItems(hasItemsInCart);
     setModalActionType("buy");
     setIsModalOpen(true);
@@ -223,117 +238,19 @@ export default function ProductBuyBox({ product, hasItemsInCart = false }: Produ
         </button>
       </div>
 
-      {/* Modal de confirmación / Feedback premium (Renderizado con Portal para escapar del stacking context) */}
-      {isModalOpen && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-9999 pointer-events-auto flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-opacity duration-300">
-          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header del Modal */}
-            <div className="text-center mb-5">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-50 mb-3">
-                <CheckCircleIcon className="h-10 w-10 text-green-500" aria-hidden="true" />
-              </div>
-              <h3 className="text-lg font-bold text-[#1F2937]">
-                {modalActionType === "cart"
-                  ? "¡Agregado al carrito!"
-                  : capturedHasItems
-                    ? "¡Agregado a tu pedido!"
-                    : "¡Iniciando tu orden de compra!"}
-              </h3>
-              <p className="text-xs text-[#6B7280] mt-1 leading-normal">
-                {modalActionType === "cart"
-                  ? "El producto ha sido sumado a tu carrito de compras temporal."
-                  : capturedHasItems
-                    ? "Como tenés otros productos en el carrito, te sugerimos revisarlo."
-                    : "Estamos configurando tu checkout de forma segura."}
-              </p>
-            </div>
-
-            {/* Resumen del producto */}
-            <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-3.5 mb-6 border border-gray-100">
-              <div className="relative h-14 w-14 overflow-hidden rounded-lg border border-gray-200 bg-white shrink-0">
-                <Image
-                  src={product.images[0]?.imageUrl ?? "https://placehold.co/400x300?text=Sin+Imagen"}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-[#1F2937] truncate">{product.name}</p>
-                <p className="text-xs text-[#6B7280] mt-0.5">
-                  Cantidad: {quantity} unidad{quantity > 1 ? "es" : ""}
-                </p>
-              </div>
-            </div>
-
-            {/* Acciones */}
-            <div className="space-y-2.5">
-              {modalActionType === "cart" ? (
-                <>
-                  <Link
-                    href="/cart"
-                    className="flex w-full items-center justify-center rounded-xl bg-[#FC7A1E] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
-                  >
-                    Ver mi Carrito
-                  </Link>
-                  <Link
-                    href="/products"
-                    className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99]"
-                  >
-                    Seguir comprando
-                  </Link>
-                </>
-              ) : (
-                <>
-                  {capturedHasItems ? (
-                    <button
-                      onClick={handleConfirmBuyAndGoToCart}
-                      disabled={isPending}
-                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      {isPending ? (
-                        <>
-                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                          Procesando...
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCartIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-                          Revisar carrito antes de pagar
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleConfirmBuy}
-                      disabled={isPending}
-                      className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      {isPending ? (
-                        <>
-                          <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-                          Procesando...
-                        </>
-                      ) : (
-                        `Proceder al Pago (${formattedPrice})`
-                      )}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    disabled={isPending}
-                    className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99]"
-                  >
-                    Cancelar
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Modal Extraído (Presentational Component) */}
+      <AddToCartModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        modalActionType={modalActionType}
+        product={product}
+        quantity={quantity}
+        cartSnapshot={cartSnapshot}
+        capturedHasItems={capturedHasItems}
+        isPending={isPending}
+        onConfirmBuyAndGoToCart={handleConfirmBuyAndGoToCart}
+        onConfirmBuy={handleConfirmBuy}
+      />
     </div>
   );
 }
