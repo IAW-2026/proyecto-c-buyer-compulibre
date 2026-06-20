@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronDownIcon, ChevronUpIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { BuyerOrder } from "@prisma/client";
+import { formatCurrency } from "@/lib/formatters";
 
 type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null } };
 
@@ -14,13 +15,6 @@ export default function TransactionsTable({
     sortCol?: string; 
     sortDir?: string; 
 }) {
-    const formatCurrency = (value: number) =>
-      new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: "ARS",
-        maximumFractionDigits: 0,
-      }).format(value);
-
     return (
         <div>
             <h4 className="text-md font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2">Últimas Transacciones</h4>

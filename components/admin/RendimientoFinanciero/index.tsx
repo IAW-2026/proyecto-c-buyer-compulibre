@@ -4,6 +4,7 @@ import IngresosRetenidos from "./IngresosRetenidos";
 import FugaCapital from "./FugaCapital";
 import TransactionsTable from "./TransactionsTable";
 import { BuyerOrder } from "@prisma/client";
+import { formatCurrency } from "@/lib/formatters";
 
 type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null } };
 
@@ -25,12 +26,6 @@ export default function RendimientoFinanciero({
     sortCol?: string;
     sortDir?: string;
 }) {
-    const formatCurrency = (value: number) =>
-      new Intl.NumberFormat("es-AR", {
-        style: "currency",
-        currency: "ARS",
-        maximumFractionDigits: 0,
-      }).format(value);
 
     return (
         <div className="space-y-6">

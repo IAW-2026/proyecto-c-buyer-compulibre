@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
 import type { ShipmentStatus } from "@/types";
 import { ArchiveBoxIcon, TruckIcon } from "@heroicons/react/24/outline";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 
 export const metadata: Metadata = {
   title: "Mis Órdenes — CompuLibre",
@@ -26,20 +27,6 @@ const SHIPMENT_STATUS_MAP: Record<ShipmentStatus, StatusBadgeConfig> = {
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
 };
-
-const formatCurrency = (value: number | string) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(Number(value));
-
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("es-AR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(date));
 
 interface StatusBadgeConfig {
   label: string;
