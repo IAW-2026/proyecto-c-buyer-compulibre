@@ -4,8 +4,9 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCartIcon, CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
-import { addToCartAction } from "@/lib/actions/cart";
-import AddToCartModal from "@/app/products/[id]/AddToCartModal";
+import { addToCartAction, clearCartAndAddAction } from "@/lib/actions/cart";
+import AddToCartModal from "./AddToCartModal";
+import { formatCurrency } from "@/lib/formatters";
 
 interface CartSnapshot {
   items: { imageUrl: string }[];
@@ -43,17 +44,9 @@ export default function ProductBuyBox({ product, hasItemsInCart = false, cartSel
 
   const isOutOfStock = product.stock === 0;
 
-  const formattedPrice = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(product.price * quantity);
+  const formattedPrice = formatCurrency(product.price * quantity);
 
-  const unitPriceFormatted = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(product.price);
+  const unitPriceFormatted = formatCurrency(product.price);
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setQuantity(Number(e.target.value));
@@ -111,6 +104,20 @@ export default function ProductBuyBox({ product, hasItemsInCart = false, cartSel
         router.push("/cart");
       } else {
         setErrorMsg(res.message || "No se pudo iniciar la compra.");
+        setIsModalOpen(false);
+      }
+    });
+  };
+
+  const handleClearCartAndAdd = () => {
+    setErrorMsg(null);
+    startTransition(async () => {
+      const res = await clearCartAndAddAction(product.id, quantity);
+      if (res.success) {
+        setIsModalOpen(false);
+        router.push("/cart");
+      } else {
+        setErrorMsg(res.message || "No se pudo vaciar el carrito y agregar el producto.");
         setIsModalOpen(false);
       }
     });
@@ -250,6 +257,7 @@ export default function ProductBuyBox({ product, hasItemsInCart = false, cartSel
         isPending={isPending}
         onConfirmBuyAndGoToCart={handleConfirmBuyAndGoToCart}
         onConfirmBuy={handleConfirmBuy}
+        onClearCartAndAdd={handleClearCartAndAdd}
       />
     </div>
   );

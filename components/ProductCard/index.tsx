@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SellerProductSummary } from "@/types";
 import { FireIcon } from "@heroicons/react/24/solid";
+import { formatCurrency } from "@/lib/formatters";
 
 interface ProductCardProps {
   product: SellerProductSummary;
@@ -9,11 +10,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, priority = false }: ProductCardProps) {
-  const formattedPrice = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(product.price);
+  const formattedPrice = formatCurrency(product.price);
 
   return (
     <Link

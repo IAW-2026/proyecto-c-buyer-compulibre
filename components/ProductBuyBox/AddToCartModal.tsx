@@ -8,18 +8,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { CheckCircleIcon, ExclamationTriangleIcon, ShoppingCartIcon } from "@heroicons/react/24/solid";
 import { SellerProduct } from "@/types";
-
-// Formateador de moneda compartido y persistente en memoria para optimizar el rendimiento (evita recreación en cada render)
-const currencyFormatter = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
+import { formatCurrency } from "@/lib/formatters";
 
 interface CartSnapshot {
   items: { imageUrl: string }[];
   subtotal: number;
   totalQuantity: number;
+  sellerName?: string;
 }
 
 interface AddToCartModalProps {
@@ -33,6 +28,7 @@ interface AddToCartModalProps {
   isPending: boolean;
   onConfirmBuyAndGoToCart: () => void;
   onConfirmBuy: () => void;
+  onClearCartAndAdd: () => void;
 }
 
 // ============================================================================
@@ -50,7 +46,7 @@ function ModalHeader({ modalActionType, capturedHasItems }: ModalHeaderProps) {
   const isWarning = modalActionType === "sellerWarning";
   
   const title = isWarning
-    ? "Vendedor distinto"
+    ? "Ya tenés productos de otro vendedor"
     : modalActionType === "cart"
       ? "¡Agregado al carrito!"
       : capturedHasItems
@@ -58,7 +54,7 @@ function ModalHeader({ modalActionType, capturedHasItems }: ModalHeaderProps) {
         : "¡Iniciando tu orden de compra!";
 
   const description = isWarning
-    ? "No es posible agregar a un mismo carrito productos de distintos vendedores. Terminá tu compra actual o vaciá el carrito para continuar."
+    ? "Por cuestiones de logística, solo podemos procesar compras de un único vendedor a la vez. Por favor, finalizá el pedido que ya tenés armado o vaciá tu carrito para empezar uno nuevo con este vendedor."
     : modalActionType === "cart"
       ? "El producto ha sido sumado a tu carrito de compras temporal."
       : capturedHasItems
@@ -144,7 +140,7 @@ function CartSnapshotPreview({ product, quantity, cartSnapshot, modalActionType 
     ? (cartSnapshot?.subtotal || 0) + (product.price * quantity)
     : (cartSnapshot?.subtotal || 0);
 
-  const formattedSubtotal = currencyFormatter.format(subtotal);
+  const formattedSubtotal = formatCurrency(subtotal);
   const currentProductImageUrl = product.images[0]?.imageUrl;
 
   // Filtramos la imagen duplicada solo si la acción fue "cart" (el producto se agregó exitosamente)
@@ -192,9 +188,16 @@ function CartSnapshotPreview({ product, quantity, cartSnapshot, modalActionType 
             </div>
           )}
         </div>
-        <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide hidden xs:inline">
-          En Carrito
-        </span>
+        <div className="flex flex-col">
+          <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wide">
+            En Carrito
+          </span>
+          {isWarning && cartSnapshot?.sellerName && (
+            <span className="text-[10px] text-gray-400 font-semibold truncate max-w-[160px]" title={cartSnapshot.sellerName}>
+              Vendedor: {cartSnapshot.sellerName}
+            </span>
+          )}
+        </div>
       </div>
       {/* Total Actualizado */}
       <div className="text-right">
@@ -217,6 +220,7 @@ interface ModalActionsProps {
   onClose: () => void;
   onConfirmBuyAndGoToCart: () => void;
   onConfirmBuy: () => void;
+  onClearCartAndAdd: () => void;
 }
 
 function ModalActions({
@@ -227,33 +231,41 @@ function ModalActions({
   onClose,
   onConfirmBuyAndGoToCart,
   onConfirmBuy,
+  onClearCartAndAdd,
 }: ModalActionsProps) {
   if (modalActionType === "sellerWarning") {
     return (
       <div className="space-y-2.5">
         <button
-          onClick={onConfirmBuyAndGoToCart}
+          onClick={onClearCartAndAdd}
           disabled={isPending}
-          className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+          className="flex w-full items-center justify-center rounded-xl bg-[#FC7A1E] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isPending ? (
             <>
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />
-              Procesando...
+              Vaciando y agregando...
             </>
           ) : (
             <>
               <ShoppingCartIcon className="h-5 w-5 mr-2" aria-hidden="true" />
-              Agregar de todos modos e ir al carrito
+              Vaciar carrito y agregar este
             </>
           )}
         </button>
+        <Link
+          href="/cart"
+          onClick={onClose}
+          className="flex w-full items-center justify-center rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-md transition hover:brightness-95 active:scale-[0.99]"
+        >
+          Ver mi carrito actual
+        </Link>
         <button
           onClick={onClose}
           className="flex w-full items-center justify-center rounded-xl border border-gray-200 bg-white py-3 text-sm font-bold text-[#6B7280] transition hover:bg-gray-50 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
           disabled={isPending}
         >
-          Entendido
+          Cancelar
         </button>
       </div>
     );
@@ -343,10 +355,11 @@ export default function AddToCartModal({
   isPending,
   onConfirmBuyAndGoToCart,
   onConfirmBuy,
+  onClearCartAndAdd,
 }: AddToCartModalProps) {
   if (!isOpen || typeof document === "undefined") return null;
 
-  const formattedPrice = currencyFormatter.format(product.price * quantity);
+  const formattedPrice = formatCurrency(product.price * quantity);
 
   return createPortal(
     <div className="fixed inset-0 z-9999 pointer-events-auto flex items-center justify-center bg-black/50 p-4 sm:p-6 backdrop-blur-sm transition-opacity duration-300">
@@ -377,6 +390,7 @@ export default function AddToCartModal({
           onClose={onClose}
           onConfirmBuyAndGoToCart={onConfirmBuyAndGoToCart}
           onConfirmBuy={onConfirmBuy}
+          onClearCartAndAdd={onClearCartAndAdd}
         />
 
       </div>

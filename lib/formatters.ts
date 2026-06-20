@@ -50,3 +50,27 @@ export function formatCondition(rawCondition: string): string {
     .replace(/_/g, " ")
     .replace(/\b\w/g, (l) => l.toUpperCase());
 }
+
+/**
+ * Formatea un número o string como moneda Argentina (ARS)
+ */
+export function formatCurrency(value: number | string): string {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(Number(value));
+}
+
+/**
+ * Formatea una fecha a estilo de Argentina
+ */
+export function formatDate(date: Date | string | number): string {
+  return new Intl.DateTimeFormat("es-AR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+}
