@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { BuyerOrderStatus } from "@prisma/client";
-import { validateServiceToken } from "@/lib/auth";
+import { validateWebhookAndGetOrder } from "@/lib/utils/webhook";
 
 interface PaymentWebhookBody {
   transactionId?: string;
@@ -16,13 +16,9 @@ export async function POST(
   try {
     const { order_id } = await params;
     
-    // Validación de x-service-token para autenticación inter-servicios (TODO: canbiar etapa 3)
-    if (!validateServiceToken(request)) {
-      return NextResponse.json(
-        { success: false, error: "UNAUTHORIZED", message: "Token de servicio inválido o ausente" },
-        { status: 401 }
-      );
-    }
+    const validation = await validateWebhookAndGetOrder(request, order_id);
+    if (validation.errorResponse) return validation.errorResponse;
+    const { order } = validation;
 
     const body = (await request.json()) as PaymentWebhookBody;
     const { transactionId, status, paymentMethod } = body;
@@ -32,17 +28,6 @@ export async function POST(
       return NextResponse.json(
         { success: false, error: "MISSING_TRANSACTION_ID", message: "transactionId es requerido" },
         { status: 400 }
-      );
-    }
-
-    const order = await prisma.buyerOrder.findUnique({
-      where: { id: order_id }
-    });
-
-    if (!order) {
-      return NextResponse.json(
-        { success: false, error: "ORDER_NOT_FOUND", message: "Orden no encontrada" },
-        { status: 404 }
       );
     }
 
