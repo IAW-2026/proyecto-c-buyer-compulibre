@@ -2,24 +2,18 @@
 
 import React, { useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { 
-  ImacIcon,
-  VideoCardIcon,
-  CpuIcon,
-  HardDriveIcon,
-  RamMemoryIcon,
-  MotherboardIcon
-} from "@/components/Icons";
 
 const CATEGORIES = [
-  { name: "Monitores", query: "MONITOR", icon: ImacIcon },
-  { name: "Placas de Video", query: "GPU", icon: VideoCardIcon },
-  { name: "Procesadores", query: "CPU", icon: CpuIcon },
-  { name: "Almacenamiento", query: "STORAGE", icon: HardDriveIcon },
-  { name: "Memoria RAM", query: "RAM", icon: RamMemoryIcon },
-  { name: "Motherboards", query: "MOTHERBOARD", icon: MotherboardIcon },
+  { name: "Monitores", query: "MONITOR", image: "/images/categoria/monitor.jpg" },
+  { name: "Placas de Video", query: "GPU", image: "/images/categoria/gpu.jpg" },
+  { name: "Procesadores", query: "CPU", image: "/images/categoria/cpu.jpg" },
+  { name: "Almacenamiento", query: "STORAGE", image: "/images/categoria/almacenamiento.jpg" },
+  { name: "Memoria RAM", query: "RAM", image: "/images/categoria/ram.jpg" },
+  { name: "Motherboards", query: "MOTHERBOARD", image: "/images/categoria/motherboard.jpg" },
+  { name: "Periféricos", query: "PERIPHERAL", image: "/images/categoria/mouse.jpg" },
 ];
 
 export default function CategoryCarousel() {
@@ -41,17 +35,26 @@ export default function CategoryCarousel() {
     <div className="relative group/carousel">
       {/* Carrusel container */}
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex gap-4 sm:gap-6 backface-hidden touch-pan-y">
+        <div className="flex gap-4 sm:gap-6 backface-hidden touch-pan-y py-2">
           {CATEGORIES.map((cat) => (
-            <div key={cat.name} className="flex-[0_0_50%] sm:flex-[0_0_33.33%] md:flex-[0_0_25%] lg:flex-[0_0_calc(25%-18px)] min-w-0">
+            <div key={cat.name} className="flex-[0_0_45%] sm:flex-[0_0_30%] md:flex-[0_0_22%] lg:flex-[0_0_18%] min-w-0">
               <Link
                 href={`/products?category=${encodeURIComponent(cat.query)}`}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md hover:border-[#485696]/30 transition-all flex flex-col items-center justify-center gap-4 group h-full"
+                className="flex flex-col items-center group"
               >
-                <div className="bg-gray-50 p-4 rounded-full group-hover:bg-[#485696]/10 transition-colors">
-                  <cat.icon className="h-8 w-8 text-gray-600 group-hover:text-[#485696]" />
+                {/* Caja rectangular que es llenada completamente por la imagen */}
+                <div className="relative w-full aspect-5/4 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md group-hover:-translate-y-1 transition-all duration-300">
+                  <Image 
+                    src={cat.image} 
+                    alt={cat.name} 
+                    fill 
+                    sizes="(max-width: 768px) 45vw, (max-width: 1200px) 22vw, 18vw"
+                    className="object-cover group-hover:scale-110 transition-transform duration-300" 
+                  />
                 </div>
-                <span className="font-bold text-gray-900 text-center text-sm md:text-base">
+                
+                {/* Texto debajo, libre de la caja */}
+                <span className="mt-3 md:mt-4 font-semibold text-gray-800 text-sm md:text-base text-center group-hover:text-[#485696] transition-colors">
                   {cat.name}
                 </span>
               </Link>
