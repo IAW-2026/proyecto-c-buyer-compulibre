@@ -8,27 +8,25 @@ import { getProducts } from "@/lib/mocks/seller-app";
 import ProductGrid from "@/components/ProductGrid";
 import Footer from "@/components/Footer";
 import CategoryCarousel from "@/components/CategoryCarousel";
+import HeroCarousel from "@/components/HeroCarousel";
 
 export default async function StorefrontPage() {
   // Fetch a few featured products for the storefront
   const { products } = await getProducts({ limit: 4 });
 
+  // Lista estática de imágenes segura para Vercel
+  const heroImages = [
+    "/images/principal/hero-1.jpg",
+    "/images/principal/hero-2.jpg",
+    "/images/principal/hero-3.jpg"
+  ];
+
   return (
     <div className="min-h-screen bg-[#E7E7E7] flex flex-col">
       <div className="grow pb-12">
         {/* 1. HERO SECTION */}
-        <section className="bg-[#485696] text-white py-16 sm:py-24 px-4 relative overflow-hidden">
-          {/* Decoración de fondo simple */}
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
-          
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">
-              La tecnología que necesitás, al mejor precio
-            </h1>
-            <p className="text-lg text-gray-200 max-w-2xl mx-auto font-medium">
-              Explorá nuestro catálogo de hardware, periféricos y accesorios con envíos garantizados.
-            </p>
-          </div>
+        <section className="w-full">
+          <HeroCarousel images={heroImages} />
         </section>
 
         {/* 2. SECCIÓN DE BENEFICIOS (Trust Signals) */}
