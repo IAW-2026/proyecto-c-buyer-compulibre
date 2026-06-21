@@ -103,12 +103,12 @@ export default async function StorefrontPage() {
           </h2>
           
           <p className="mt-4 md:mt-6 text-sm md:text-base text-gray-200 font-medium tracking-wide drop-shadow-md">
-            Aprovechá envío sin cargo en compras superiores a $150.000. Por tiempo limitado.
+            Aprovechá envío sin cargo en compras superiores a $300.000. Por tiempo limitado.
           </p>
           
           <div className="mt-8 md:mt-10">
             <Link 
-              href="/products" 
+              href="/products?minPrice=300000" 
               className="inline-block bg-[#FC7A1E] text-white font-bold text-sm md:text-base py-3.5 px-10 rounded shadow-lg hover:bg-[#e66a15] transition-all transform hover:scale-105"
             >
               Comprar Ahora
