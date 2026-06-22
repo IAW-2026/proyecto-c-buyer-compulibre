@@ -4,67 +4,20 @@ import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
-import type { ShipmentStatus } from "@/types";
-import { ShoppingBagIcon, TruckIcon, PhotoIcon } from "@heroicons/react/24/outline";
-import { formatCurrency, formatDate } from "@/lib/formatters";
+
+import { ShoppingBagIcon, PhotoIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "@/lib/formatters";
 
 export const metadata: Metadata = {
   title: "Mis Compras — CompuLibre",
   description: "Consultá el historial y estado de todas tus compras en CompuLibre.",
 };
 
-const SHIPMENT_STATUS_MAP: Record<ShipmentStatus, StatusBadgeConfig> = {
-  LABEL_CREATED: {
-    label: "Etiqueta creada",
-    className: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  IN_TRANSIT: {
-    label: "En camino",
-    className: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  },
-  DELIVERED: {
-    label: "Entregado",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-};
 
-interface StatusBadgeConfig {
-  label: string;
-  className: string;
-}
-
-const STATUS_MAP: Record<BuyerOrderStatus, StatusBadgeConfig> = {
-  PENDING_PAYMENT: {
-    label: "Pago pendiente",
-    className: "bg-amber-50 text-amber-700 border-amber-200",
-  },
-  PAID: {
-    label: "Pagado",
-    className: "bg-green-50 text-green-700 border-green-200",
-  },
-  SHIPPED: {
-    label: "En camino",
-    className: "bg-blue-50 text-blue-700 border-blue-200",
-  },
-  DELIVERED: {
-    label: "Entregado",
-    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  },
-  CANCELLED: {
-    label: "Cancelado",
-    className: "bg-gray-100 text-gray-500 border-gray-200",
-  },
-  PAYMENT_FAILED: {
-    label: "Pago rechazado",
-    className: "bg-red-50 text-red-600 border-red-200",
-  },
-};
 
 import { getProductsByIds } from "@/lib/services/seller-app";
 
-// ... (El import se añadirá arriba y el helper de estado se usará)
-
-function getUnifiedStatus(order: any) {
+function getUnifiedStatus(order: { status: BuyerOrderStatus; shipmentStatus: string | null }) {
   if (order.status === 'CANCELLED') return { label: 'Cancelado', desc: 'La compra fue cancelada', color: 'text-gray-500' };
   if (order.status === 'PAYMENT_FAILED') return { label: 'Pago rechazado', desc: 'Tu pago no pudo procesarse', color: 'text-red-600' };
   if (order.status === 'PENDING_PAYMENT') return { label: 'Pago pendiente', desc: 'Esperando confirmación del pago', color: 'text-amber-600' };
