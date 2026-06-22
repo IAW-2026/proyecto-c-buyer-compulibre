@@ -106,7 +106,7 @@ export async function getProductsByIds(ids: string[]): Promise<SellerProductSumm
         stock: p.stock,
         sellerId: p.sellerId,
         sellerName: p.sellerName,
-        image: p.images?.[0]?.imageUrl ?? "https://placehold.co/400x300?text=Sin+Imagen",
+        image: p.images?.[0]?.imageUrl || "",
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       }));
