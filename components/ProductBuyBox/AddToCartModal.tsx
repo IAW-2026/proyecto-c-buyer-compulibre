@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircleIcon, ExclamationTriangleIcon, ShoppingCartIcon } from "@heroicons/react/24/solid";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { SellerProduct } from "@/types";
 import { formatCurrency } from "@/lib/formatters";
 
@@ -93,14 +94,18 @@ function ProductSummary({ product, quantity, modalActionType }: ProductSummaryPr
   
   return (
     <div className={`flex items-center gap-3 sm:gap-4 rounded-xl bg-gray-50 p-3 sm:p-3.5 border border-gray-100 ${isWarning ? "mb-6" : "mb-3"}`}>
-      <div className="relative h-20 w-20 sm:h-26 sm:w-26 overflow-hidden rounded-lg border border-gray-200 bg-white shrink-0">
-        <Image
-          src={product.images[0]?.imageUrl ?? "https://placehold.co/400x300?text=Sin+Imagen"}
-          alt={product.name}
-          fill
-          className="object-cover"
-          unoptimized
-        />
+      <div className="relative h-20 w-20 sm:h-26 sm:w-26 overflow-hidden rounded-lg border border-gray-200 bg-white shrink-0 flex items-center justify-center">
+        {product.images[0]?.imageUrl ? (
+          <Image
+            src={product.images[0].imageUrl}
+            alt={product.name}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <PhotoIcon className="h-10 w-10 text-gray-300" aria-hidden="true" />
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-xs sm:text-sm font-bold text-[#1F2937] truncate">{product.name}</p>
@@ -159,26 +164,34 @@ function CartSnapshotPreview({ product, quantity, cartSnapshot, modalActionType 
         <div className="flex -space-x-3 sm:-space-x-4">
           {/* Producto Reciente (Solo si NO es advertencia) */}
           {!isWarning && (
-            <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm z-20">
-              <Image
-                src={product.images[0]?.imageUrl ?? "https://placehold.co/400x300?text=Sin+Imagen"}
-                alt={product.name}
-                fill
-                className="object-cover"
-                unoptimized
-              />
+            <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm z-20 flex items-center justify-center">
+              {product.images[0]?.imageUrl ? (
+                <Image
+                  src={product.images[0].imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <PhotoIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
+              )}
             </div>
           )}
           {/* Productos en Carrito (Capas inferiores) */}
           {otherItems.slice(0, 3).map((item, idx) => (
-            <div key={idx} className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm" style={{ zIndex: 10 - idx }}>
-              <Image
-                src={item.imageUrl}
-                alt="Producto en carrito"
-                fill
-                className="object-cover"
-                unoptimized
-              />
+            <div key={idx} className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-full border-2 border-white bg-white shadow-sm flex items-center justify-center" style={{ zIndex: 10 - idx }}>
+              {item.imageUrl ? (
+                <Image
+                  src={item.imageUrl}
+                  alt="Producto en carrito"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <PhotoIcon className="h-6 w-6 text-gray-300" aria-hidden="true" />
+              )}
             </div>
           ))}
           {/* Indicador de exceso */}

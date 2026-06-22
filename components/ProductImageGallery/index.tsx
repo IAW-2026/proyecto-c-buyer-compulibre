@@ -3,7 +3,7 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon, PhotoIcon } from "@heroicons/react/24/outline";
 import type { ProductImage } from "@/types";
 
 interface ProductImageGalleryProps {
@@ -27,7 +27,7 @@ export default function ProductImageGallery({
 }: ProductImageGalleryProps) {
   const displayImages = images.length > 0 
     ? images 
-    : [{ id: "placeholder", imageUrl: "https://placehold.co/400x300?text=Sin+Imagen" } as ProductImage];
+    : [{ id: "placeholder", imageUrl: "" } as ProductImage];
   const hasMultiple = displayImages.length > 1;
 
   // ── Embla principal ──────────────────────────────────────────────────────
@@ -97,15 +97,21 @@ export default function ProductImageGallery({
               className="relative h-full w-full shrink-0"
               style={{ flex: "0 0 100%" }}
             >
-              <Image
-                src={img.imageUrl}
-                alt={`${productName} — imagen ${i + 1}`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain p-2 sm:p-4"
-                priority={i === 0}
-                unoptimized
-              />
+              {img.imageUrl ? (
+                <Image
+                  src={img.imageUrl}
+                  alt={`${productName} — imagen ${i + 1}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="object-contain p-2 sm:p-4"
+                  priority={i === 0}
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-50">
+                  <PhotoIcon className="h-20 w-20 text-gray-300" aria-hidden="true" />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -201,14 +207,20 @@ export default function ProductImageGallery({
               `}
             >
               <span className="block relative h-full w-full">
-                <Image
-                  src={img.imageUrl}
-                  alt={`Miniatura ${i + 1}`}
-                  fill
-                  sizes="112px"
-                  className="object-contain p-2"
-                  unoptimized
-                />
+                {img.imageUrl ? (
+                  <Image
+                    src={img.imageUrl}
+                    alt={`Miniatura ${i + 1}`}
+                    fill
+                    sizes="112px"
+                    className="object-contain p-2"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gray-50">
+                    <PhotoIcon className="h-8 w-8 text-gray-300" aria-hidden="true" />
+                  </div>
+                )}
               </span>
             </button>
           ))}

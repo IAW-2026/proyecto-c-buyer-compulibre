@@ -28,7 +28,7 @@ export async function getCartSnapshot(cart: (Cart & { items: CartItem[] }) | nul
     subtotal += price * item.quantity;
     totalQuantity += item.quantity;
     return {
-      imageUrl: p?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
+      imageUrl: p?.image || "",
     };
   });
   

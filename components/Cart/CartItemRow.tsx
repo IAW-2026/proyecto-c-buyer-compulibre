@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import { TrashIcon, PhotoIcon } from "@heroicons/react/24/outline";
 import { HydratedCartItem } from "@/app/cart/types";
 import { formatCondition, formatCurrency } from "@/lib/formatters";
 
@@ -18,15 +18,19 @@ export default function CartItemRow({ item, isPending, onQuantityChange, onRemov
     <div className="py-4.5 flex flex-col sm:flex-row gap-4 first:pt-0 last:pb-0">
       <Link
         href={`/products/${item.externalProductId}`}
-        className="relative h-32 w-32 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 self-center sm:self-start"
+        className="relative h-32 w-32 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-xl border border-gray-200 bg-gray-50 self-center sm:self-start flex items-center justify-center"
       >
-        <Image
-          src={item.imageUrl}
-          alt={item.productName}
-          fill
-          className="object-cover"
-          unoptimized
-        />
+        {item.imageUrl ? (
+          <Image
+            src={item.imageUrl}
+            alt={item.productName}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        ) : (
+          <PhotoIcon className="h-12 w-12 sm:h-16 sm:w-16 text-gray-300" aria-hidden="true" />
+        )}
       </Link>
 
       <div className="flex-1 flex flex-col justify-between min-w-0">

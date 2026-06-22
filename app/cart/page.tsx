@@ -57,7 +57,7 @@ export default async function CartPage() {
         sellerId: item.sellerId,
         // Hidratación desde la API mock de la Seller App:
         sellerName: productData?.sellerName ?? "Vendedor Desconocido",
-        imageUrl: productData?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
+        imageUrl: productData?.image || "",
         stock: productData?.stock ?? 0,
         condition: productData?.condition ?? "new",
       };
