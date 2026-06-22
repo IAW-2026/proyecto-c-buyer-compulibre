@@ -4,7 +4,7 @@ import {
   BuildingStorefrontIcon, 
   CreditCardIcon
 } from "@heroicons/react/24/outline";
-import { getProducts } from "@/lib/mocks/seller-app";
+import { getProducts } from "@/lib/services/seller-app";
 import ProductGrid from "@/components/ProductGrid";
 import Footer from "@/components/Footer";
 import CategoryCarousel from "@/components/CategoryCarousel";

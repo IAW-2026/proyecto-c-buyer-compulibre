@@ -1,4 +1,4 @@
-import { getProductsByIds } from "@/lib/mocks/seller-app";
+import { getProductsByIds } from "@/lib/services/seller-app";
 
 // Tipo base de Prisma (ajusta según tus imports si usas un tipo derivado)
 import { Cart, CartItem } from "@prisma/client";

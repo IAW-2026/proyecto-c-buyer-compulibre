@@ -2,7 +2,7 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db/prisma";
-import { getProductById } from "@/lib/mocks/seller-app";
+import { getProductById } from "@/lib/services/seller-app";
 import { revalidatePath } from "next/cache";
 
 // --- Helpers Internos ---

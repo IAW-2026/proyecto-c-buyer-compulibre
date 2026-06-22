@@ -152,7 +152,13 @@ function FilterSection({
 // -------------------------------------------------------------
 // COMPONENTE PRINCIPAL DE FILTROS
 // -------------------------------------------------------------
-export default function ProductFilters({ isMobileView = false }: { isMobileView?: boolean }) {
+export default function ProductFilters({ 
+  isMobileView = false,
+  maxAllowedPrice = 3000000 
+}: { 
+  isMobileView?: boolean;
+  maxAllowedPrice?: number;
+}) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -160,11 +166,8 @@ export default function ProductFilters({ isMobileView = false }: { isMobileView?
   const [showMobile, setShowMobile] = useState(false);
   const [activeThumb, setActiveThumb] = useState<"min" | "max">("max");
 
-  // TODO (Etapa 3): El precio máximo no debe estar hardcodeado. 
-  // La API del Seller debe hacer una query de agregación (Prisma .aggregate({ _max: { price: true } }))
-  // y retornar el producto más caro actual para definir el MAX_ALLOWED de manera dinámica.
   const MIN_ALLOWED = 0;
-  const MAX_ALLOWED = 3000000;
+  const MAX_ALLOWED = maxAllowedPrice;
 
   const initialMin = searchParams.get("minPrice") || "";
   const initialMax = searchParams.get("maxPrice") || "";

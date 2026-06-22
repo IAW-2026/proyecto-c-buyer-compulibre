@@ -161,7 +161,7 @@ export default function ShipmentTimeline({ order, currentShipmentStatus, current
             </a>
           ) : (
             <a
-              href={`/mock-shipping/${order.trackingId}`}
+              href={`${process.env.NEXT_PUBLIC_SHIPPING_APP_URL}/track/${order.trackingId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#485696] bg-transparent py-3 text-sm font-bold text-[#485696] transition hover:bg-[#485696]/5"
@@ -181,7 +181,7 @@ export default function ShipmentTimeline({ order, currentShipmentStatus, current
                 <polyline points="15 3 21 3 21 9" />
                 <line x1="10" x2="21" y1="14" y2="3" />
               </svg>
-              Ver seguimiento en Mock Shipping App →
+              Ver seguimiento →
             </a>
           )}
         </div>

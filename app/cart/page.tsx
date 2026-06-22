@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getBuyerProfile } from "@/lib/db/profile";
-import { getProductsByIds } from "@/lib/mocks/seller-app";
+import { getProductsByIds } from "@/lib/services/seller-app";
 import CartContainer from "./CartContainer";
 import { HydratedCartItem } from "./types";
 

@@ -3,7 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
-import { initMockPayment } from "@/lib/mocks/payments-app";
+import { initPayment } from "@/lib/services/payments-app";
 import { getBuyerProfile } from "@/lib/db/profile";
 
 export interface CheckoutActionResult {
@@ -141,7 +141,7 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
   let checkoutUrl: string;
 
   try {
-    const paymentResponse = await initMockPayment({
+    const paymentResponse = await initPayment({
       orderReference: order.id,
       amount: finalAmount,
       currency: "ARS",

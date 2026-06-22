@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getProducts } from "@/lib/mocks/seller-app";
+import { getProducts } from "@/lib/services/seller-app";
 import ProductGrid from "@/components/ProductGrid";
 import ProductFilters from "@/components/ProductFilters";
 import ProductSort from "@/components/ProductSort";
@@ -53,8 +53,9 @@ export default async function ProductsPage({
     limit: PAGE_SIZE,
   });
 
-  const { products, pagination } = productsResult;
+  const { products, pagination, facets } = productsResult;
   const { totalProducts: total, totalPages } = pagination;
+  const maxPriceFacet = facets?.priceRange?.max;
 
   // Objeto plano para pasarlo a Pagination y que reconstruya URLs
   const currentParams: Record<string, string> = {};
@@ -75,7 +76,7 @@ export default async function ProductsPage({
         {/* Sidebar (Filtros) - Visible solo en Desktop */}
         <aside className="hidden lg:block w-full lg:w-64 shrink-0">
           <Suspense fallback={<FiltersSkeleton />}>
-            <ProductFilters />
+            <ProductFilters maxAllowedPrice={maxPriceFacet} />
           </Suspense>
         </aside>
 
@@ -100,7 +101,7 @@ export default async function ProductsPage({
               </Suspense>
               <div className="lg:hidden">
                 <Suspense fallback={<div className="h-10 w-10 bg-gray-100 animate-pulse rounded-lg" />}>
-                  <ProductFilters isMobileView />
+                  <ProductFilters isMobileView maxAllowedPrice={maxPriceFacet} />
                 </Suspense>
               </div>
             </div>

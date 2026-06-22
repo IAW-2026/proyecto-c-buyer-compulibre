@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { getProductById } from "@/lib/mocks/seller-app";
+import { getProductById } from "@/lib/services/seller-app";
 import ProductBuyBox from "@/components/ProductBuyBox";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import { getCartSnapshot } from "@/lib/utils/cart-snapshot";

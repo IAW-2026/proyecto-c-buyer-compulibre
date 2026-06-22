@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { getBuyerProfile } from "@/lib/db/profile";
-import { getProductsByIds } from "@/lib/mocks/seller-app";
+import { getProductsByIds } from "@/lib/services/seller-app";
 import CheckoutConfirmButton from "./CheckoutConfirmButton";
 import { calculateCartTotals } from "@/lib/utils/cart";
 import { formatCurrency } from "@/lib/formatters";
