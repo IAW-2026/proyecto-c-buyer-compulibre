@@ -258,7 +258,7 @@ export default function NotificationBell() {
                 onClick={() => setOpen(false)}
                 className="block text-center text-xs font-semibold text-[#485696] transition hover:underline"
               >
-                Ver todas mis órdenes →
+                Ver todas mis compras →
               </Link>
             </div>
           </div>

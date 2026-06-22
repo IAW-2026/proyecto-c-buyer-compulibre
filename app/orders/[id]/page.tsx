@@ -118,7 +118,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#485696] hover:underline transition-transform hover:-translate-x-0.5"
       >
         <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
-        <span>Mis órdenes</span>
+        <span>Mis Compras</span>
       </Link>
 
       {/* Banners */}
