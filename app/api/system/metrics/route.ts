@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
       lostRevenueAggr,
       paidOrdersCount,
       latestTransactions,
+      totalUsers,
     ] = await prisma.$transaction([
       // Órdenes Estancadas (Pagadas pero sin despachar)
       prisma.buyerOrder.count({ where: { status: "PAID", shipmentStatus: null } }),
@@ -70,6 +71,8 @@ export async function GET(request: NextRequest) {
           buyer: { select: { fullName: true } },
         },
       }),
+      // Cantidad de usuarios registrados
+      prisma.buyerProfile.count(),
     ]);
 
     const totalRevenue = Number(totalRevenueAggr._sum.totalAmount || 0);
@@ -81,6 +84,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
+        users: {
+          total: totalUsers,
+        },
         logistics: {
           stuckOrders,
           inTransitOrders,
