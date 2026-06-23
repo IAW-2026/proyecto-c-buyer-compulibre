@@ -21,10 +21,13 @@ export async function POST(
 
     const { order_id } = await params;
     const body = await request.json();
+    
+    console.log(`[Webhook] Recibido POST en /payment-webhook para orden ${order_id}`, body);
 
     const { transactionId, status } = body;
 
     if (!transactionId || !status) {
+      console.warn("[Webhook] Faltan campos. Body:", body);
       return NextResponse.json(
         {
           success: false,
@@ -52,14 +55,14 @@ export async function POST(
       );
     }
 
-    if (status === "APPROVED") {
+    if (String(status).toUpperCase() === "APPROVED") {
       // Actualizar Orden y Carrito en una transacción
       await prisma.$transaction(async (tx) => {
         await tx.buyerOrder.update({
           where: { id: order_id },
           data: {
             status: "PAID",
-            externalTransactionId: transactionId,
+            externalTransactionId: String(transactionId),
           },
         });
 
