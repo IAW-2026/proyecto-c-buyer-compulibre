@@ -11,6 +11,7 @@ import ProductFeatures from "@/components/ProductFeatures";
 import { ProductImage } from "@/types";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Footer from "@/components/Footer";
+import ExpandableTitle from "@/components/ExpandableTitle";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -89,12 +90,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="lg:sticky lg:top-24 flex flex-col pt-2 lg:pt-0">
             
             {/* Título */}
-            <h1 
-              className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4 wrap-break-word line-clamp-3"
-              title={product.name}
-            >
-              {product.name}
-            </h1>
+            <ExpandableTitle title={product.name} />
 
             {/* Descripción */}
             <p className="text-base text-gray-600 mb-8 leading-relaxed wrap-break-word line-clamp-6">

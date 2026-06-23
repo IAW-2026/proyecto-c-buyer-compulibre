@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { SellerProductSummary } from "@/types";
 import { FireIcon } from "@heroicons/react/24/solid";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 import { formatCurrency } from "@/lib/formatters";
 
 interface ProductCardProps {
@@ -20,15 +21,20 @@ export default function ProductCard({ product, priority = false }: ProductCardPr
     >
       {/* 1. Contenedor de la Imagen Protagonista */}
       <div className="relative flex h-[240px] w-full shrink-0 items-center justify-center rounded-xl bg-gray-50 overflow-hidden">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          // Reduje el padding de p-4 a p-2 para que la imagen sea más grande
-          className="object-contain p-2" 
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          priority={priority}
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-contain p-2" 
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
+          />
+        ) : (
+          <div className="flex flex-col h-full w-full items-center justify-center bg-gray-100 text-gray-400">
+            <PhotoIcon className="h-12 w-12 mb-2 opacity-50 stroke-1" />
+          </div>
+        )}
         
         {/* Badge de Sin Stock */}
         {product.stock === 0 && (

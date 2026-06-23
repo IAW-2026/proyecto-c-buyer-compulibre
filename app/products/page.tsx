@@ -41,7 +41,6 @@ export default async function ProductsPage({
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
   const sort = params.sort as "ascendingPrice" | "descendingPrice" | undefined;
 
-  // Resolución de los productos
   const productsResult = await getProducts({
     search,
     category,
@@ -53,9 +52,16 @@ export default async function ProductsPage({
     limit: PAGE_SIZE,
   });
 
-  const { products, pagination, facets } = productsResult;
+  const { products, pagination } = productsResult;
   const { totalProducts: total, totalPages } = pagination;
-  const maxPriceFacet = facets?.priceRange?.max;
+  
+  // Extraer las facetas globales desde la base de datos real (Seller App)
+  const { getProductFacets } = await import("@/lib/services/seller-app");
+  const globalFacets = await getProductFacets();
+  const maxPriceFacet = globalFacets?.maxPrice || 3000000;
+  const dynamicCategories = globalFacets?.categories;
+  const dynamicBrands = globalFacets?.brands;
+  const dynamicBrandsByCategory = globalFacets?.brandsByCategory;
 
   // Objeto plano para pasarlo a Pagination y que reconstruya URLs
   const currentParams: Record<string, string> = {};
@@ -76,7 +82,12 @@ export default async function ProductsPage({
         {/* Sidebar (Filtros) - Visible solo en Desktop */}
         <aside className="hidden lg:block w-full lg:w-64 shrink-0">
           <Suspense fallback={<FiltersSkeleton />}>
-            <ProductFilters maxAllowedPrice={maxPriceFacet} />
+            <ProductFilters 
+              maxAllowedPrice={maxPriceFacet} 
+              dynamicCategories={dynamicCategories} 
+              dynamicBrands={dynamicBrands} 
+              dynamicBrandsByCategory={dynamicBrandsByCategory} 
+            />
           </Suspense>
         </aside>
 
@@ -101,7 +112,13 @@ export default async function ProductsPage({
               </Suspense>
               <div className="lg:hidden">
                 <Suspense fallback={<div className="h-10 w-10 bg-gray-100 animate-pulse rounded-lg" />}>
-                  <ProductFilters isMobileView maxAllowedPrice={maxPriceFacet} />
+                  <ProductFilters 
+                    isMobileView 
+                    maxAllowedPrice={maxPriceFacet} 
+                    dynamicCategories={dynamicCategories} 
+                    dynamicBrands={dynamicBrands} 
+                    dynamicBrandsByCategory={dynamicBrandsByCategory} 
+                  />
                 </Suspense>
               </div>
             </div>
