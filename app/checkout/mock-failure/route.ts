@@ -1,3 +1,4 @@
+// TODO (Etapa 3): Eliminar esta ruta de simulación cuando se elimine mock-payment.
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   const appUrl = request.nextUrl.origin;
-  const tokenToSend = process.env.SERVICE_TOKEN ?? "";
+  const tokenToSend = process.env.BUYER_API_KEY ?? "";
 
   try {
     const webhookRes = await fetch(
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-service-token": tokenToSend,
+          "x-api-key": tokenToSend,
           ...(request.headers.get("cookie") ? { "Cookie": request.headers.get("cookie") as string } : {}),
         },
         body: JSON.stringify({

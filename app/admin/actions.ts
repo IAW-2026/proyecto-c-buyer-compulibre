@@ -107,7 +107,9 @@ export async function resetUserOnboarding(formData: FormData) {
   revalidatePath("/admin");
 }
 
-//Simulacion del envio del paquete (TODO: ver si es necesario cambiarlo para etapa 3)
+// TODO (Etapa 3): Eliminar esta función de simulación (simulateShippingAction) una vez que 
+// la Shipping App real esté enviando sus webhooks automáticamente.
+//Simulacion del envio del paquete
 export async function simulateShippingAction(
   orderId: string,
   status: "LABEL_CREATED" | "IN_TRANSIT" | "DELIVERED"
@@ -136,7 +138,7 @@ export async function simulateShippingAction(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-service-token": process.env.SERVICE_TOKEN ?? "",
+        "x-api-key": process.env.BUYER_API_KEY ?? "",
       },
       body: JSON.stringify(body),
     });

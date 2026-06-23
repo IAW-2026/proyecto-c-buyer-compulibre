@@ -26,19 +26,19 @@ export default async function AdminTabContent({
         else if (sortCol === "estado") orderQuery = { status: sortDir as Prisma.SortOrder };
         else if (sortCol === "monto") orderQuery = { totalAmount: sortDir as Prisma.SortOrder };
 
-        const [
-            salesSum,
-            retainedRevenueSum,
-            lostCapitalItems,
-            recentPaidOrders,
-            paidOrdersCount
-        ] = await db.$transaction([
-            db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } }),
-            db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED"] } } }),
-            db.cartItem.findMany({ where: { cart: { status: { in: ["CANCELLED", "REJECTED"] } } }, select: { quantity: true, cachedPrice: true } }),
-            db.buyerOrder.findMany({ orderBy: orderQuery, take: 15, include: { buyer: { select: { fullName: true } } } }),
-            db.buyerOrder.count({ where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } })
-        ]);
+        const orderWhere: Prisma.BuyerOrderWhereInput = search ? {
+            OR: [
+                { id: { contains: search, mode: "insensitive" } },
+                { buyerId: { contains: search, mode: "insensitive" } },
+                { buyer: { fullName: { contains: search, mode: "insensitive" } } },
+            ]
+        } : {};
+
+        const salesSum = await db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } });
+        const retainedRevenueSum = await db.buyerOrder.aggregate({ _sum: { totalAmount: true }, where: { status: { in: ["PAID", "SHIPPED"] } } });
+        const lostCapitalItems = await db.cartItem.findMany({ where: { cart: { status: { in: ["CANCELLED", "REJECTED"] } } }, select: { quantity: true, cachedPrice: true } });
+        const recentPaidOrders = await db.buyerOrder.findMany({ where: orderWhere, orderBy: orderQuery, take: 15, include: { buyer: { select: { fullName: true, id: true } } } });
+        const paidOrdersCount = await db.buyerOrder.count({ where: { status: { in: ["PAID", "SHIPPED", "DELIVERED"] } } });
 
         const totalSales = Number(salesSum._sum.totalAmount) || 0;
         const retainedRevenue = Number(retainedRevenueSum._sum.totalAmount) || 0;

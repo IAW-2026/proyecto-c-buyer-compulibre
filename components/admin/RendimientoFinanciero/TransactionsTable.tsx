@@ -3,7 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon, ChevronUpDownIcon } from "@heroicons/re
 import { BuyerOrder } from "@prisma/client";
 import { formatCurrency } from "@/lib/formatters";
 
-type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null } };
+type OrderWithBuyer = BuyerOrder & { buyer: { fullName: string | null; id: string } };
 
 // Tabla que lista las ultimas ordenes de compra concretadas y su desglose financiero.
 export default function TransactionsTable({ 
@@ -17,12 +17,12 @@ export default function TransactionsTable({
 }) {
     return (
         <div>
-            <h4 className="text-md font-bold text-gray-900 mb-3 border-b border-gray-200 pb-2">Últimas Transacciones</h4>
             <div className="bg-white rounded-2xl border border-gray-200 overflow-auto shadow-sm max-h-[400px]">
                 <table className="w-full text-left text-sm">
                     <thead className="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
                         <tr>
                             {[
+                                { id: "orden", label: "ID Orden", align: "left" },
                                 { id: "fecha", label: "Fecha", align: "left" },
                                 { id: "comprador", label: "Comprador", align: "left" },
                                 { id: "estado", label: "Estado", align: "left" },
@@ -51,7 +51,7 @@ export default function TransactionsTable({
                     <tbody className="divide-y divide-gray-100">
                         {recentPaidOrders.length === 0 ? (
                             <tr>
-                                <td colSpan={4} className="px-5 py-8 text-center text-gray-400 font-medium">
+                                <td colSpan={5} className="px-5 py-8 text-center text-gray-400 font-medium">
                                     Aún no se han registrado transacciones.
                                 </td>
                             </tr>
@@ -71,10 +71,18 @@ export default function TransactionsTable({
 
                                 return (
                                     <tr key={order.id} className="hover:bg-gray-50/80 transition-colors">
-                                        <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
-                                            {new Date(order.createdAt).toLocaleDateString("es-AR", { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                        <td className="px-5 py-4 text-[11.5px] font-mono text-gray-500 whitespace-nowrap">
+                                            {order.id}
                                         </td>
-                                        <td className="px-5 py-4 font-bold text-gray-900">{order.buyer.fullName || "*No definido*"}</td>
+                                        <td className="px-5 py-4 text-gray-500 font-medium whitespace-nowrap">
+                                            {new Date(order.createdAt).toLocaleString("es-AR", { day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                                        </td>
+                                        <td className="px-5 py-4 font-bold text-gray-900">
+                                            <div>{order.buyer.fullName || "*No definido*"}</div>
+                                            <div className="text-[11px] font-mono text-gray-500 font-normal mt-0.5">
+                                                {order.buyer.id}
+                                            </div>
+                                        </td>
                                         <td className="px-5 py-4 whitespace-nowrap">
                                             <span className={`px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold rounded-lg border ${statusColor}`}>
                                                 {statusLabel}

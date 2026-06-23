@@ -7,16 +7,16 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-
+  
   return withSuperadminAndBuyer(request, id, async (buyer) => {
-    const updatedBuyer = await prisma.buyerProfile.update({
+    await prisma.buyerProfile.update({
       where: { id: buyer.id },
-      data: { isActive: !buyer.isActive },
+      data: { defaultShippingAddress: null, defaultPostalCode: null },
     });
 
     return NextResponse.json({
       success: true,
-      data: updatedBuyer,
+      message: "Formulario de envío reseteado correctamente.",
     });
   });
 }

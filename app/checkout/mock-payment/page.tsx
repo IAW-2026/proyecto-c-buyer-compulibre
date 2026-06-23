@@ -1,3 +1,5 @@
+// TODO (Etapa 3): Eliminar toda esta página de simulación una vez que la integración real
+// con la Payments App esté 100% operativa.
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";

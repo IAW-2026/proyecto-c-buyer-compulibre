@@ -9,14 +9,18 @@ export async function POST(
   const { id } = await params;
 
   return withSuperadminAndBuyer(request, id, async (buyer) => {
-    const updatedBuyer = await prisma.buyerProfile.update({
-      where: { id: buyer.id },
-      data: { isActive: !buyer.isActive },
-    });
+    await prisma.$transaction([
+      prisma.buyerOrder.deleteMany({ where: { buyerId: buyer.id } }),
+      prisma.cart.deleteMany({ where: { buyerId: buyer.id } }),
+      prisma.buyerProfile.update({
+        where: { id: buyer.id },
+        data: { defaultShippingAddress: null, defaultPostalCode: null },
+      }),
+    ]);
 
     return NextResponse.json({
       success: true,
-      data: updatedBuyer,
+      message: "Todos los datos del comprador fueron reseteados correctamente.",
     });
   });
 }

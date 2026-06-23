@@ -9,14 +9,13 @@ export async function POST(
   const { id } = await params;
 
   return withSuperadminAndBuyer(request, id, async (buyer) => {
-    const updatedBuyer = await prisma.buyerProfile.update({
-      where: { id: buyer.id },
-      data: { isActive: !buyer.isActive },
+    await prisma.buyerOrder.deleteMany({
+      where: { buyerId: buyer.id },
     });
 
     return NextResponse.json({
       success: true,
-      data: updatedBuyer,
+      message: "Historial de órdenes eliminado correctamente.",
     });
   });
 }

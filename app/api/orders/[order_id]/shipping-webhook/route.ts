@@ -1,84 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { Prisma } from "@prisma/client";
-import { validateWebhookAndGetOrder } from "@/lib/utils/webhook";
-import { ShipmentStatus } from "@/types";
-
-interface ShippingWebhookBody {
-  trackingId?: string;
-  courier?: string;
-  status?: ShipmentStatus;
-}
+import { BuyerOrderStatus } from "@prisma/client";
+import { validateInboundWebhookToken } from "@/lib/auth";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ order_id: string }> }
 ) {
   try {
+    // Validación del Token M2M
+    if (!validateInboundWebhookToken(request)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "UNAUTHORIZED",
+          message: "No autorizado. Token inválido o ausente.",
+        },
+        { status: 401 }
+      );
+    }
+
     const { order_id } = await params;
-    
-    const validation = await validateWebhookAndGetOrder(request, order_id);
-    if (validation.errorResponse) return validation.errorResponse;
-    const { order } = validation;
+    const body = await request.json();
 
-    const body = (await request.json()) as ShippingWebhookBody;
-    const { trackingId, courier, status: incomingStatus } = body;
+    const { trackingId, courier, status } = body;
 
-    if (!incomingStatus || !["LABEL_CREATED", "IN_TRANSIT", "DELIVERED"].includes(incomingStatus)) {
+    if (!trackingId || !courier || !status) {
       return NextResponse.json(
-        { success: false, error: "INVALID_STATUS", message: "El estado de envío provisto es inválido o no reconocido" },
+        {
+          success: false,
+          error: "BAD_REQUEST",
+          message: "Faltan campos obligatorios en el body del request.",
+        },
         { status: 400 }
       );
     }
 
-    // trackingId es obligatorio cuando se crea la etiqueta
-    if (incomingStatus === "LABEL_CREATED" && !trackingId) {
-      return NextResponse.json(
-        { success: false, error: "MISSING_TRACKING_ID", message: "trackingId es requerido cuando el estado es LABEL_CREATED" },
-        { status: 400 }
-      );
-    }
-
-    // Idempotencia para envíos
-    // 1. Si es LABEL_CREATED y ya tenemos el trackingId
-    if (incomingStatus === 'LABEL_CREATED' && order.trackingId) {
-      return NextResponse.json(
-        { success: true, message: "Already processed" },
-        { status: 200 }
-      );
-    }
-
-    // 2. Si es IN_TRANSIT o DELIVERED y ya tenemos ese mismo estado guardado como shipmentStatus
-    if ((incomingStatus === 'IN_TRANSIT' || incomingStatus === 'DELIVERED') && order.shipmentStatus === incomingStatus) {
-      return NextResponse.json(
-        { success: true, message: "Already processed" },
-        { status: 200 }
-      );
-    }
-
-    // Actualizar datos de envío
-    const updateData: Prisma.BuyerOrderUpdateInput = {
-      courier,
-      shipmentStatus: incomingStatus
-    };
-
-    if (incomingStatus === 'LABEL_CREATED') {
-      updateData.trackingId = trackingId;
-      updateData.status = 'SHIPPED'; // Cambia el estado general a SHIPPED
-    } else if (incomingStatus === 'DELIVERED') {
-      updateData.status = 'DELIVERED'; // Cierra el ciclo de la orden
-    }
-
-    await prisma.buyerOrder.update({
+    // Buscar la orden
+    const order = await prisma.buyerOrder.findUnique({
       where: { id: order_id },
-      data: updateData
     });
 
-    return NextResponse.json({ success: true });
+    if (!order) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "NOT_FOUND",
+          message: "La orden especificada no existe en la base de datos.",
+        },
+        { status: 404 }
+      );
+    }
+
+    // Mapeo del estado logístico al estado de la orden
+    let newOrderStatus: BuyerOrderStatus | undefined;
+    if (status === "DELIVERED") {
+      newOrderStatus = "DELIVERED";
+    } else if (status === "IN_TRANSIT" || status === "LABEL_CREATED") {
+      newOrderStatus = "SHIPPED";
+    }
+
+    // Actualizar la orden
+    await prisma.buyerOrder.update({
+      where: { id: order_id },
+      data: {
+        trackingId,
+        courier,
+        shipmentStatus: status,
+        ...(newOrderStatus ? { status: newOrderStatus } : {}),
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+    });
   } catch (error) {
-    console.error("Error procesando shipping-webhook:", error);
+    console.error("Error en shipping-webhook:", error);
     return NextResponse.json(
-      { success: false, error: "INTERNAL_SERVER_ERROR", message: "Error interno" },
+      {
+        success: false,
+        error: "INTERNAL_SERVER_ERROR",
+        message: "Error interno al procesar la actualización. Intente nuevamente.",
+      },
       { status: 500 }
     );
   }

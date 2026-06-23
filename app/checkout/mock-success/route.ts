@@ -1,3 +1,4 @@
+// TODO (Etapa 3): Eliminar esta ruta de simulación cuando se elimine mock-payment.
 import { NextRequest, NextResponse } from "next/server";
 import { redirect } from "next/navigation";
 
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   const appUrl = request.nextUrl.origin;
-  const tokenToSend = process.env.SERVICE_TOKEN ?? "";
+  const tokenToSend = process.env.BUYER_API_KEY ?? "";
   console.log(`[MOCK-SUCCESS DEBUG] Intentando enviar token: '${tokenToSend}'`);
 
   try {
@@ -26,8 +27,7 @@ export async function GET(request: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Incluido para estar preparado para Etapa 3
-          "x-service-token": tokenToSend,
+          "x-api-key": tokenToSend,
           // Reenviamos las cookies del navegador para sortear la protección de Vercel Preview
           ...(request.headers.get("cookie") ? { "Cookie": request.headers.get("cookie") as string } : {}),
         },
