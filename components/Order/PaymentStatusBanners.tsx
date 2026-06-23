@@ -55,14 +55,6 @@ export default function PaymentStatusBanners({
               Tu orden está reservada, pero el pago no se ha completado. Podés continuar desde donde dejaste.
             </p>
           </div>
-          {externalTransactionId ? (
-            <a
-              href={`/checkout/mock-payment?txn=${externalTransactionId}&order_id=${orderId}&amount=${totalAmount}`}
-              className="mt-2 sm:mt-0 inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-700 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Completar pago
-            </a>
-          ) : null}
         </div>
       )}
     </>

@@ -153,12 +153,12 @@ export default async function OrdersPage() {
                   {/* Botón extra en caso de pago pendiente (z-20 para ser clickeable) */}
                   {order.status === "PENDING_PAYMENT" && order.externalTransactionId && (
                     <div className="mt-2 sm:mt-0 sm:ml-auto relative z-20 shrink-0 w-full sm:w-auto">
-                      <a
-                        href={`/checkout/mock-payment?txn=${order.externalTransactionId}&order_id=${order.id}&amount=${order.totalAmount.toNumber()}`}
+                      <Link
+                        href={`/orders/${order.id}`}
                         className="inline-block w-full sm:w-auto text-center rounded-lg bg-[#FC7A1E] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#e66a15] hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        Pagar ahora
-                      </a>
+                        Completar pago
+                      </Link>
                     </div>
                   )}
                 </div>

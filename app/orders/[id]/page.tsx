@@ -19,6 +19,7 @@ import {
 import PaymentStatusBanners from "@/components/Order/PaymentStatusBanners";
 import ShipmentTimeline, { STEP_ORDER } from "@/components/Order/ShipmentTimeline";
 import OrderProductsList from "@/components/Order/OrderProductsList";
+import PendingPaymentActions from "./PendingPaymentActions";
 import { formatDate } from "@/lib/formatters";
 
 // ─── Mapas de UI ──────────────────────────────────────────────────────────────
@@ -129,6 +130,11 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
         orderId={order.id}
         totalAmount={order.totalAmount.toNumber()}
       />
+
+      {/* Botones de acción para pago pendiente */}
+      {order.status === "PENDING_PAYMENT" && (
+        <PendingPaymentActions orderId={order.id} />
+      )}
 
       {/* Encabezado de la orden */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
