@@ -5,7 +5,6 @@ import { prisma } from "@/lib/db/prisma";
 import type { Metadata } from "next";
 import type { BuyerOrderStatus } from "@prisma/client";
 import type { ShipmentStatus } from "@/types";
-import ShippingSimulationPanel from "./ShippingSimulationPanel";
 import {
   ClockIcon,
   CheckCircleIcon,
@@ -78,12 +77,8 @@ export async function generateMetadata({ params }: OrderDetailPageProps): Promis
 }
 
 export default async function OrderDetailPage({ params, searchParams }: OrderDetailPageProps) {
-  const { userId, sessionClaims } = await auth();
+  const { userId } = await auth();
   if (!userId) redirect("/sign-in");
-
-  const roles =
-    (sessionClaims?.publicMetadata as { roles?: string[] })?.roles ?? [];
-  const isAdmin = roles.includes("admin");
 
   const { id } = await params;
   const { success } = await searchParams;
@@ -155,15 +150,6 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       </div>
 
       <div className="space-y-5">
-        {/* Panel de simulación de envío — solo admins */}
-        {isAdmin && (
-          <ShippingSimulationPanel
-            orderId={order.id}
-            orderStatus={order.status}
-            shipmentStatus={currentShipmentStatus}
-          />
-        )}
-
         {/* ── Sección de envío (arriba del todo) ── */}
         <ShipmentTimeline
           order={order}
