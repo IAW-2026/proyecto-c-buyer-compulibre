@@ -15,7 +15,7 @@ export async function initPayment(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": process.env.PAYMENTS_API_KEY!,
+      "x-api-key": process.env.BUYER_API_KEY!,
     },
     body: JSON.stringify(request),
   });
