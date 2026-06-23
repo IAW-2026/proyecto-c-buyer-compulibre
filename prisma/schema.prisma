@@ -55,6 +55,7 @@ model BuyerOrder {
   totalAmount           Decimal
   status                BuyerOrderStatus @default(PENDING_PAYMENT)
   externalTransactionId String? // referencia a Payments App, null hasta que se inicia el pago
+  checkoutUrl           String? // Link de la pasarela para reanudar el pago
   trackingId            String? // referencia a Shipping App, null hasta el despacho
   courier               String? // Snapshot logístico recibido por webhook
   shipmentStatus        String? // (LABEL_CREATED, IN_TRANSIT, DELIVERED),  ultimo estado recibido de Shipping App

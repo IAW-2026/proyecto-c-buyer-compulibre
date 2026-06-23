@@ -23,10 +23,8 @@ const CONDITIONS = [
   { value: "REFURBISHED", label: "Reacondicionado" },
 ];
 
-// TODO (Etapa 3): Estas marcas y mapeos están hardcodeados para la Etapa 2 (Mocks).
-// En la Etapa 3, el endpoint GET /api/products del Seller debería retornar un objeto "facets" o "aggregations"
-// que contenga dinámicamente las marcas disponibles en la BD (usando Prisma .groupBy) basándose en la categoría actual.
-// El frontend deberá recibir estas marcas como props o del estado global y reemplazar `ALL_BRANDS` y `BRANDS_BY_CATEGORY`.
+// En la Etapa 3, el endpoint ahora retorna dinámicamente las marcas disponibles en la BD (usando prisma) basándose en la categoría actual.
+// El frontend recibe estas marcas como props y reemplaza `ALL_BRANDS` y `BRANDS_BY_CATEGORY`.
 const ALL_BRANDS = [
   "AMD", "ASUS", "Corsair", "Deepcool", "Gigabyte", "Intel", 
   "Kingston", "LG", "MSI", "NVIDIA", "NZXT", "Samsung"
@@ -154,10 +152,16 @@ function FilterSection({
 // -------------------------------------------------------------
 export default function ProductFilters({ 
   isMobileView = false,
-  maxAllowedPrice = 3000000 
+  maxAllowedPrice = 3000000,
+  dynamicCategories = null,
+  dynamicBrands = null,
+  dynamicBrandsByCategory = null
 }: { 
   isMobileView?: boolean;
   maxAllowedPrice?: number;
+  dynamicCategories?: { value: string, label: string }[] | null;
+  dynamicBrands?: { value: string, label: string }[] | null;
+  dynamicBrandsByCategory?: Record<string, { value: string, label: string }[]> | null;
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -323,15 +327,20 @@ export default function ProductFilters({
 
   const idPrefix = isMobileView ? "mobile-" : "desktop-";
 
+  // Categorías y Marcas dinámicas vs fallback
+  const categoriesList = dynamicCategories || CATEGORIES;
+  const allBrandsList = dynamicBrands || ALL_BRANDS;
+  const brandsByCategoryList = dynamicBrandsByCategory || BRANDS_BY_CATEGORY;
+
   // Marcas disponibles según la categoría seleccionada
   const availableBrands = currentCategory 
-    ? (BRANDS_BY_CATEGORY[currentCategory] || ALL_BRANDS)
-    : ALL_BRANDS;
+    ? (brandsByCategoryList[currentCategory] || allBrandsList)
+    : allBrandsList;
 
   // Lógica de % para pintar el Dual Slider
   const getPercent = useCallback(
     (value: number) => Math.round(((value - MIN_ALLOWED) / (MAX_ALLOWED - MIN_ALLOWED)) * 100),
-    []
+    [MIN_ALLOWED, MAX_ALLOWED]
   );
   const minPercent = getPercent(sliderMin);
   const maxPercent = getPercent(sliderMax);
@@ -353,10 +362,10 @@ export default function ProductFilters({
         </div>
       )}
 
-      {/* 1. Categorías */}
+      {/*  Categorías */}
       <FilterSection 
         title="Categoría"
-        options={CATEGORIES}
+        options={categoriesList}
         selectedValue={currentCategory}
         onSelect={(val) => toggleSingleValue("category", val)}
         paramName="category"
@@ -365,7 +374,7 @@ export default function ProductFilters({
 
       <div className="h-px w-full bg-gray-300 my-8" />
 
-      {/* 2. Marcas (Dinámico según Categoría) */}
+      {/* FUNCIONALIDAD FUTURA: La seller app aún no soporta filtrado por marcas
       <FilterSection 
         title="Marca"
         options={availableBrands}
@@ -376,8 +385,9 @@ export default function ProductFilters({
       />
 
       <div className="h-px w-full bg-gray-300 my-8" />
+      */}
 
-      {/* 3. Condición */}
+      {/*  Condición */}
       <FilterSection 
         title="Condición"
         options={CONDITIONS}
@@ -389,7 +399,7 @@ export default function ProductFilters({
 
       <div className="h-px w-full bg-gray-300 my-8" />
 
-      {/* 4. Precio (Dual Range Slider) */}
+      {/*  Precio (Dual Range Slider) */}
       <div>
         <h3 className="mb-6 text-sm font-semibold uppercase tracking-wider text-gray-500">
           Precio (ARS)
