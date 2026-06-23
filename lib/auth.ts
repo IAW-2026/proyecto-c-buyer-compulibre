@@ -17,7 +17,16 @@ function validateToken(request: Request, headerName: string, expectedToken: stri
  * Cualquier app que llame a nuestros webhooks debe enviarnos nuestra propia llave.
  */
 export function validateInboundWebhookToken(request: Request): boolean {
-  return validateToken(request, "x-api-key", process.env.BUYER_API_KEY);
+  const token = request.headers.get("x-api-key");
+  if (!token) return false;
+
+  const validTokens = [
+    process.env.BUYER_API_KEY,
+    process.env.PAYMENTS_API_KEY,
+    process.env.SHIPPING_API_KEY
+  ].filter(Boolean);
+
+  return validTokens.includes(token);
 }
 
 /**

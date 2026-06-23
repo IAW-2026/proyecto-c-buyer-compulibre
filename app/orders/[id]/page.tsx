@@ -132,7 +132,7 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
       />
 
       {/* Botones de acción para pago pendiente */}
-      {order.status === "PENDING_PAYMENT" && (
+      {order.status === "PENDING_PAYMENT" && success !== "true" && (
         <PendingPaymentActions orderId={order.id} />
       )}
 
