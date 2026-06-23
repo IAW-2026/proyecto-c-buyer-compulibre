@@ -55,7 +55,8 @@ export async function POST(
       );
     }
 
-    if (String(status).toUpperCase() === "APPROVED") {
+    const normalizedStatus = String(status).toUpperCase();
+    if (normalizedStatus === "APPROVED" || normalizedStatus === "PAID") {
       // Actualizar Orden y Carrito en una transacción
       await prisma.$transaction(async (tx) => {
         await tx.buyerOrder.update({
