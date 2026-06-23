@@ -94,6 +94,8 @@ async function main() {
         createdAt: createdAt,
         updatedAt: createdAt,
         externalTransactionId: orderStatus !== 'PENDING_PAYMENT' ? `txn_seed_${i}` : null,
+        // NOTA ETAPA 3: Estos trackingIds son simulados. Al redirigir a la Shipping App mostrarán "No encontrado" 
+        // a menos que se coordinen los seeds con la comisión logística.
         trackingId: ['SHIPPED', 'DELIVERED'].includes(orderStatus) ? `TRK-SEED-${i}` : null,
         courier: ['SHIPPED', 'DELIVERED'].includes(orderStatus) ? 'Andreani' : null,
         shipmentStatus: orderStatus === 'DELIVERED' ? 'DELIVERED' : orderStatus === 'SHIPPED' ? 'IN_TRANSIT' : null,

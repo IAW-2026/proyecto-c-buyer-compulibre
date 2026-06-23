@@ -2,13 +2,16 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
-import { getProductById } from "@/lib/mocks/seller-app";
-import ProductBuyBox from "./ProductBuyBox";
+import { getProductById } from "@/lib/services/seller-app";
+import ProductBuyBox from "@/components/ProductBuyBox";
 import ProductImageGallery from "@/components/ProductImageGallery";
-import { formatCategory, formatCondition } from "@/lib/formatters";
+import { getCartSnapshot } from "@/lib/utils/cart-snapshot";
+import ProductBreadcrumbs from "@/components/ProductBreadcrumbs";
+import ProductFeatures from "@/components/ProductFeatures";
 import { ProductImage } from "@/types";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import Footer from "@/components/Footer";
+import ExpandableTitle from "@/components/ExpandableTitle";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -43,6 +46,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
   ]);
 
   const hasItemsInCart = (cart?.items?.length || 0) > 0;
+  const cartSellers = cart?.items ? Array.from(new Set(cart.items.map(item => item.sellerId))) : [];
+
+  const cartSnapshot = await getCartSnapshot(cart);
 
   if (!product) {
     notFound();
@@ -55,22 +61,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <>
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
-      <nav className="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold text-[#6B7280] sm:mb-6 sm:gap-2">
-        <Link href="/products" className="transition hover:text-[#485696]">
-          Inicio
-        </Link>
-        <span>/</span>
-        <Link
-          href={`/products?category=${encodeURIComponent(product.category)}`}
-          className="transition hover:text-[#485696]"
-        >
-          {formatCategory(product.category)}
-        </Link>
-        <span>/</span>
-        <span className="flex-1 truncate text-[#1F2937]" title={product.name}>
-          {product.name}
-        </span>
-      </nav>
+      <ProductBreadcrumbs productName={product.name} category={product.category} />
 
       {/* Volver */}
       <div className="mb-4 sm:mb-6">
@@ -99,12 +90,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="lg:sticky lg:top-24 flex flex-col pt-2 lg:pt-0">
             
             {/* Título */}
-            <h1 
-              className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4 wrap-break-word line-clamp-3"
-              title={product.name}
-            >
-              {product.name}
-            </h1>
+            <ExpandableTitle title={product.name} />
 
             {/* Descripción */}
             <p className="text-base text-gray-600 mb-8 leading-relaxed wrap-break-word line-clamp-6">
@@ -112,21 +98,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </p>
 
             {/* Buy Box (Precio, Stock, Selector y Botones) */}
-            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} />
+            <ProductBuyBox product={product} hasItemsInCart={hasItemsInCart} cartSellers={cartSellers} cartSnapshot={cartSnapshot} />
 
             {/* Detalles Adicionales */}
-            <div className="mt-12 border-t border-gray-200 pt-8">
-              <h3 className="font-medium text-[#485696] mb-4">
-                Características Generales
-              </h3>
-              <div className="text-sm text-gray-600">
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Marca: {product.brand}</li>
-                  <li>Categoría: {formatCategory(product.category)}</li>
-                  <li>Condición: {formatCondition(product.condition)}</li>
-                </ul>
-              </div>
-            </div>
+            <ProductFeatures product={product} />
           </div>
         </div>
       </div>

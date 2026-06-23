@@ -98,12 +98,12 @@ export interface PaymentInitRequest {
   currency: string;
   buyerId: string;
   buyerAddress: string;
-  buyerCodigoPostal: string;
+  buyerCodigoPostal: number;
   items: Array<{
     productId: string;
     quantity: number;
     name: string;
-    unitPrice: number;
+    unit_price: number;
     sellerId: string;
   }>;
 }

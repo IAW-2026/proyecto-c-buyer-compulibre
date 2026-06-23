@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { getBuyerProfile } from "@/lib/db/profile";
-import { getProductsByIds } from "@/lib/mocks/seller-app";
+import { getProductsByIds } from "@/lib/services/seller-app";
 import CheckoutConfirmButton from "./CheckoutConfirmButton";
+import { calculateCartTotals } from "@/lib/utils/cart";
+import { formatCurrency } from "@/lib/formatters";
 import type { Metadata } from "next";
 import { ArrowLeftIcon, MapPinIcon, TruckIcon } from "@heroicons/react/24/outline";
 
@@ -13,13 +15,6 @@ export const metadata: Metadata = {
   title: "Confirmar Compra — CompuLibre",
   description: "Revisá el resumen de tu compra antes de proceder al pago.",
 };
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(value);
 
 export default async function CheckoutPage() {
   const { userId } = await auth();
@@ -64,13 +59,7 @@ export default async function CheckoutPage() {
     };
   });
 
-  const subtotal = hydratedItems.reduce(
-    (sum: number, i: typeof hydratedItems[0]) => sum + Number(i.cachedPrice) * i.quantity,
-    0
-  );
-  const shippingCost = subtotal > 300000 ? 0 : 4999;
-  const total = subtotal + shippingCost;
-  const totalItemsCount = hydratedItems.reduce((sum: number, i: typeof hydratedItems[0]) => sum + i.quantity, 0);
+  const { subtotal, shippingCost, totalAmount: total, totalItemsCount } = calculateCartTotals(hydratedItems);
 
   return (
     <div className="min-h-[calc(100vh-72px)] bg-gray-50/50 pt-8 pb-16">

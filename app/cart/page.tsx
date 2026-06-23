@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getBuyerProfile } from "@/lib/db/profile";
-import { getProductsByIds } from "@/lib/mocks/seller-app";
+import { getProductsByIds } from "@/lib/services/seller-app";
 import CartContainer from "./CartContainer";
 import { HydratedCartItem } from "./types";
 
@@ -57,7 +57,7 @@ export default async function CartPage() {
         sellerId: item.sellerId,
         // Hidratación desde la API mock de la Seller App:
         sellerName: productData?.sellerName ?? "Vendedor Desconocido",
-        imageUrl: productData?.image ?? "https://placehold.co/400x300?text=Sin+Imagen",
+        imageUrl: productData?.image || "",
         stock: productData?.stock ?? 0,
         condition: productData?.condition ?? "new",
       };

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ArchiveBoxIcon, ShoppingCartIcon, MagnifyingGlassIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, ShoppingCartIcon, MagnifyingGlassIcon, ShieldCheckIcon } from "@heroicons/react/24/outline";
 import NotificationBell from "@/components/NotificationBell";
 import { Suspense, useState, useRef, useEffect } from "react";
 
@@ -113,20 +113,19 @@ export default function Navbar() {
 
             <Link
               href="/orders"
-              aria-label="Ver mis órdenes"
+              aria-label="Ver mis compras"
               className="flex items-center gap-1.5 rounded-full md:rounded-lg px-2.5 py-2 sm:px-3 text-sm font-medium text-white transition hover:bg-white/15 active:bg-white/20"
             >
-              <ArchiveBoxIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
-              <span className="hidden md:inline">Mis órdenes</span>
+              <ShoppingBagIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
+              <span className="hidden md:inline">Mis Compras</span>
             </Link>
             
             <Link
               href="/cart"
               aria-label="Ver carrito"
-              className="flex items-center gap-1.5 rounded-full md:rounded-lg px-2.5 py-2 sm:px-3 text-sm font-medium text-white transition hover:bg-white/15 active:bg-white/20"
+              className="flex items-center justify-center rounded-full p-2 sm:p-2.5 text-white transition hover:bg-white/15 active:bg-white/20"
             >
-              <ShoppingCartIcon className="h-5 w-5 sm:h-4 sm:w-4" aria-hidden="true" />
-              <span className="hidden md:inline">Carrito</span>
+              <ShoppingCartIcon className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
             </Link>
 
             {/* Separador */}

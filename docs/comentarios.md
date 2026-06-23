@@ -24,5 +24,4 @@
 - **Resolución dinámica de URLs para webhooks internos en vercel:** Para simular las llamadas webhook en Vercel, se implementó la extracción dinámica mediante request.nextUrl.origin. Esto garantiza que las peticiones entre rutas (Server-to-Server) nunca fallen por inconsistencias de dominio (ej. Custom Domains vs Preview URLs).
 
 - **Evasión de la vercel authentication protection en webhooks simulados:** Durante las pruebas en Vercel, la plataforma bloquea peticiones anónimas. Para resolver que los mocks internos (mock-success, mock-failure) pudieran llamar al webhook de la API sin ser bloqueados por el firewall de Vercel, se implementó el reenvío dinámico de la cabecera Cookie del cliente hacia la petición fetch interna.
-  
 - Las notificaciones requieren F5 para reiniciarlas y ademas las ordenes en mis ordenes no son posible eliminarlas por lo usuarios

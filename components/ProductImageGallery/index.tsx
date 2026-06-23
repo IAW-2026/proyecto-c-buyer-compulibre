@@ -3,7 +3,7 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { ChevronLeftIcon, ChevronRightIcon, PhotoIcon } from "@heroicons/react/24/outline";
 import type { ProductImage } from "@/types";
 
 interface ProductImageGalleryProps {
@@ -25,7 +25,10 @@ export default function ProductImageGallery({
   images,
   productName,
 }: ProductImageGalleryProps) {
-  const hasMultiple = images.length > 1;
+  const displayImages = images.length > 0 
+    ? images 
+    : [{ id: "placeholder", imageUrl: "" } as ProductImage];
+  const hasMultiple = displayImages.length > 1;
 
   // ── Embla principal ──────────────────────────────────────────────────────
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -88,21 +91,27 @@ export default function ProductImageGallery({
       >
         {/* ── Contenedor de slides ── */}
         <div className="flex h-full">
-          {images.map((img, i) => (
+          {displayImages.map((img, i) => (
             <div
               key={img.id}
               className="relative h-full w-full shrink-0"
               style={{ flex: "0 0 100%" }}
             >
-              <Image
-                src={img.imageUrl}
-                alt={`${productName} — imagen ${i + 1}`}
-                fill
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                className="object-contain p-2 sm:p-4"
-                priority={i === 0}
-                unoptimized
-              />
+              {img.imageUrl ? (
+                <Image
+                  src={img.imageUrl}
+                  alt={`${productName} — imagen ${i + 1}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="object-contain p-2 sm:p-4"
+                  priority={i === 0}
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-50">
+                  <PhotoIcon className="h-20 w-20 text-gray-300" aria-hidden="true" />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -110,7 +119,7 @@ export default function ProductImageGallery({
         {/* Contador numérico — siempre visible en mobile, hover en desktop */}
         {hasMultiple && (
           <span className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-sm sm:opacity-0 sm:transition-opacity sm:duration-300 sm:group-hover:opacity-100">
-            {activeIndex + 1} / {images.length}
+            {activeIndex + 1} / {displayImages.length}
           </span>
         )}
 
@@ -160,7 +169,7 @@ export default function ProductImageGallery({
           role="tablist"
           aria-label="Imágenes del producto"
         >
-          {images.map((_, i) => (
+          {displayImages.map((_, i) => (
             <button
                key={i}
                role="tab"
@@ -180,7 +189,7 @@ export default function ProductImageGallery({
       {/* ── Miniaturas — solo en desktop ── */}
       {hasMultiple && (
         <div className="hidden sm:flex gap-4 overflow-x-auto py-2 px-1 -mx-1">
-          {images.map((img, i) => (
+          {displayImages.map((img, i) => (
             <button
               key={img.id}
               onClick={() => scrollTo(i)}
@@ -198,14 +207,20 @@ export default function ProductImageGallery({
               `}
             >
               <span className="block relative h-full w-full">
-                <Image
-                  src={img.imageUrl}
-                  alt={`Miniatura ${i + 1}`}
-                  fill
-                  sizes="112px"
-                  className="object-contain p-2"
-                  unoptimized
-                />
+                {img.imageUrl ? (
+                  <Image
+                    src={img.imageUrl}
+                    alt={`Miniatura ${i + 1}`}
+                    fill
+                    sizes="112px"
+                    className="object-contain p-2"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gray-50">
+                    <PhotoIcon className="h-8 w-8 text-gray-300" aria-hidden="true" />
+                  </div>
+                )}
               </span>
             </button>
           ))}

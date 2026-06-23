@@ -2,10 +2,10 @@
 
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
-import { initMockPayment } from "@/lib/mocks/payments-app";
+import { initPayment } from "@/lib/services/payments-app";
 import { getBuyerProfile } from "@/lib/db/profile";
+import { revalidatePath } from "next/cache";
 
 export interface CheckoutActionResult {
   success: false;
@@ -15,12 +15,6 @@ export interface CheckoutActionResult {
 
 /**
  * Server Action disparada por el botón "Confirmar y pagar" en /checkout.
- *
- * Crea la BuyerOrder, los BuyerOrderItem y marca el Cart como CONVERTED
- * dentro de una transacción Prisma atómica, luego llama al mock de Payments
- * para obtener la URL de la pasarela simulada.
- *
- * Retorna un error tipado si falla, o redirige directamente en caso de éxito.
  */
 export async function confirmOrderAction(): Promise<CheckoutActionResult> {
   const { userId } = await auth();
@@ -102,19 +96,71 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
   const shippingCost = totalAmount > 300000 ? 0 : 4999;
   const finalAmount = totalAmount + shippingCost;
 
-  // 5. Crear la orden y convertir el carrito en una transacción atómica
-  let order: { id: string };
+  // 5. Verificar si ya existe una orden PENDING_PAYMENT para este carrito que tenga el mismo monto
+  const existingOrder = await prisma.buyerOrder.findFirst({
+    where: {
+      cartId: cart.id,
+      status: "PENDING_PAYMENT"
+    }
+  });
+
+  let orderId: string;
+  let isNewOrder = false;
+
+  if (existingOrder && Number(existingOrder.totalAmount) === finalAmount) {
+    // Reutilizar orden
+    orderId = existingOrder.id;
+  } else {
+    // Generar un nuevo ID de orden de forma segura
+    orderId = crypto.randomUUID();
+    isNewOrder = true;
+  }
+
+  // 6. Llamar a Payments App
+  let checkoutUrl: string;
+  let transactionId: string;
 
   try {
-    order = await prisma.$transaction(async (tx) => {
-      // Crear la BuyerOrder
-      const newOrder = await tx.buyerOrder.create({
+    const paymentResponse = await initPayment({
+      orderReference: orderId,
+      amount: finalAmount,
+      currency: "ARS",
+      buyerId: userId,
+      buyerAddress: profile.defaultShippingAddress,
+      buyerCodigoPostal: Number(profile.defaultPostalCode) || 0,
+      items: cart.items.map((item) => ({
+        productId: item.externalProductId,
+        quantity: item.quantity,
+        name: item.productName,
+        unit_price: Number(item.cachedPrice),
+        sellerId: item.sellerId,
+      })),
+    });
+
+    checkoutUrl = paymentResponse.checkoutUrl;
+    transactionId = paymentResponse.transactionId;
+  } catch (err) {
+    console.error("Error al iniciar el pago:", err);
+    return {
+      success: false,
+      error: "PAYMENT_INIT_ERROR",
+      message: "Error al conectar con el servicio de pagos. Intentá nuevamente.",
+    };
+  }
+
+  // 7. Si initPayment fue exitoso, guardamos la orden en la base de datos
+  try {
+    if (isNewOrder) {
+      await prisma.buyerOrder.create({
         data: {
+          id: orderId,
           buyerId: userId,
           sellerId,
           totalAmount: finalAmount,
           status: "PENDING_PAYMENT",
           cartId: cart.id,
+          externalTransactionId: transactionId,
+          checkoutUrl: checkoutUrl,
           items: {
             create: cart.items.map((item) => ({
               externalProductId: item.externalProductId,
@@ -124,13 +170,18 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
             })),
           },
         },
-        select: { id: true },
       });
-
-      return newOrder;
-    });
+    } else {
+      await prisma.buyerOrder.update({
+        where: { id: orderId },
+        data: {
+          externalTransactionId: transactionId,
+          checkoutUrl: checkoutUrl,
+        }
+      });
+    }
   } catch (err) {
-    console.error("Error al crear la orden:", err);
+    console.error("Error al guardar la orden en la BD:", err);
     return {
       success: false,
       error: "DB_ERROR",
@@ -138,35 +189,62 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
     };
   }
 
-  // 6. Llamar al mock de la Payments App
-  let checkoutUrl: string;
+  // 8. Redirigir al checkout URL (el carrito sigue intacto en ACTIVE)
+  redirect(checkoutUrl);
+}
 
+export async function resumePaymentAction(orderId: string): Promise<CheckoutActionResult> {
+  const { userId } = await auth();
+  if (!userId) {
+    return { success: false, error: "UNAUTHORIZED", message: "No autorizado." };
+  }
+
+  const order = await prisma.buyerOrder.findUnique({
+    where: { id: orderId },
+    include: { items: true, buyer: true }
+  });
+
+  if (!order || order.buyerId !== userId) {
+    return { success: false, error: "NOT_FOUND", message: "Orden no encontrada." };
+  }
+
+  if (order.status !== "PENDING_PAYMENT") {
+    return { success: false, error: "INVALID_STATUS", message: "La orden no está pendiente de pago." };
+  }
+
+  if (order.checkoutUrl) {
+    redirect(order.checkoutUrl);
+  }
+
+  let checkoutUrl: string;
   try {
-    const paymentResponse = await initMockPayment({
+    const paymentResponse = await initPayment({
       orderReference: order.id,
-      amount: finalAmount,
+      amount: Number(order.totalAmount),
       currency: "ARS",
       buyerId: userId,
-      buyerAddress: profile.defaultShippingAddress,
-      buyerCodigoPostal: profile.defaultPostalCode,
-      items: cart.items.map((item) => ({
+      buyerAddress: order.buyer.defaultShippingAddress || "",
+      buyerCodigoPostal: Number(order.buyer.defaultPostalCode) || 0,
+      items: order.items.map((item) => ({
         productId: item.externalProductId,
         quantity: item.quantity,
         name: item.productName,
-        unitPrice: Number(item.cachedPrice),
-        sellerId: item.sellerId,
+        unit_price: Number(item.unitPrice),
+        sellerId: order.sellerId,
       })),
     });
 
-    // 7. Guardar el transactionId en la orden
+    checkoutUrl = paymentResponse.checkoutUrl;
+
     await prisma.buyerOrder.update({
       where: { id: order.id },
-      data: { externalTransactionId: paymentResponse.transactionId },
+      data: {
+        externalTransactionId: paymentResponse.transactionId,
+        checkoutUrl: checkoutUrl,
+      }
     });
-
-    checkoutUrl = paymentResponse.checkoutUrl;
   } catch (err) {
-    console.error("Error al iniciar el pago mock:", err);
+    console.error("Error al reanudar el pago:", err);
     return {
       success: false,
       error: "PAYMENT_INIT_ERROR",
@@ -174,71 +252,37 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
     };
   }
 
-  // 8. Redirigir al checkout URL (fuera del try/catch para que Next.js lo maneje)
   redirect(checkoutUrl);
 }
 
-export async function simulateShippingAction(
-  orderId: string,
-  status: "LABEL_CREATED" | "IN_TRANSIT" | "DELIVERED"
-): Promise<{ success: boolean; error?: string; message?: string }> {
-  const { sessionClaims } = await auth();
-  const role = 
-    (sessionClaims?.publicMetadata as { role?: string })?.role || 
-    (sessionClaims?.metadata as { role?: string })?.role;
-
-  if (role !== "admin") {
-    return {
-      success: false,
-      error: "FORBIDDEN",
-      message: "No tenés permisos para realizar esta acción.",
-    };
+export async function cancelOrderAction(orderId: string): Promise<CheckoutActionResult | undefined> {
+  const { userId } = await auth();
+  if (!userId) {
+    return { success: false, error: "UNAUTHORIZED", message: "No autorizado." };
   }
 
-  // ── 2. Construir payload del webhook de envío ─────────────────────
-  const appUrl = 
-    process.env.NEXT_PUBLIC_APP_URL || 
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null) || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const trackingId = `TRK-MOCK-${Date.now()}`;
+  const order = await prisma.buyerOrder.findUnique({
+    where: { id: orderId }
+  });
 
-  const body: Record<string, string> = {
-    courier: "Andreani",
-    status,
-  };
-  if (status === "LABEL_CREATED") {
-    body.trackingId = trackingId;
+  if (!order || order.buyerId !== userId) {
+    return { success: false, error: "NOT_FOUND", message: "Orden no encontrada." };
   }
 
-  // ── 3. Llamar al shipping-webhook internamente ────────────────────
+  if (order.status !== "PENDING_PAYMENT") {
+    return { success: false, error: "INVALID_STATUS", message: "Solo se pueden cancelar órdenes pendientes." };
+  }
+
   try {
-    const res = await fetch(`${appUrl}/api/orders/${orderId}/shipping-webhook`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-service-token": process.env.SERVICE_TOKEN ?? "",
-      },
-      body: JSON.stringify(body),
+    await prisma.buyerOrder.update({
+      where: { id: orderId },
+      data: { status: "CANCELLED" }
     });
-
-    if (!res.ok) {
-      const err = await res.json();
-      console.error("simulateShippingAction error:", err);
-      return {
-        success: false,
-        error: "WEBHOOK_ERROR",
-        message: err?.message ?? "Error al simular el envío.",
-      };
-    }
-
-    revalidatePath(`/orders/${orderId}`);
-    return { success: true };
-  } catch (err) {
-    console.error("simulateShippingAction network error:", err);
-    return {
-      success: false,
-      error: "NETWORK_ERROR",
-      message: "Error de red al llamar al webhook de envío.",
-    };
+  } catch {
+    return { success: false, error: "DB_ERROR", message: "Error al cancelar la orden." };
   }
+
+  revalidatePath("/orders");
+  revalidatePath(`/orders/${orderId}`);
+  redirect("/orders");
 }
