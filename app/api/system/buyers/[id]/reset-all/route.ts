@@ -14,7 +14,7 @@ export async function POST(
       prisma.cart.deleteMany({ where: { buyerId: buyer.id } }),
       prisma.buyerProfile.update({
         where: { id: buyer.id },
-        data: { defaultShippingAddress: null, defaultPostalCode: null },
+        data: { fullName: "", defaultShippingAddress: null, defaultPostalCode: null },
       }),
     ]);
 
