@@ -1,130 +1,123 @@
 # Instrucciones de Evaluación
 
-## Flujo en la Interfaz Web:
+## Para el .env
 
-**Webhook de pagos (Payment App):**
+- Clerk URLs (Rutas de tu aplicación)
+   -   NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+   -   NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+   -   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/products
+   -   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/products
+
+- KEYS del proyecto:
+  -  SELLER_API_KEY=4ch79bsgnp9xj6dpu1f3wt16rnprhrxd
+  -  SHIPPING_API_KEY=296l1gzir92d2un7du8erbksou9f5xpf
+  -  PAYMENTS_API_KEY=0srf8e6kogjdla9fn04be73n9v13lg07
+  -  BUYER_API_KEY=3gd8fbza7huokb0pp4wb3hb369w6qxjf
+
+- Control Plane (superadmin) y Analytics Dashboard
+  -  ANALYTICS_API_KEY=1g7q3j6k8l9m0n2o3p4q5r6s7t8u9v0w
+  -  SUPERADMIN_API_KEY=5x6y7z8a9b0c1d2e3f4g5h6i7j8k9l0m
+ 
+- URL de Deploys
+  -  SELLER_APP_API_URL=https://proyecto-c-seller-compulibre.vercel.app/
+  -  PAYMENTS_APP_API_URL=https://proyecto-c-payments-compulibre.vercel.app/
+  -  SHIPPING_APP_API_URL=https://proyecto-c-shipping-compulibre.vercel.app/
+  -  NEXT_PUBLIC_SHIPPING_APP_URL=https://proyecto-c-shipping-compulibre.vercel.app/
+
+---
+
+## Seguridad — Autenticación M2M
+
+Todos los endpoints que reciben eventos externos están protegidos con autenticación M2M mediante el header `x-api-key`:
+
+| Endpoint | Header requerido | Keys aceptadas |
+|----------|-----------------|----------------|
+| `/api/orders/{id}/payment-webhook` | `x-api-key` | `BUYER_API_KEY`, `PAYMENTS_API_KEY` o `SHIPPING_API_KEY` |
+| `/api/orders/{id}/shipping-webhook` | `x-api-key` | `BUYER_API_KEY`, `PAYMENTS_API_KEY` o `SHIPPING_API_KEY` |
+| `/api/system/buyers/*` (Control Plane) | `x-api-key` | `SUPERADMIN_API_KEY` |
+| `/api/system/orders/*` (Control Plane) | `x-api-key` | `SUPERADMIN_API_KEY` |
+| `/api/system/metrics` (Analytics) | `x-api-key` | `ANALYTICS_API_KEY` |
+
+---
+
+## Cómo Testear el Flujo de Pago (Mercado Pago Sandbox)
 
 1. Inicia sesión con el usuario **Buyer**.
 2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido.
-3. El sistema te redirigirá a un **Simulador de Pagos** interno (mock). Aprueba o rechaza la transacción para disparar los webhooks y ver cómo se actualiza el estado de la orden en tiempo real.
-
-**Webhook de pagos (Shipping App):**
-
-1. Inicia sesión con el usuario **Admin**
-2. Agrega productos al carrito, completa tus datos de envío y confirma el pedido y confirme la compra en el mock de Payments.
-   (Este paso lo puede hacer con un usuario **Buyer** tambien)
-3. Con el usuario **Admin** dirijase a `/admin` y luego clicke en `Logística Operativa`
-4. Busque entre todas las órdenes una que coincida con el número de orden que se le brindó (ej: #ABCD1234), debe tener la etiqueta `PAID`.
-5. Clicke `Simular Despacho` para crear la etiqueta.
-6. Clicke `Simular en tránsito` para actualizar el estado a en tránsito.
-7. Clicke `Simular Entrega` para actualizar el estado a entregado.
+3. El sistema te redirigirá a  **Payments App**, la cual usa el sandbox de Mercado Pago.
+4. Siga las intrucciones de la `Guia de uso` de **Payments app** para el pago.
+5. Cuando se Aprueba o rechaza la transacción, se vera cómo se actualiza el estado de la orden en tiempo real.
+6. **OPCIONAL** si hace click en volver a la tienda en el sandbox de Mercado Pago, en Mis Compras saldra un botón para continuar con el pago ó cancelarlo en el detalle de la compra.
 
 
-## Instrucciones de Evaluación Local y Testing de APIs
+## Cómo Simular las Notificaciones de Envío (Shipping Webhooks)
 
-Para evaluarlo localmente probando la comunicación inter-servicios (webhooks) de forma manual utilizando herramientas como Thunder Client o Postman, debe tener en cuenta lo siguiente:
+1. Inicia sesión con el usuario **Buyer** y realice una compra con exito
+2. Con la **Shipping App** cree un tiquet y cambie el estado del envio a `IN_TRANSIT` / En Camino.
+3. Se podra ver que al usuario **Buyer** le llegara una notificación de que el envio se encuentra en transito.
+4. Luego denuevo con la **Shipping App** cambie el estado del envio a `DELIVERED` / Entregado.
+5. Se podra ver que al usuario **Buyer** le llegara una notificación de que le llego el paquete.
+En cualquier momento luego de que **Shipping App** cambie de estado, se puede ir al detalle de la compra y clickear en **Seguir envio en (courier)**, que redirigira a la página de **Shipping app** para ver el detalle del envio 
 
-1. Este proyecto utiliza **pnpm** como gestor de paquetes principal, por lo tanto se debe utilizar:
+
+### Alternativamente puede usar los comandos en la terminal, de la ejecución en local 
+
+- API KEY: SHIPPING_API_KEY=296l1gzir92d2un7du8erbksou9f5xpf
+- Reemplaze Order ID con el valor de la orden detallada en el URL del detalle de la compra realizada:
+   - *proyecto-c-buyer-compulibre.vercel.app/orders/{ORDER_ID}*
+- trackingId = "TRK-COMPU-TEST-01" ó si ya genero una etiqueta en Shipping app, use ese tracking id
+
+### Paso 1 — Simular "En tránsito"
+
+```powershell
+$body = @{
+    trackingId = "TRK-COMPU-TEST-01"
+    courier    = "Andreani"
+    status     = "IN_TRANSIT"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "https://proyecto-c-buyer-compulibre.vercel.app/api/orders/{ORDER_ID}/shipping-webhook" `
+    -Method Post `
+    -Headers @{ "x-api-key" = "296l1gzir92d2un7du8erbksou9f5xpf"; "Content-Type" = "application/json" } `
+    -Body $body
+```
+
+### Paso 2 — Simular "Entregado"
+
+```powershell
+$body = @{
+    trackingId = "TRK-COMPU-TEST-01"
+    courier    = "Andreani"
+    status     = "DELIVERED"
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Uri "https://proyecto-c-buyer-compulibre.vercel.app/api/orders/{ORDER_ID}/shipping-webhook" `
+    -Method Post `
+    -Headers @{ "x-api-key" = "296l1gzir92d2un7du8erbksou9f5xpf"; "Content-Type" = "application/json" } `
+    -Body $body
+```
+
+
+## Comentarios de Evaluación Local
+
+Este proyecto utiliza **pnpm** como gestor de paquetes principal, por lo tanto se debe utilizar:
 
    ```bash
    pnpm install
    ```
 
-2. Configura tus variables de entorno copiando el archivo de ejemplo:
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   _Asegúrate de definir un valor cualquiera para la variable `SERVICE_TOKEN`._
-
-3. Sincroniza la base de datos de Prisma:
-
-   ```bash
-   pnpm dlx prisma db push
-   ```
-
-4. Inicia el servidor de desarrollo:
-   ```bash
-   pnpm dev
-   ```
-
-> **Nota sobre seguridad de pnpm (v9+):** Si te aparece el error `[ERR_PNPM_IGNORED_BUILDS]`, ejecuta el comando `pnpm approve-builds`.
-
-## 2. Pruebas Manuales de APIs (Thunder Client / Postman)
-
-La Buyer App expone dos webhooks diseñados para reaccionar a eventos provenientes de las otras aplicaciones del ecosistema (Payments y Shipping).
-
-### Webhook de pagos (Payment App)
-
-Notifica a la Buyer App el resultado de un intento de pago.
-Para probar este webhook primero debes hacer una compra y en la pantalla de payments app en vez de tocar los botones del mock, guardas los valores de `transactionId` y `order_id`.
-
-- **Método:** `POST`
-- **URL:** `http://localhost:3000/api/orders/{TU_ORDER_ID}/payment-webhook`
-- **HTTP Header requeridos:**
-  - `x-service-token`: (El valor que hayas definido en la variable de entorno)
-  - `Content-Type`: `application/json`
-- **Body (JSON):**
-  ```json
-  {
-    "transactionId": "(TU_TRANSACTION_ID_GENERADA)",
-    "status": "APPROVED",
-    "paymentMethod": "credit_card"
-  }
-  ```
-  _Consideraciones:_ Los estados válidos de status son: `APPROVED`, `REJECTED`, o `CANCELLED`. Por seguridad, el `transactionId` que envíes debe coincidir exactamente con el ID de transacción que el sistema generó para esa orden; de lo contrario, la petición será rechazada con un error `409 Conflict`.
-
 ---
 
-### Webhook de envíos (Shipping App)
+## Limitaciones Conocidas
 
-Simula las actualizaciones logísticas del paquete. (La orden a actualizar debe estar previamente en estado pagado).
-Para probar este webhook primero debes realizar una compra y obten el `order_id`:
-
-**1° Crear etiqueta (marcar como despachado):**
-
-- **Método:** `POST`
-- **URL:** `http://localhost:3000/api/orders/{TU_ORDER_ID}/shipping-webhook`
-- **HTTP Header requeridos:**
-  - `x-service-token`: (El valor que hayas definido en la variable de entorno)
-  - `Content-Type`: `application/json`
-- **Body (JSON):**
-  ```json
-  {
-    "trackingId": "TRK-987654321", //cualquiera sirve
-    "courier": "Andreani", //cualquiera sirve
-    "status": "LABEL_CREATED"
-  }
-  ```
-
-**2° Actualizar a en tránsito:**
-
-- **Método:** `POST`
-- **URL:** `http://localhost:3000/api/orders/{TU_ORDER_ID}/shipping-webhook`
-- **HTTP Header requeridos:**
-  - `x-service-token`: (El valor que hayas definido en la variable de entorno)
-  - `Content-Type`: `application/json`
-- **Body (JSON):**
-  ```json
-  {
-    "courier": "Andreani",
-    "status": "IN_TRANSIT"
-  }
-  ```
-
-**3° Actualizar a entregado:**
-
-- **Método:** `POST`
-- **URL:** `http://localhost:3000/api/orders/{TU_ORDER_ID}/shipping-webhook`
-- **HTTP Header requeridos:**
-  - `x-service-token`: (El valor que hayas definido en la variable de entorno)
-  - `Content-Type`: `application/json`
-- **Body (JSON):**
-  ```json
-  {
-    "courier": "Andreani",
-    "status": "DELIVERED"
-  }
-  ```
-  _Consideraciones:_ Los estados válidos de status son: `LABEL_CREATED`, `IN_TRANSIT`, o `DELIVERED`. Cuando el estado es `LABEL_CREATED`, el campo `trackingId` es obligatorio. Para actualizaciones posteriores, basta con enviar el nuevo `status`, luego courier en 2° y 3° , aunque no sea obligatorio ponerlo, lo incluimos por seguridad.
+| Limitación | Detalle |
+|-----------|---------|
+| **Se elimino la notificación de LABEL_CREATED de Shipping app** |  Por decisión del equipo de Shipping App, el estado `LABEL_CREATED` no dispara notificación al comprador ni actualiza el timeline. Solo `IN_TRANSIT` y `DELIVERED` tienen efecto visible. |
+| **Stock no se descuenta** | La Buyer App consulta el stock a la Seller App para mostrarlo, pero no hace bloqueo. La reserva firme ocurre en el circuito de pago. Decisión arquitectónica acordada con el equipo. |
+| **Un solo vendedor por orden** | El carrito solo acepta productos de un mismo vendedor por orden. Intentar agregar productos de otro vendedor reemplaza el contenido del carrito. |
+| **Dirección inmutable post-perfil** | Una vez que el usuario guardó su dirección de envío por primera vez, no puede modificarla desde la UI (el campo queda bloqueado). Esto garantiza consistencia con las órdenes ya creadas. |
+| **Órdenes no eliminables por el usuario** | El historial de órdenes en `/orders` es de solo lectura para el comprador. Las órdenes solo pueden eliminarse desde el panel de Admin (`/api/system/buyers/{id}/reset-orders`). |
+| **Limpieza de notificaciones automática** | Se tomo la decision que el usuario mantenga notificaciones (con un limite de 15) pero que cada 30 dias se borren solas. |
+| **Multiples Keys Aceptadas para los webhooks** | Se tomo la decision de que se acepten cualquiera de las Keys definidas en el proyecto para asegurarse que en el testeo no ocurran errores, aunque deberia usarse solamente la key que corresponde. |
