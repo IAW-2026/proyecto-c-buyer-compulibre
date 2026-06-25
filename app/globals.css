@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* ── CompuLibre Design System ─────────────────────────────── */
+:root {
+  /* Paleta oficial */
+  --cl-primary:   #485696; /* Azul Tecnológico  — header, links, nav   */
+  --cl-cta:       #FC7A1E; /* Naranja Vibrante  — carrito, compra, CTA */
+  --cl-accent:    #F9C784; /* Amarillo Suave    — badges, alertas       */
+  --cl-bg:        #E7E7E7; /* Gris Claro        — fondo base            */
+
+  /* Neutrales */
+  --cl-surface:   #FFFFFF; /* Blanco            — tarjetas, modales     */
+  --cl-text:      #1F2937; /* Gris Oscuro       — títulos, descripciones */
+  --cl-text-muted:#6B7280; /* Gris Medio        — textos auxiliares      */
+}
+
+@theme inline {
+  --color-background: var(--cl-bg);
+  --color-foreground: var(--cl-text);
+  --font-sans: var(--font-inter);
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  background: var(--cl-bg);
+  color: var(--cl-text);
+  /* La fuente la aplica layout.tsx via --font-inter; no redefinir aquí */
+}
