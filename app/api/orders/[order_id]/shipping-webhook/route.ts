@@ -54,10 +54,22 @@ export async function POST(
 
     // Mapeo del estado logístico al estado de la orden
     let newOrderStatus: BuyerOrderStatus | undefined;
+    let notifTitle = "";
+    let notifMessage = "";
+
     if (status === "DELIVERED") {
       newOrderStatus = "DELIVERED";
-    } else if (status === "IN_TRANSIT" || status === "LABEL_CREATED") {
+      notifTitle = "Paquete Entregado";
+      notifMessage = "Tu orden ha llegado a destino.";
+    } else if (status === "IN_TRANSIT") {
       newOrderStatus = "SHIPPED";
+      notifTitle = "Paquete en tránsito";
+      notifMessage = "Tu paquete está en camino a tu domicilio.";
+    } else if (status === "LABEL_CREATED") {
+      newOrderStatus = "SHIPPED";
+      // Por si Shipping App decide notificar la creación de etiqueta:
+      // notifTitle = "Pedido despachado";
+      // notifMessage = "El vendedor generó la etiqueta de envío.";
     }
 
     // Actualizar la orden
@@ -70,6 +82,28 @@ export async function POST(
         ...(newOrderStatus ? { status: newOrderStatus } : {}),
       },
     });
+
+    // Crear la notificación con idempotencia
+    if (notifTitle) {
+      const existingNotif = await prisma.buyerNotification.findFirst({
+        where: {
+          orderId: order_id,
+          title: notifTitle,
+        }
+      });
+
+      if (!existingNotif) {
+        await prisma.buyerNotification.create({
+          data: {
+            buyerId: order.buyerId,
+            orderId: order_id,
+            title: notifTitle,
+            message: notifMessage,
+            href: `/orders/${order_id}`,
+          }
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,

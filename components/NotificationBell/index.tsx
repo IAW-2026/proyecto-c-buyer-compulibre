@@ -2,76 +2,25 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { BellIcon, TruckIcon, ArchiveBoxArrowDownIcon } from "@heroicons/react/24/outline";
+import { BellIcon, TruckIcon, ArchiveBoxArrowDownIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { BellAlertIcon } from "@heroicons/react/24/solid";
-import type { ShipmentStatus } from "@/types";
+import { markAllNotificationsAsReadAction } from "@/lib/actions/notifications";
 
-type NotifiableStatus = "LABEL_CREATED" | "IN_TRANSIT";
-
-// Solo notificamos estos dos eventos (DELIVERED excluido según diseño)
-const NOTIFIABLE_STATUSES: ShipmentStatus[] = ["LABEL_CREATED", "IN_TRANSIT"];
-
-const STATUS_CONFIG: Record<
-  NotifiableStatus,
-  { label: string; description: string; icon: React.ReactNode; color: string }
-> = {
-  LABEL_CREATED: {
-    label: "Pedido despachado",
-    description: "El vendedor generó la etiqueta de envío.",
-    icon: <ArchiveBoxArrowDownIcon className="h-4 w-4" />,
-    color: "text-blue-600",
-  },
-  IN_TRANSIT: {
-    label: "Paquete en tránsito",
-    description: "Tu paquete está en camino a tu domicilio.",
-    icon: <TruckIcon className="h-4 w-4" />,
-    color: "text-indigo-600",
-  },
-};
-
-const LS_KEY = "compulibre_read_notifications";
-
-interface OrderNotification {
-  orderId: string;
-  shipmentStatus: NotifiableStatus;
-  /** Timestamp de cuando lo detectamos — más reciente = número mayor */
-  detectedAt: number;
+interface DBNotification {
+  id: string;
+  orderId: string | null;
+  title: string;
+  message: string;
+  href: string | null;
+  isRead: boolean;
+  createdAt: string;
 }
-
-function loadReadSet(): Set<string> {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return new Set(JSON.parse(raw) as string[]);
-  } catch {}
-  return new Set();
-}
-
-function saveReadSet(set: Set<string>) {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify([...set]));
-  } catch {}
-}
-
-/** Clave única para cada (orderId, status) */
-const notifKey = (orderId: string, status: string) => `${orderId}:${status}`;
 
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<OrderNotification[]>([]);
+  const [notifications, setNotifications] = useState<DBNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // useRef para que el polling siempre lea el set actualizado (evita el bug de closure stale)
-  const readSetRef = useRef<Set<string>>(new Set());
-  // Mapa interno de orderId → último estado conocido (sin trigger de re-render)
-  const knownStates = useRef<Record<string, string>>({});
-  // Lista persistente de notificaciones detectadas con timestamps
-  const detectedNotifs = useRef<OrderNotification[]>([]);
-
-  // ── Inicializar readSetRef desde localStorage ──────────────────────────────
-  useEffect(() => {
-    readSetRef.current = loadReadSet();
-  }, []);
 
   // ── Polling ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -79,45 +28,10 @@ export default function NotificationBell() {
       try {
         const res = await fetch("/api/notifications");
         if (!res.ok) return;
-        const orders: { id: string; shipmentStatus: string | null }[] =
-          await res.json();
-
-        let changed = false;
-
-        for (const order of orders) {
-          const status = order.shipmentStatus as ShipmentStatus | null;
-          if (!status || !NOTIFIABLE_STATUSES.includes(status)) continue;
-
-          const prev = knownStates.current[order.id];
-
-          if (prev !== status) {
-            knownStates.current[order.id] = status;
-            const key = notifKey(order.id, status);
-
-            const alreadyDetected = detectedNotifs.current.some(
-              (n) => notifKey(n.orderId, n.shipmentStatus) === key
-            );
-            if (!alreadyDetected) {
-              detectedNotifs.current = [
-                { orderId: order.id, shipmentStatus: status as NotifiableStatus, detectedAt: Date.now() },
-                ...detectedNotifs.current,
-              ];
-              changed = true;
-            }
-          }
-        }
-
-        if (changed || detectedNotifs.current.length !== notifications.length) {
-          const sorted = [...detectedNotifs.current].sort(
-            (a, b) => b.detectedAt - a.detectedAt
-          );
-          setNotifications(sorted);
-          // Siempre usa readSetRef.current — nunca queda stale
-          const unread = sorted.filter(
-            (n) => !readSetRef.current.has(notifKey(n.orderId, n.shipmentStatus))
-          ).length;
-          setUnreadCount(unread);
-        }
+        const data: DBNotification[] = await res.json();
+        
+        setNotifications(data);
+        setUnreadCount(data.filter(n => !n.isRead).length);
       } catch (err) {
         console.error("NotificationBell polling error:", err);
       }
@@ -126,7 +40,6 @@ export default function NotificationBell() {
     const interval = setInterval(checkNotifications, 30000);
     checkNotifications();
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Cerrar dropdown al hacer click fuera ──────────────────────────────────
@@ -141,27 +54,24 @@ export default function NotificationBell() {
   }, []);
 
   // ── Marcar todas como leídas y abrir/cerrar dropdown ─────────────────────
-  const handleOpen = () => {
-    // Actualizar el ref Y localStorage con todas las notificaciones actuales
-    notifications.forEach((n) =>
-      readSetRef.current.add(notifKey(n.orderId, n.shipmentStatus))
-    );
-    saveReadSet(readSetRef.current);
-    setUnreadCount(0);
+  const handleOpen = async () => {
     setOpen((prev) => !prev);
+    
+    // Si lo estamos abriendo y hay unread
+    if (!open && unreadCount > 0) {
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      // Call server action in background
+      await markAllNotificationsAsReadAction();
+    }
   };
 
-  // ── Marcar como leída al hacer click en una notificación individual ────────
-  const handleNotifClick = (orderId: string, status: NotifiableStatus) => {
-    readSetRef.current.add(notifKey(orderId, status));
-    saveReadSet(readSetRef.current);
-    // Recalcular el badge con el ref actualizado
-    setUnreadCount(
-      notifications.filter(
-        (n) => !readSetRef.current.has(notifKey(n.orderId, n.shipmentStatus))
-      ).length
-    );
-    setOpen(false);
+  const getIconForTitle = (title: string) => {
+    if (title.toLowerCase().includes("entregado")) {
+      return { icon: <CheckCircleIcon className="h-4 w-4" />, color: "text-emerald-600" };
+    }
+    // Default: En camino / Tránsito
+    return { icon: <TruckIcon className="h-4 w-4" />, color: "text-indigo-600" };
   };
 
   return (
@@ -218,30 +128,31 @@ export default function NotificationBell() {
             ) : (
               <ul className="max-h-80 divide-y divide-gray-50 overflow-y-auto">
                 {notifications.map((notif) => {
-                  const config = STATUS_CONFIG[notif.shipmentStatus];
-                  const key = notifKey(notif.orderId, notif.shipmentStatus);
-                  const orderShort = notif.orderId.slice(-8).toUpperCase();
+                  const { icon, color } = getIconForTitle(notif.title);
+                  const orderShort = notif.orderId ? notif.orderId.slice(-8).toUpperCase() : "";
 
                   return (
-                    <li key={key}>
+                    <li key={notif.id} className={!notif.isRead ? "bg-blue-50/50" : ""}>
                       <Link
-                        href={`/orders/${notif.orderId}`}
-                        onClick={() => handleNotifClick(notif.orderId, notif.shipmentStatus)}
+                        href={notif.href || "/orders"}
+                        onClick={() => setOpen(false)}
                         className="flex items-start gap-3 px-4 py-3.5 transition hover:bg-gray-50"
                       >
-                        <span className={`mt-0.5 shrink-0 ${config.color}`} aria-hidden="true">
-                          {config.icon}
+                        <span className={`mt-0.5 shrink-0 ${color}`} aria-hidden="true">
+                          {icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-[#1F2937] leading-snug">
-                            {config.label}
+                          <p className={`text-xs leading-snug ${!notif.isRead ? "font-bold text-[#1F2937]" : "font-semibold text-gray-700"}`}>
+                            {notif.title}
                           </p>
-                          <p className="mt-0.5 text-[11px] text-[#6B7280] leading-snug">
-                            {config.description}
+                          <p className={`mt-0.5 text-[11px] leading-snug ${!notif.isRead ? "text-gray-700 font-medium" : "text-[#6B7280]"}`}>
+                            {notif.message}
                           </p>
-                          <p className="mt-1 text-[10px] font-mono font-semibold text-[#485696]">
-                            Orden #{orderShort}
-                          </p>
+                          {orderShort && (
+                            <p className="mt-1 text-[10px] font-mono font-semibold text-[#485696]">
+                              Orden #{orderShort}
+                            </p>
+                          )}
                         </div>
                         <span className="shrink-0 self-center text-gray-300">›</span>
                       </Link>
