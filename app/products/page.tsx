@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const PAGE_SIZE = 12;
 
 type SearchParams = Promise<{
-  search?: string;
+  query?: string;
   category?: string;
   condition?: string;
   minPrice?: string;
@@ -34,7 +34,7 @@ export default async function ProductsPage({
 
   // Sanitizar parámetros
   const page = Math.max(1, Number(params.page) || 1);
-  const search = params.search ?? "";
+  const query = params.query ?? "";
   const category = params.category ?? "";
   const condition = params.condition as "NEW" | "USED" | "REFURBISHED" | undefined;
   const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
@@ -42,7 +42,7 @@ export default async function ProductsPage({
   const sort = params.sort as "ascendingPrice" | "descendingPrice" | undefined;
 
   const productsResult = await getProducts({
-    search,
+    query,
     category,
     condition,
     minPrice,
@@ -65,7 +65,7 @@ export default async function ProductsPage({
 
   // Objeto plano para pasarlo a Pagination y que reconstruya URLs
   const currentParams: Record<string, string> = {};
-  if (search) currentParams.search = search;
+  if (query) currentParams.query = query;
   if (category) currentParams.category = category;
   if (condition) currentParams.condition = condition;
   if (minPrice !== undefined) currentParams.minPrice = String(minPrice);
@@ -97,7 +97,7 @@ export default async function ProductsPage({
           <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-gray-100 pb-4">
             <div>
               <h1 className="text-2xl font-bold text-[#1F2937]">
-                {search ? `Resultados para "${search}"` : "Productos"}
+                {query ? `Resultados para "${query}"` : "Productos"}
               </h1>
               <p className="mt-1.5 text-sm text-[#6B7280]">
                 {total === 0
