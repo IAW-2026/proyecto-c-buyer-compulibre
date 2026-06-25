@@ -60,8 +60,8 @@ export default async function ProductsPage({
   const globalFacets = await getProductFacets();
   const maxPriceFacet = globalFacets?.maxPrice || 3000000;
   const dynamicCategories = globalFacets?.categories;
-  const dynamicBrands = globalFacets?.brands;
-  const dynamicBrandsByCategory = globalFacets?.brandsByCategory;
+  // const dynamicBrands = globalFacets?.brands;
+  // const dynamicBrandsByCategory = globalFacets?.brandsByCategory;
 
   // Objeto plano para pasarlo a Pagination y que reconstruya URLs
   const currentParams: Record<string, string> = {};
@@ -85,8 +85,8 @@ export default async function ProductsPage({
             <ProductFilters 
               maxAllowedPrice={maxPriceFacet} 
               dynamicCategories={dynamicCategories} 
-              dynamicBrands={dynamicBrands} 
-              dynamicBrandsByCategory={dynamicBrandsByCategory} 
+              // dynamicBrands={dynamicBrands} 
+              // dynamicBrandsByCategory={dynamicBrandsByCategory} 
             />
           </Suspense>
         </aside>
@@ -116,8 +116,8 @@ export default async function ProductsPage({
                     isMobileView 
                     maxAllowedPrice={maxPriceFacet} 
                     dynamicCategories={dynamicCategories} 
-                    dynamicBrands={dynamicBrands} 
-                    dynamicBrandsByCategory={dynamicBrandsByCategory} 
+                    // dynamicBrands={dynamicBrands} 
+                    // dynamicBrandsByCategory={dynamicBrandsByCategory} 
                   />
                 </Suspense>
               </div>

@@ -154,14 +154,14 @@ export default function ProductFilters({
   isMobileView = false,
   maxAllowedPrice = 3000000,
   dynamicCategories = null,
-  dynamicBrands = null,
-  dynamicBrandsByCategory = null
+  // dynamicBrands = null,
+  // dynamicBrandsByCategory = null
 }: { 
   isMobileView?: boolean;
   maxAllowedPrice?: number;
   dynamicCategories?: { value: string, label: string }[] | null;
-  dynamicBrands?: { value: string, label: string }[] | null;
-  dynamicBrandsByCategory?: Record<string, { value: string, label: string }[]> | null;
+  // dynamicBrands?: { value: string, label: string }[] | null;
+  // dynamicBrandsByCategory?: Record<string, { value: string, label: string }[]> | null;
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -329,13 +329,15 @@ export default function ProductFilters({
 
   // Categorías y Marcas dinámicas vs fallback
   const categoriesList = dynamicCategories || CATEGORIES;
+
+  // Marcas disponibles según la categoría seleccionada (Funcionalidad Futura)
+  /*
   const allBrandsList = dynamicBrands || ALL_BRANDS;
   const brandsByCategoryList = dynamicBrandsByCategory || BRANDS_BY_CATEGORY;
-
-  // Marcas disponibles según la categoría seleccionada
   const availableBrands = currentCategory 
     ? (brandsByCategoryList[currentCategory] || allBrandsList)
     : allBrandsList;
+  */
 
   // Lógica de % para pintar el Dual Slider
   const getPercent = useCallback(

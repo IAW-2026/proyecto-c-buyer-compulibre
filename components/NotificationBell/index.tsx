@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { BellIcon, TruckIcon, ArchiveBoxArrowDownIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import { BellIcon, TruckIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
 import { BellAlertIcon } from "@heroicons/react/24/solid";
 import { markAllNotificationsAsReadAction } from "@/lib/actions/notifications";
 

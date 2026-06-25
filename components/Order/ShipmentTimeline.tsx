@@ -1,4 +1,4 @@
-import { ClipboardDocumentIcon, TruckIcon, CheckCircleIcon, EnvelopeOpenIcon } from "@heroicons/react/24/outline";
+import { TruckIcon, CheckCircleIcon, EnvelopeOpenIcon } from "@heroicons/react/24/outline";
 import { ShipmentStatus } from "@/types";
 import { BuyerOrder } from "@prisma/client";
 
