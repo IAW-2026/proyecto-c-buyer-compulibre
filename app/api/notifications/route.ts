@@ -11,19 +11,14 @@ export async function GET() {
     return NextResponse.json([]);
   }
 
-  // Buscar órdenes activas que puedan tener actualizaciones de envío
-  const orders = await prisma.buyerOrder.findMany({
+  // Buscar las notificaciones del usuario
+  const notifications = await prisma.buyerNotification.findMany({
     where: { 
       buyerId: userId,
-      status: { in: ["PAID", "SHIPPED"] } 
     },
-    select: { 
-      id: true, 
-      shipmentStatus: true 
-    },
-    orderBy: { updatedAt: 'desc' },
-    take: 10
+    orderBy: { createdAt: 'desc' },
+    take: 15
   });
 
-  return NextResponse.json(orders);
+  return NextResponse.json(notifications);
 }

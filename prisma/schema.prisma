@@ -16,6 +16,7 @@ model BuyerProfile {
   isActive               Boolean      @default(true)
   carts                  Cart[]
   orders                 BuyerOrder[]
+  notifications          BuyerNotification[]
 }
 
 model Cart {
@@ -83,4 +84,21 @@ model BuyerOrderItem {
   productName       String // snapshot del nombre al momento de la compra
   quantity          Int
   unitPrice         Decimal // snapshot del precio al momento de la compra
+}
+
+model BuyerNotification {
+  id        String   @id @default(cuid())
+  buyerId   String
+  orderId   String?  // Clave para la idempotencia
+  title     String
+  message   String
+  href      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  buyer     BuyerProfile @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+
+  @@index([buyerId])
+  @@index([orderId])
+  @@index([createdAt])
 }

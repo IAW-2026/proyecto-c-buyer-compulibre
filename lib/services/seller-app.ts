@@ -2,7 +2,7 @@ import { SellerProduct, SellerProductSummary } from "@/types";
 import { fetchWithTimeout } from "./http-client";
 
 export interface GetProductsParams {
-  search?: string;
+  query?: string;
   category?: string;
   brand?: string;
   sellerId?: string;
