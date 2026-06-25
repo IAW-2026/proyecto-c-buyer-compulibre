@@ -2,7 +2,6 @@ import { ClipboardDocumentIcon, TruckIcon, CheckCircleIcon, EnvelopeOpenIcon } f
 import { ShipmentStatus } from "@/types";
 import { BuyerOrder } from "@prisma/client";
 
-// Pasos del timeline en orden cronológico
 export const SHIPMENT_STEPS: Array<{
   status: ShipmentStatus;
   label: string;
@@ -10,13 +9,6 @@ export const SHIPMENT_STEPS: Array<{
   activeColor: string;
   doneColor: string;
 }> = [
-  {
-    status: "LABEL_CREATED",
-    label: "Despachado",
-    icon: <ClipboardDocumentIcon className="h-4 w-4" />,
-    activeColor: "text-blue-700 font-bold",
-    doneColor: "text-gray-400",
-  },
   {
     status: "IN_TRANSIT",
     label: "En camino",
@@ -34,9 +26,9 @@ export const SHIPMENT_STEPS: Array<{
 ];
 
 export const STEP_ORDER: Record<ShipmentStatus, number> = {
-  LABEL_CREATED: 0,
-  IN_TRANSIT: 1,
-  DELIVERED: 2,
+  LABEL_CREATED: -1, // No se muestra en el timeline
+  IN_TRANSIT: 0,
+  DELIVERED: 1,
 };
 
 interface ShipmentTimelineProps {
@@ -46,7 +38,7 @@ interface ShipmentTimelineProps {
   shippingAppUrl?: string;
 }
 
-export default function ShipmentTimeline({ order, currentShipmentStatus, currentStepIndex, shippingAppUrl }: ShipmentTimelineProps) {
+export default function ShipmentTimeline({ order, currentStepIndex, shippingAppUrl }: ShipmentTimelineProps) {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm px-6 py-5">
       <h2 className="mb-5 text-sm font-extrabold uppercase tracking-wider text-[#1F2937]">
@@ -137,7 +129,7 @@ export default function ShipmentTimeline({ order, currentShipmentStatus, current
           {shippingAppUrl ? (
             <a
               id="tracking-link"
-              href={`${shippingAppUrl}/tracking/${order.trackingId}`}
+              href={`${shippingAppUrl.replace(/\/$/, "")}/track/${order.trackingId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#485696] py-3 text-sm font-bold text-white shadow-sm transition hover:brightness-95 hover:scale-[1.01] active:scale-[0.99]"
@@ -161,7 +153,7 @@ export default function ShipmentTimeline({ order, currentShipmentStatus, current
             </a>
           ) : (
             <a
-              href={`${process.env.NEXT_PUBLIC_SHIPPING_APP_URL}/track/${order.trackingId}`}
+              href={`${(process.env.NEXT_PUBLIC_SHIPPING_APP_URL || "").replace(/\/$/, "")}/track/${order.trackingId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#485696] bg-transparent py-3 text-sm font-bold text-[#485696] transition hover:bg-[#485696]/5"

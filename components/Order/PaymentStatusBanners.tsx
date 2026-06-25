@@ -12,9 +12,6 @@ interface PaymentStatusBannersProps {
 export default function PaymentStatusBanners({
   success,
   status,
-  externalTransactionId,
-  orderId,
-  totalAmount,
 }: PaymentStatusBannersProps) {
   return (
     <>
