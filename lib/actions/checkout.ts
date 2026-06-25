@@ -93,7 +93,8 @@ export async function confirmOrderAction(): Promise<CheckoutActionResult> {
     (sum, item) => sum + Number(item.cachedPrice) * item.quantity,
     0
   );
-  const shippingCost = totalAmount > 300000 ? 0 : 4999;
+  // const shippingCost = totalAmount > 300000 ? 0 : 4999;
+  const shippingCost = 0; // Envío gratis por defecto
   const finalAmount = totalAmount + shippingCost;
 
   // 5. Verificar si ya existe una orden PENDING_PAYMENT para este carrito que tenga el mismo monto

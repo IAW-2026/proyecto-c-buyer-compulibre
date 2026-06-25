@@ -30,7 +30,7 @@ export default function PaymentStatusBanners({
           </div>
         </div>
       )}
-      {success === "false" && (
+      {(success === "false" || status === "PAYMENT_FAILED") && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 p-5">
           <XCircleIcon className="h-7 w-7 shrink-0 text-red-500 mt-0.5" aria-hidden="true" />
           <div>

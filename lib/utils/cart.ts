@@ -21,7 +21,8 @@ export function calculateCartTotals(
   );
 
   // Costo de envío: Gratis si compra > 300,000 ARS o si no hay items, sino costo plano de 4999 ARS.
-  const shippingCost = subtotal > 300000 || subtotal === 0 ? 0 : 4999;
+  // const shippingCost = subtotal > 300000 || subtotal === 0 ? 0 : 4999;
+  const shippingCost = 0; // Envío gratis por defecto
   const totalAmount = subtotal + shippingCost;
 
   return {

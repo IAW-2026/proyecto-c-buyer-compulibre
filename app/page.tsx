@@ -99,16 +99,16 @@ export default async function StorefrontPage() {
         {/* Contenido centrado */}
         <div className="relative z-10 px-4 sm:px-6 w-full max-w-5xl mx-auto flex flex-col items-center text-center">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight md:leading-tight drop-shadow-lg">
-            ¡ENVÍOS GRATIS A TODO EL PAÍS <br className="hidden md:block"/> EN EQUIPOS SELECCIONADOS!
+            ¡ENVÍOS GRATIS A TODO EL PAÍS <br className="hidden md:block"/> EN TODOS LOS PRODUCTOS!
           </h2>
           
           <p className="mt-4 md:mt-6 text-sm md:text-base text-gray-200 font-medium tracking-wide drop-shadow-md">
-            Aprovechá envío sin cargo en compras superiores a $300.000. Por tiempo limitado.
+            Aprovechá envío sin cargo en todas tus compras. Por tiempo limitado.
           </p>
           
           <div className="mt-8 md:mt-10">
             <Link 
-              href="/products?minPrice=300000" 
+              href="/products" 
               className="inline-block bg-[#FC7A1E] text-white font-bold text-sm md:text-base py-3.5 px-10 rounded shadow-lg hover:bg-[#e66a15] transition-all transform hover:scale-105"
             >
               Comprar Ahora

@@ -93,6 +93,15 @@ export default async function OrderDetailPage({ params, searchParams }: OrderDet
     notFound();
   }
 
+  // Si venimos de un pago fallido/cancelado y la orden seguía pendiente, la marcamos como fallida
+  if (order.status === "PENDING_PAYMENT" && success === "false") {
+    await prisma.buyerOrder.update({
+      where: { id },
+      data: { status: "PAYMENT_FAILED" }
+    });
+    order.status = "PAYMENT_FAILED";
+  }
+
   const badge = STATUS_MAP[order.status];
   const shippingAppUrl = process.env.NEXT_PUBLIC_SHIPPING_APP_URL;
 
